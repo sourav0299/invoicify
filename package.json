@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.3.4",
+    "@types/qrcode": "^1.5.5",
+    "mongodb": "^6.11.0",
     "next": "15.0.3",
+    "qrcode": "^1.5.4",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106"
   },

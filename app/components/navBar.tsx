@@ -21,6 +21,9 @@
              <Link href="/invoices" className="hover:text-gray-300">
                Invoices
              </Link>
+             <Link href="/listing" className="hover:text-gray-300">
+               Listing
+             </Link>
            </div>
            <div>
              {userId ? (
