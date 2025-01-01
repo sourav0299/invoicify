@@ -29,9 +29,9 @@ export default function RootLayout({
     <html lang="en">
       <ClerkProvider>
         <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
       >
-        <Navbar />
+          <Navbar />
         {children}
       </body>
       </ClerkProvider>
