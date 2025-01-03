@@ -15,6 +15,8 @@ export default {
         sidebar_black_text: "#667085",
         sidebar_green_button_background: "#1EB386",
         sidebar_gray_border: "#F0F1F3",
+        sidebar_bottom_gray_background: "#F7F7F7",
+        sidebar_bottom_red_logout_text_color: "#FF7A7A",
       },
     },
   },
