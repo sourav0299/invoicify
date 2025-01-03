@@ -1,5 +1,10 @@
 export default function dashboard  (){
     return (
-        <div className="">Heelo dashboard</div>
+        
+        <>
+        <div className="h-screen">Heelo dashboard</div>
+        <div className="h-screen">Heelo dashboard</div>
+
+        </>
     )
 }

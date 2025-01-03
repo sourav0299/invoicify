@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "./components/navBar";
-import { ClerkProvider } from '@clerk/nextjs';
-import HeaderBar from './components/headerBar';
+import { ClerkProvider } from "@clerk/nextjs";
+import HeaderBar from "./components/headerBar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,17 +30,17 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <div className="flex h-screen">
-            <nav className="w-64 fixed left-0 top-0 h-full z-20">
+          <div className="flex h-screen overflow-hidden">
+            <nav className="w-auto h-screen fixed left-0 top-0 overflow-y-auto">
               <Navbar />
             </nav>
             <div className="flex-1 ml-64 flex flex-col">
-              <header className="fixed top-0 right-0 left-64 z-10">
+              <header className="fixed top-0 right-0 left-64 z-10 bg-white">
                 <HeaderBar />
               </header>
-              <main className="flex-1 mt-16 p-6 overflow-auto">{children}</main>
+              <main className="flex-1 pt-16 p-6 overflow-auto">{children}</main>
             </div>
           </div>
         </body>
