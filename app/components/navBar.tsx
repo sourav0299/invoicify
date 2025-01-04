@@ -332,12 +332,17 @@ const Navbar = () => {
                 <div className="w-[30px] h-[30px] flex items-center justify-center">
                   <UserButton />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">{user.fullName}</span>
-                  <span className="text-xs">
-                    {user.primaryEmailAddress?.emailAddress}
-                  </span>
-                </div>
+                <Link
+                  href="/user-details"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{user.fullName}</span>
+                    <span className="text-xs">
+                      {user.primaryEmailAddress?.emailAddress}
+                    </span>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>

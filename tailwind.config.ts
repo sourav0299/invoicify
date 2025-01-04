@@ -21,6 +21,7 @@ export default {
         business_settings_black_text: "#121212",
         business_settings_gray_text: "#7D8398",
         business_settings_gray_border: "var(--Neutral-500, #667877)",
+        change_password_green_background: "var(--Primary-200, #D8F6E5)" ,
       },
     },
   },
