@@ -117,6 +117,37 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Company E-mail
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Company Number
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Billing Address
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
