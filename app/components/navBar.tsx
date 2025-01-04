@@ -325,7 +325,7 @@ const Navbar = () => {
         </div>
       </nav>
       {user && (
-        <div className="w-[264px] h-[100px] px-6 py-3 bg-sidebar_white_background border border-t-0 border-b-0">
+        <div className="w-[264px] h-[100px] px-6 py-3 bg-sidebar_white_background border border-t-0">
           <div className="border-b-2 pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

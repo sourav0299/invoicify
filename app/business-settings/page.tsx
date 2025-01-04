@@ -25,7 +25,7 @@ const BusinessSettings = () => {
 
 
   return (
-    <div className=" bg-universal_gray_background h-[41.9rem]">
+    <div className=" bg-universal_gray_background pb-10">
       <div className="px-6 gap-3">
         <div className="py-6 gap-1">
           <div className="text-3xl font-semibold text-business_settings_black_text">
