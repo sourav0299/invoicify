@@ -1,4 +1,6 @@
-import React from 'react'
+"use client"
+import React, { useState } from "react";
+import "../globals.css";
 
 const PhotoIcon = () => (
   <svg
@@ -19,6 +21,9 @@ const PhotoIcon = () => (
 );
 
 const BusinessSettings = () => {
+  const [isGstRegistered, setIsGstRegistered] = useState(true);
+
+
   return (
     <div className=" bg-universal_gray_background h-[41.9rem]">
       <div className="px-6 gap-3">
@@ -47,7 +52,7 @@ const BusinessSettings = () => {
                 </div>
                 <input
                   type="text"
-                  className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                  className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 />
               </div>
               <div className="flex w-full gap-3">
@@ -57,7 +62,7 @@ const BusinessSettings = () => {
                   </div>
                   <input
                     type="text"
-                    className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                   />
                 </div>
                 <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
@@ -66,7 +71,7 @@ const BusinessSettings = () => {
                   </div>
                   <input
                     type="text"
-                    className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                   />
                 </div>
               </div>
@@ -84,7 +89,8 @@ const BusinessSettings = () => {
                     type="radio"
                     name="gstRegistered"
                     value="yes"
-                    className="form-radio h-4 w-4 text-sidebar_green_button_background"
+                    className="custom-radio h-4 w-4"
+                    onChange={() => setIsGstRegistered(true)}
                   />
                 </label>
                 <label className="flex items-center gap-3">
@@ -93,18 +99,26 @@ const BusinessSettings = () => {
                     type="radio"
                     name="gstRegistered"
                     value="no"
-                    className="form-radio h-4 w-4 text-sidebar_green_button_background"
+                    className="custom-radio h-4 w-4 "
+                    onChange={() => setIsGstRegistered(false)}
                   />
                 </label>
               </div>
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div
+              className={`p-5 bg-universal_gray_background rounded-lg w-full gap-1 ${
+                !isGstRegistered ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                 Gst Number
               </div>
               <input
                 type="text"
-                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
+                  !isGstRegistered ? "cursor-not-allowed" : ""
+                }`}
+                disabled={!isGstRegistered}
               />
             </div>
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
@@ -113,18 +127,18 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
-                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full max-w-[365px] gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                 Company E-mail
               </div>
               <input
                 type="text"
-                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
@@ -133,7 +147,7 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
-                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
           </div>
@@ -142,16 +156,65 @@ const BusinessSettings = () => {
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                 Billing Address
               </div>
+              <textarea className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1 resize-none" />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                State
+              </div>
               <input
                 type="text"
-                className="bg-transparent border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Pincode
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                City
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+          </div>
+          <div className="flex">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Terms & Conditions
+              </div>
+              <div className="flex gap-8">
+                <textarea className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4" />
+                <div className="cursor-pointer flex justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1">
+                  <span className="text-sidebar_green_button_background">
+                    + Upload Signature
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
+              Cancel
+            </button>
+            <button className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]">
+              Save
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default BusinessSettings
+export default BusinessSettings;
