@@ -40,7 +40,7 @@ export default function RootLayout({
               <header className="fixed top-0 right-0 left-64 z-10 bg-white">
                 <HeaderBar />
               </header>
-              <main className="flex-1 pt-16 p-6 overflow-auto">{children}</main>
+              <main className="flex-1 pt-16 pl-2 overflow-auto">{children}</main>
             </div>
           </div>
         </body>

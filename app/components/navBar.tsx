@@ -324,9 +324,9 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-      <div className="w-[264px] h-auto px-6 py-3 bg-sidebar_white_background border border-t-0 border-b-0">
-        <div className="border-b-2 pb-3">
-          {user && (
+      {user && (
+        <div className="w-[264px] h-[100px] px-6 py-3 bg-sidebar_white_background border border-t-0 border-b-0">
+          <div className="border-b-2 pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-[30px] h-[30px] flex items-center justify-center">
@@ -334,23 +334,27 @@ const Navbar = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">{user.fullName}</span>
-                  <span className="text-xs">{user.primaryEmailAddress?.emailAddress}</span>
+                  <span className="text-xs">
+                    {user.primaryEmailAddress?.emailAddress}
+                  </span>
                 </div>
               </div>
             </div>
-          )}
-        </div>
-        <div className="">
-          <SignOutButton>
-          <div className="flex gap-2 items-center justify-center pt-1 cursor-pointer">
-                <span className="text-[10px] text-sidebar_bottom_red_logout_text_color font-medium">Log Out</span>
+          </div>
+          <div className="">
+            <SignOutButton>
+              <div className="flex gap-2 items-center justify-center pt-2 cursor-pointer">
+                <span className="text-[10px] text-sidebar_bottom_red_logout_text_color font-medium">
+                  Log Out
+                </span>
                 <span className="cursor-pointer">
                   <LogoutIcon />
                 </span>
+              </div>
+            </SignOutButton>
           </div>
-          </SignOutButton> 
         </div>
-      </div>
+      )}
     </>
   );
 };
