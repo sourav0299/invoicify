@@ -30,9 +30,9 @@ const BusinessSettings = () => {
             An Overview of all your transactions over the year.
           </div>
         </div>
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto">
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
           <div className="flex gap-3">
-            <div className="flex flex-col items-center justify-center p-4 w-[188px] h-[188px] rounded-lg border-dashed border border-business_settings_gray_border">
+            <div className="cursor-pointer flex flex-col items-center justify-center p-4 w-[188px] h-[188px] rounded-lg border-dashed border border-business_settings_gray_border">
               <div className="">
                 <PhotoIcon />
               </div>
@@ -70,6 +70,51 @@ const BusinessSettings = () => {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg">
+              <div className="text-sidebar_black_text text-xs">
+                Gst Registered?
+              </div>
+              <div className="flex gap-10">
+                <label className="flex items-center gap-3">
+                  <span className="text-sm py-3">Yes</span>
+                  <input
+                    type="radio"
+                    name="gstRegistered"
+                    value="yes"
+                    className="form-radio h-4 w-4 text-sidebar_green_button_background"
+                  />
+                </label>
+                <label className="flex items-center gap-3">
+                  <span className="py-3 text-sm">No</span>
+                  <input
+                    type="radio"
+                    name="gstRegistered"
+                    value="no"
+                    className="form-radio h-4 w-4 text-sidebar_green_button_background"
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                Gst Number
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                PAN Number
+              </div>
+              <input
+                type="text"
+                className="bg-transparent border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
             </div>
           </div>
         </div>
