@@ -20,7 +20,7 @@ interface Product {
 }
 
 const Modal: React.FC = () => {
-  const {user} = useUser();
+  const { user } = useUser();
   const [showModal, setShowModal] = useState(true);
   const [productList, setProductList] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>({
@@ -145,14 +145,12 @@ const Modal: React.FC = () => {
     let totalPrice: number;
     let taxAmount: number;
 
-    
-
     if (product.taxIncluded) {
       totalPrice = product.salesPrice;
       taxAmount = (product.salesPrice * taxRate) / (1 + taxRate);
     } else {
       totalPrice = product.salesPrice * (1 + taxRate);
-      taxAmount = totalPrice*taxRate;
+      taxAmount = totalPrice * taxRate;
     }
 
     const qrCode = await QRCode.toDataURL(JSON.stringify(product));
@@ -335,7 +333,7 @@ const Modal: React.FC = () => {
       )}
 
       {showModal && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
+        <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity"
@@ -344,7 +342,52 @@ const Modal: React.FC = () => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+              <div className="flex items-center justify-between w-full">
+                <div className="">Create Product</div>
+                <button className="" onClick={() => setShowModal(false)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M17.696 6.24954C18.0316 6.58343 18.033 7.12614 17.6991 7.46172L13.2092 11.9742L17.7505 16.5383C18.0844 16.8739 18.083 17.4166 17.7474 17.7505C17.4119 18.0844 16.8692 18.083 16.5353 17.7474L12 13.1894L7.46475 17.7474C7.13086 18.083 6.58814 18.0844 6.25257 17.7505C5.917 17.4166 5.91564 16.8739 6.24954 16.5383L10.7908 11.9742L6.30095 7.46172C5.96705 7.12615 5.96841 6.58344 6.30398 6.24954C6.63956 5.91564 7.18227 5.917 7.51616 6.25258L12 10.7589L16.4838 6.25257C16.8177 5.917 17.3605 5.91564 17.696 6.24954Z"
+                      fill="#111928"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto">
+                <div className="flex gap-3">
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                    First Name
+                  </div>
+                  <input
+                    type="text"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                  />
+                </div>
+                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                    First Name
+                  </div>
+                  <input
+                    type="text"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                  />
+                </div>
+                </div>
+                <div className="">
+                  
+                </div>
+              </div>
+              
               {/* <div className="bg-white w-[849px] h-[570px]">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
