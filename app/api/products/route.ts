@@ -14,13 +14,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    console.log('Attempting to connect to database...');
+
     const { db } = await connectToDatabase();
-    console.log('Connected to database successfully');
     
-    console.log('Fetching products from database...');
+
     const products = await db.collection('products').find().toArray();
-    console.log(`Fetched ${products.length} products`);
     
     return NextResponse.json(products);
   } catch (error) {

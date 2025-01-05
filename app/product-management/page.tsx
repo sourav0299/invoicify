@@ -1,32 +1,38 @@
 "use client";
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import { useUser } from "@clerk/nextjs";
 
 interface Product {
   _id?: string;
-  name: string;
-  price: number;
+  userEmail: string;
+  itemName: string;
   itemType: string;
-  serviceCode: string;
-  taxIncluded: boolean;
-  tax: string;
+  itemCode: string;
+  inventory: number;
   measuringUnit: string;
+  salesPrice: number;
+  taxIncluded: boolean;
+  taxRate: number;
   totalPrice?: number;
   taxAmount?: number;
   qrCode?: string;
 }
 
 const Modal: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
+  const {user} = useUser();
+  const [showModal, setShowModal] = useState(true);
   const [productList, setProductList] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>({
-    name: "",
-    price: 0,
+    userEmail: user?.primaryEmailAddress?.emailAddress || "",
+    itemName: "",
     itemType: "Product",
-    serviceCode: "",
-    taxIncluded: true,
-    tax: "0",
+    itemCode: "",
+    inventory: 0,
     measuringUnit: "Pcs",
+    salesPrice: 0,
+    taxIncluded: true,
+    taxRate: 0,
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errors, setErrors] = useState<{ [K in keyof Product]?: string }>({});
@@ -70,21 +76,23 @@ const Modal: React.FC = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setProduct({
-      name: "",
-      price: 0,
+      userEmail: user?.primaryEmailAddress?.emailAddress || "",
+      itemName: "",
       itemType: "Product",
-      serviceCode: "",
-      taxIncluded: true,
-      tax: "0",
+      itemCode: "",
+      inventory: 0,
       measuringUnit: "Pcs",
+      salesPrice: 0,
+      taxIncluded: true,
+      taxRate: 0,
     });
     setErrors({});
   };
 
   const generateServiceCode = () => {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setProduct((prevProduct) => ({ ...prevProduct, serviceCode: code }));
-    setErrors((prevErrors) => ({ ...prevErrors, serviceCode: undefined }));
+    setProduct((prevProduct) => ({ ...prevProduct, itemCode: code }));
+    setErrors((prevErrors) => ({ ...prevErrors, itemCode: undefined }));
   };
 
   const handleInputChange = (
@@ -105,16 +113,16 @@ const Modal: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: { [K in keyof Product]?: string } = {};
 
-    if (!product.name.trim()) {
-      newErrors.name = "Name is required";
+    if (!product.itemName.trim()) {
+      newErrors.itemName = "Item Name is required";
     }
 
-    if (isNaN(product.price) || product.price <= 0) {
-      newErrors.price = "Price must be a positive number";
+    if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
+      newErrors.salesPrice = "Price must be a positive number";
     }
 
-    if (!product.serviceCode.trim()) {
-      newErrors.serviceCode = "Service Code is required";
+    if (!product.itemCode.trim()) {
+      newErrors.itemCode = "Service Code is required";
     }
 
     setErrors(newErrors);
@@ -133,16 +141,18 @@ const Modal: React.FC = () => {
   };
 
   const handleConfirm = async () => {
-    const taxRate = parseFloat(product.tax) / 100;
+    const taxRate = product.taxRate / 100;
     let totalPrice: number;
     let taxAmount: number;
 
+    
+
     if (product.taxIncluded) {
-      totalPrice = product.price;
-      taxAmount = (product.price * taxRate) / (1 + taxRate);
+      totalPrice = product.salesPrice;
+      taxAmount = (product.salesPrice * taxRate) / (1 + taxRate);
     } else {
-      taxAmount = product.price * taxRate;
-      totalPrice = product.price + taxAmount;
+      totalPrice = product.salesPrice * (1 + taxRate);
+      taxAmount = totalPrice*taxRate;
     }
 
     const qrCode = await QRCode.toDataURL(JSON.stringify(product));
@@ -152,6 +162,7 @@ const Modal: React.FC = () => {
       totalPrice,
       taxAmount,
       qrCode,
+      userEmail: user?.primaryEmailAddress?.emailAddress || "",
     };
 
     try {
@@ -168,7 +179,6 @@ const Modal: React.FC = () => {
       }
 
       const savedProduct = await response.json();
-      console.log("Product saved:", savedProduct);
 
       setShowConfirmation(false);
       handleCloseModal();
@@ -190,7 +200,6 @@ const Modal: React.FC = () => {
       const products = await response.json();
       setProductList(products);
     } catch (error) {
-      console.error("Error fetching product list:", error);
       setProductList([]);
     }
   };
@@ -213,17 +222,17 @@ const Modal: React.FC = () => {
       </button>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Product List</h2>
+        <h2 className="text-2xl font-bold mb-4">Items List</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr>
-                <th className="py-2 px-4 border-b">Name</th>
+                <th className="py-2 px-4 border-b">Item Name</th>
                 <th className="py-2 px-4 border-b">QR</th>
-                <th className="py-2 px-4 border-b">Price</th>
+                <th className="py-2 px-4 border-b">Sales Price</th>
                 <th className="py-2 px-4 border-b">Item Type</th>
-                <th className="py-2 px-4 border-b">Service Code</th>
-                <th className="py-2 px-4 border-b">Tax</th>
+                <th className="py-2 px-4 border-b">Item Code</th>
+                <th className="py-2 px-4 border-b">Tax Rate</th>
                 <th className="py-2 px-4 border-b">Measuring Unit</th>
               </tr>
             </thead>
@@ -233,7 +242,7 @@ const Modal: React.FC = () => {
                   key={index}
                   className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
-                  <td className="py-2 px-4 border-b">{product.name}</td>
+                  <td className="py-2 px-4 border-b">{product.itemName}</td>
                   <td className="py-2 px-4 border-b">
                     {product.qrCode && (
                       <img
@@ -245,10 +254,10 @@ const Modal: React.FC = () => {
                       />
                     )}
                   </td>
-                  <td className="py-2 px-4 border-b">{product.price}</td>
+                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
                   <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">{product.serviceCode}</td>
-                  <td className="py-2 px-4 border-b">{product.tax}%</td>
+                  <td className="py-2 px-4 border-b">{product.itemCode}</td>
+                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
                   <td className="py-2 px-4 border-b">
                     {product.measuringUnit}
                   </td>
@@ -296,8 +305,8 @@ const Modal: React.FC = () => {
                       </p>
                       {productToDelete && (
                         <ul className="mt-2 list-disc">
-                          <li>Name: {productToDelete.name}</li>
-                          <li>Price: {productToDelete.price}</li>
+                          <li>Name: {productToDelete.itemName}</li>
+                          <li>Price: {productToDelete.salesPrice}</li>
                         </ul>
                       )}
                     </div>
@@ -335,25 +344,13 @@ const Modal: React.FC = () => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              {/* <div className="bg-white w-[849px] h-[570px]">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900">
                       Create New Product
                     </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Fill in the details below to create a new product.
-                      </p>
-                    </div>
                   </div>
                 </div>
                 <div className="px-4 py-3 bg-gray-50 sm:px-6">
@@ -385,17 +382,17 @@ const Modal: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        id="name"
-                        name="name"
-                        value={product.name}
+                        id="itemName"
+                        name="itemName"
+                        value={product.itemName}
                         onChange={handleInputChange}
                         className={`mt-1 block w-full border ${
-                          errors.name ? "border-red-500" : "border-gray-300"
+                          errors.itemName ? "border-red-500" : "border-gray-300"
                         } rounded-md shadow-sm sm:text-sm`}
                       />
-                      {errors.name && (
+                      {errors.itemName && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.name}
+                          {errors.itemName}
                         </p>
                       )}
                     </div>
@@ -409,12 +406,12 @@ const Modal: React.FC = () => {
                       <div className="flex items-center">
                         <input
                           type="text"
-                          id="serviceCode"
-                          name="serviceCode"
-                          value={product.serviceCode}
+                          id="itemCode"
+                          name="itemCode"
+                          value={product.itemCode}
                           onChange={handleInputChange}
                           className={`mt-1 block w-full border ${
-                            errors.serviceCode
+                            errors.itemCode
                               ? "border-red-500"
                               : "border-gray-300"
                           } rounded-md shadow-sm sm:text-sm`}
@@ -427,9 +424,9 @@ const Modal: React.FC = () => {
                           Generate
                         </button>
                       </div>
-                      {errors.serviceCode && (
+                      {errors.itemCode && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.serviceCode}
+                          {errors.itemCode}
                         </p>
                       )}
                     </div>
@@ -443,12 +440,12 @@ const Modal: React.FC = () => {
                       <div className="flex items-center">
                         <input
                           type="number"
-                          id="price"
-                          name="price"
-                          value={product.price}
+                          id="salesPrice"
+                          name="salesPrice"
+                          value={product.salesPrice}
                           onChange={handleInputChange}
                           className={`mt-1 block w-full border ${
-                            errors.price ? "border-red-500" : "border-gray-300"
+                            errors.salesPrice ? "border-red-500" : "border-gray-300"
                           } rounded-md shadow-sm sm:text-sm`}
                         />
                         <div className="ml-2">
@@ -466,31 +463,31 @@ const Modal: React.FC = () => {
                           </label>
                         </div>
                       </div>
-                      {errors.price && (
+                      {errors.salesPrice && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.price}
+                          {errors.salesPrice}
                         </p>
                       )}
                     </div>
                     <div className="mb-4">
                       <label
-                        htmlFor="tax"
+                        htmlFor="taxRate"
                         className="block text-sm font-medium text-gray-700"
                       >
                         Tax:
                       </label>
                       <select
-                        id="tax"
-                        name="tax"
-                        value={product.tax}
+                        id="taxRate"
+                        name="taxRate"
+                        value={product.taxRate}
                         onChange={handleInputChange}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
                       >
-                        <option value="0">No Tax</option>
-                        <option value="5">5%</option>
-                        <option value="10">10%</option>
-                        <option value="15">15%</option>
-                        <option value="20">20%</option>
+                        <option value={0}>No Tax</option>
+                        <option value={5}>5%</option>
+                        <option value={12}>12%</option>
+                        <option value={18}>18%</option>
+                        <option value={28}>28%</option>
                       </select>
                     </div>
                     <div className="mb-4">
@@ -531,7 +528,7 @@ const Modal: React.FC = () => {
                     Cancel
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -566,8 +563,8 @@ const Modal: React.FC = () => {
                         Are you sure you want to create the following product?
                       </p>
                       <ul className="mt-2 list-disc">
-                        <li>Name: {product.name}</li>
-                        <li>Price: {product.price}</li>
+                        <li>Name: {product.itemName}</li>
+                        <li>Price: {product.salesPrice}</li>
                       </ul>
                     </div>
                   </div>
