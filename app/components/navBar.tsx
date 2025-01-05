@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { usePathname } from "next/navigation";
 
 const DashboardIcon = () => (
