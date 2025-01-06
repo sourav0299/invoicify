@@ -2,6 +2,103 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { useUser } from "@clerk/nextjs";
+import "../globals.css"
+
+const AllItemsIcon = () => (
+  <svg
+    width="56"
+    height="56"
+    viewBox="0 0 56 56"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="28" cy="28" r="28" fill="#DDEBFF" />
+    <path
+      d="M18.674 26.9208V28L28.0038 33.389L37.3337 28V26.9208M18.667 33.5318V34.611L27.9968 40L37.3267 34.611V33.5318M28.0038 16L18.674 21.389L28.0038 26.778L37.3337 21.389L28.0038 16Z"
+      stroke="#3A8BFF"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const InStockIcon = () => (
+  <svg
+    width="57"
+    height="56"
+    viewBox="0 0 57 56"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="28.5" cy="28" r="28" fill="#D3FFE2" />
+    <path
+      d="M19.5 27.8893L25.7987 34L38.1667 22"
+      stroke="#1EB386"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const LowStockIcon = () => (
+  <svg
+    width="56"
+    height="56"
+    viewBox="0 0 56 56"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="28" cy="28" r="28" fill="#FFEFCD" />
+    <rect width="32" height="32" transform="translate(12 12)" fill="#FFEFCD" />
+    <path
+      d="M28 29V24M28 32H28.01M37 28C37 32.9706 32.9706 37 28 37C23.0294 37 19 32.9706 19 28C19 23.0294 23.0294 19 28 19C32.9706 19 37 23.0294 37 28Z"
+      stroke="#D98F07"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const OutOfStockIcon = () => (
+  <svg
+    width="57"
+    height="56"
+    viewBox="0 0 57 56"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="28.5" cy="28" r="28" fill="#FEE0E0" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M36.0947 20.3327C36.5421 20.7779 36.544 21.5015 36.0988 21.949L30.1122 27.9656L36.1673 34.051C36.6125 34.4985 36.6107 35.2221 36.1633 35.6673C35.7158 36.1125 34.9922 36.1107 34.547 35.6632L28.5 29.5859L22.453 35.6632C22.0078 36.1107 21.2842 36.1125 20.8368 35.6673C20.3893 35.2221 20.3875 34.4985 20.8327 34.051L26.8878 27.9656L20.9013 21.949C20.4561 21.5015 20.4579 20.7779 20.9053 20.3327C21.3527 19.8875 22.0764 19.8893 22.5216 20.3368L28.5 26.3452L34.4785 20.3368C34.9237 19.8893 35.6473 19.8875 36.0947 20.3327Z"
+      fill="#E30000"
+      stroke="#E30000"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M21 21L17.5 17.5M17 10C17 10.9193 16.8189 11.8295 16.4672 12.6788C16.1154 13.5281 15.5998 14.2997 14.9497 14.9497C14.2997 15.5998 13.5281 16.1154 12.6788 16.4672C11.8295 16.8189 10.9193 17 10 17C9.08075 17 8.1705 16.8189 7.32122 16.4672C6.47194 16.1154 5.70026 15.5998 5.05025 14.9497C4.40024 14.2997 3.88463 13.5281 3.53284 12.6788C3.18106 11.8295 3 10.9193 3 10C3 8.14348 3.7375 6.36301 5.05025 5.05025C6.36301 3.7375 8.14348 3 10 3C11.8565 3 13.637 3.7375 14.9497 5.05025C16.2625 6.36301 17 8.14348 17 10Z"
+      stroke="black"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
 interface Product {
   _id?: string;
@@ -21,7 +118,8 @@ interface Product {
 
 const Modal: React.FC = () => {
   const { user } = useUser();
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [productList, setProductList] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -211,15 +309,97 @@ const Modal: React.FC = () => {
   };
 
   return (
-    <div>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded sm:w-auto"
-        onClick={handleOpenModal}
-      >
-        Create +
-      </button>
-
-      <div className="mt-8">
+    <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
+      <div className="flex flex-col items-start">
+        <div className="text-[28px] font-semibold text-business_settings_black_text">
+          Product List
+        </div>
+        <div className="text-business_settings_gray_text">
+          An Overview of all your transaction over the year.
+        </div>
+      </div>
+      <div className="flex gap-6">
+        <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
+          <div className="">
+            <AllItemsIcon />
+          </div>
+          <div className="gap-2">
+            <div className="text-4xl font-bold text-business_settings_black_text">
+              3843
+            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">
+              All Items
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
+          <div className="">
+            <InStockIcon />
+          </div>
+          <div className="gap-2">
+            <div className="text-4xl font-bold text-business_settings_black_text">
+              3843
+            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">
+              In Stock
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
+          <div className="">
+            <LowStockIcon />
+          </div>
+          <div className="gap-2">
+            <div className="text-4xl font-bold text-business_settings_black_text">
+              3843
+            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">
+              Low Stock
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
+          <div className="">
+            <OutOfStockIcon />
+          </div>
+          <div className="gap-2">
+            <div className="text-4xl font-bold text-business_settings_black_text">
+              3843
+            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">
+              Out of Stock
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="border rounded-lg bg-white py-4 px-5 w-full max-w-[478px]">
+      <div className="flex items-center justify-start gap-3 relative">
+        <span
+          className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${
+            isFocused ? "translate-x-[400px]" : "translate-x-0"
+          } text-gray-400`}
+          style={{ left: "0.5rem" }}
+        >
+          <SearchIcon />
+        </span>
+        <input
+          type="text"
+          placeholder="Search item"
+          className="w-full outline-none text-gray-700 pl-[40px]"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+        />
+      </div>
+    </div>
+        <div className="border rounded-lg bg-white py-4 px-5 w-full item-start max-w-[339px]">
+          <div className="">Select Categories</div>
+        </div>
+        <div className="border rounded-lg bg-white py-4 px-5 w-full">
+          <div className="">Add Button</div>
+        </div>
+      </div>
+      <div className="">
         <h2 className="text-2xl font-bold mb-4">Items List</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
@@ -504,15 +684,14 @@ const Modal: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3">
-                <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
-                  Cancel
-                </button>
-                <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
-                  Save
-                </button>
+                  <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
+                    Cancel
+                  </button>
+                  <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+                    Save
+                  </button>
+                </div>
               </div>
-              </div>
-                  
 
               {/* <div className="bg-white w-[849px] h-[570px]">
                 <div className="sm:flex sm:items-start">

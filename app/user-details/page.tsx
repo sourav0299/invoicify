@@ -122,7 +122,7 @@ const UserDetails = () => {
           </div>
 
           <div className="flex justify-end gap-3">
-            <button className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
+            <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
               Cancel
             </button>
             <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
