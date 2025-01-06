@@ -459,11 +459,12 @@ const Modal: React.FC = () => {
                       id={`button-${product._id}`}
                       className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
                       onClick={() => handleDownloadQr(product)}
+                      data-tooltip-id={`tooltip-${product._id}`}
                     >
                       Download QR
                     </button>
                     <Tooltip
-                      anchorId={`button-${product._id}`}
+                      id={`tooltip-${product._id}`}
                       place="top"
                       render={() => (
                         <img
