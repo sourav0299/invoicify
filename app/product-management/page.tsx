@@ -344,7 +344,7 @@ const Modal: React.FC = () => {
 
             <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
               <div className="flex items-center justify-between w-full">
-                <div className="">Create Product</div>
+                <div className="text-xl font-semibold">Add New Item</div>
                 <button className="" onClick={() => setShowModal(false)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -362,32 +362,158 @@ const Modal: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto">
+              <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
+                <div className="flex gap-3">
+                  <div className="p-5 bg-universal_gray_background rounded-lg text-start">
+                    <div className="text-sidebar_black_text text-xs">
+                      Item Type
+                    </div>
+                    <div className="flex gap-10">
+                      <label className="flex items-center gap-3">
+                        <span className="text-sm py-3 text-semibold">
+                          Product
+                        </span>
+                        <input
+                          type="radio"
+                          name="gstRegistered"
+                          value="Product"
+                          className="custom-radio h-4 w-4"
+                        />
+                      </label>
+                      <label className="flex items-center gap-3">
+                        <span className="py-3 text-sm text-semibold">
+                          Service
+                        </span>
+                        <input
+                          type="radio"
+                          name="gstRegistered"
+                          value="Service"
+                          className="custom-radio h-4 w-4 "
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Category
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
+                        Create New Category
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex gap-3">
                   <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
-                    First Name
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Item Name
+                    </div>
+                    <input
+                      type="text"
+                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                  />
-                </div>
-                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
-                    First Name
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Item Code
+                    </div>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <button className="w-full max-w-[116px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
+                        Generate
+                      </button>
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                  />
                 </div>
+                <div className="flex gap-3">
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Opening Stock
+                    </div>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center text-semibold">
+                        pcs
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Measuring Unit
+                    </div>
+                    <input
+                      type="text"
+                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
+                  </div>
                 </div>
-                <div className="">
-                  
+                <div className="flex gap-3">
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Sales Price
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="relative w-full">
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sidebar_black_text font-semibold">
+                          ₹
+                        </span>
+                        <input
+                          type="text"
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
+                        />
+                      </div>
+                      <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
+                        GST Included
+                        <input
+                          type="checkbox"
+                          name="taxIncluded"
+                          checked={product.taxIncluded}
+                          onChange={handleCheckboxChange}
+                          className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                          style={{
+                            backgroundImage: product.taxIncluded
+                              ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
+                              : "none",
+                            backgroundSize: "100% 100%",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                      Tax Rate
+                    </div>
+                    <input
+                      type="text"
+                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
+                  </div>
                 </div>
+                <div className="flex justify-end gap-3">
+                <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
+                  Cancel
+                </button>
+                <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+                  Save
+                </button>
               </div>
-              
+              </div>
+                  
+
               {/* <div className="bg-white w-[849px] h-[570px]">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
