@@ -6,6 +6,10 @@ import "../globals.css";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 
+interface CaretIconProps {
+  isOpen: boolean;
+}
+
 const AllItemsIcon = () => (
   <svg
     width="56"
@@ -102,6 +106,18 @@ const SearchIcon = () => (
   </svg>
 );
 
+const CaretIcon: React.FC<CaretIconProps> = ({ isOpen }) => (
+  <svg
+    className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+);
+
 type CustomTooltipProps = {
   anchorId: string;
   content: React.ReactNode;
@@ -144,6 +160,10 @@ const Modal: React.FC = () => {
   const [errors, setErrors] = useState<{ [K in keyof Product]?: string }>({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('Select Categories');
+
+  const categories = ['Product', 'Services'];
 
   const handleDeleteClick = (product: Product) => {
     setProductToDelete(product);
@@ -344,7 +364,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              3843
+              {productList.length < 10 ? `0${productList.length}` : productList.length}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               All Items
@@ -411,8 +431,30 @@ const Modal: React.FC = () => {
             />
           </div>
         </div>
-        <div className="border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px] ">
-          <div className="">Select Categories</div>
+        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <div>{selectedCategory}</div>
+            <CaretIcon isOpen={isDropdownOpen} />
+          </div>
+          {isDropdownOpen && (
+            <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+              {categories.map((category, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <button
           className="border rounded-lg py-4 px-5 w-full items-start max-w-[287px] text-semibold bg-sidebar_green_button_background text-white"
@@ -421,7 +463,7 @@ const Modal: React.FC = () => {
           <div className="">+Add New Item/Product/Service</div>
         </button>
       </div>
-      <div className="">
+      <div className="border-[0.5px]">
         <div className="overflow-x-auto">
           <table className="w-full bg-universal_gray_background">
             <thead>
