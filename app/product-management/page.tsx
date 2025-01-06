@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { useUser } from "@clerk/nextjs";
-import "../globals.css"
+import "../globals.css";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 
 const AllItemsIcon = () => (
   <svg
@@ -100,6 +102,11 @@ const SearchIcon = () => (
   </svg>
 );
 
+type CustomTooltipProps = {
+  anchorId: string;
+  content: React.ReactNode;
+};
+
 interface Product {
   _id?: string;
   userEmail: string;
@@ -120,6 +127,7 @@ const Modal: React.FC = () => {
   const { user } = useUser();
   const [showModal, setShowModal] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
   const [productList, setProductList] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -235,6 +243,17 @@ const Modal: React.FC = () => {
       setShowConfirmation(true);
     } else {
       console.log("Form is invalid, not showing confirmation dialog");
+    }
+  };
+
+  const handleDownloadQr = (product: Product) => {
+    if (product.qrCode) {
+      const link = document.createElement("a");
+      link.href = product.qrCode;
+      link.download = `qr-code-${product.itemName}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -372,80 +391,92 @@ const Modal: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <div className="border rounded-lg bg-white py-4 px-5 w-full max-w-[478px]">
-      <div className="flex items-center justify-start gap-3 relative">
-        <span
-          className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${
-            isFocused ? "translate-x-[400px]" : "translate-x-0"
-          } text-gray-400`}
-          style={{ left: "0.5rem" }}
-        >
-          <SearchIcon />
-        </span>
-        <input
-          type="text"
-          placeholder="Search item"
-          className="w-full outline-none text-gray-700 pl-[40px]"
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-        />
-      </div>
-    </div>
-        <div className="border rounded-lg bg-white py-4 px-5 w-full item-start max-w-[339px]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="border rounded-lg bg-white py-4 px-5 w-full">
+          <div className="flex items-center justify-start gap-3 relative">
+            <span
+              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${
+                isFocused ? "translate-x-[480px]" : "translate-x-0"
+              } text-business_settings_black_text font-bold`}
+              style={{ left: "0.5rem" }}
+            >
+              <SearchIcon />
+            </span>
+            <input
+              type="text"
+              placeholder="Search Items"
+              className="w-full outline-none text-business_settings_black_text font-bold pl-10"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+          </div>
+        </div>
+        <div className="border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px] ">
           <div className="">Select Categories</div>
         </div>
-        <div className="border rounded-lg bg-white py-4 px-5 w-full">
-          <div className="">Add Button</div>
-        </div>
+        <button
+          className="border rounded-lg py-4 px-5 w-full items-start max-w-[287px] text-semibold bg-sidebar_green_button_background text-white"
+          onClick={() => setShowModal(true)}
+        >
+          <div className="">+Add New Item/Product/Service</div>
+        </button>
       </div>
       <div className="">
-        <h2 className="text-2xl font-bold mb-4">Items List</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300">
+          <table className="w-full bg-universal_gray_background">
             <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">Item Name</th>
-                <th className="py-2 px-4 border-b">QR</th>
-                <th className="py-2 px-4 border-b">Sales Price</th>
-                <th className="py-2 px-4 border-b">Item Type</th>
-                <th className="py-2 px-4 border-b">Item Code</th>
-                <th className="py-2 px-4 border-b">Tax Rate</th>
-                <th className="py-2 px-4 border-b">Measuring Unit</th>
+              <tr className="">
+                <th className="py-6 px-4 border-b text-left">Product Code</th>
+                <th className="py-6 px-4 border-b text-left">Name</th>
+                <th className="py-6 px-4 border-b text-left">Type</th>
+                <th className="py-6 px-4 border-b text-left">Category</th>
+                <th className="py-6 px-4 border-b text-left">Unit</th>
+                <th className="py-6 px-4 border-b text-left">Sales Price</th>
+                <th className="py-6 px-4 border-b text-left">Tax</th>
+                <th className="py-6 px-4 border-b text-left">
+                  After Tax Price
+                </th>
+                <th className="py-6 px-4 border-b text-left">Action</th>
               </tr>
             </thead>
             <tbody>
               {productList.map((product, index) => (
-                <tr
-                  key={index}
-                  className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                >
-                  <td className="py-2 px-4 border-b">{product.itemName}</td>
-                  <td className="py-2 px-4 border-b">
-                    {product.qrCode && (
-                      <img
-                        src={product.qrCode}
-                        alt="QR Code"
-                        width="150"
-                        height="150"
-                        className="mx-auto"
-                      />
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
+                <tr key={index} className="bg-white">
                   <td className="py-2 px-4 border-b">{product.itemCode}</td>
-                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
+                  <td className="py-2 px-4 border-b">{product.itemName}</td>
+                  <td className="py-2 px-4 border-b">{product.itemType}</td>
+                  <td className="py-2 px-4 border-b">{product.itemType}</td>
                   <td className="py-2 px-4 border-b">
                     {product.measuringUnit}
                   </td>
+                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
+                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
+                  <td className="py-2 px-4 border-b">
+                    {Number(product.totalPrice).toFixed(2)}
+                  </td>
                   <td className="py-2 px-4 border-b">
                     <button
-                      onClick={() => handleDeleteClick(product)}
-                      className="text-red-600 hover:text-red-800"
+                      id={`button-${product._id}`}
+                      className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
+                      onClick={() => handleDownloadQr(product)}
                     >
-                      Delete
+                      Download QR
                     </button>
+                    <Tooltip
+                      anchorId={`button-${product._id}`}
+                      place="top"
+                      render={() => (
+                        <img
+                          src={product.qrCode}
+                          alt="QR Code"
+                          style={{
+                            width: "150px",
+                            height: "150px",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      )}
+                    />
                   </td>
                 </tr>
               ))}
