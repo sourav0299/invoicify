@@ -10,16 +10,74 @@ const UserDetails = () => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [imageUrl, setImageUrl] = useState("");
+    const [contactNumber, setContactNumber] = useState("");
+    const [userId, setUserId] = useState<number | null>(null);
 
     useEffect(() => {
       if (user) {
-          setFirstName(user?.firstName ?? "");
-          setLastName(user?.lastName ?? "");
-          setEmail(user?.primaryEmailAddress?.emailAddress ?? "");
-          setImageUrl(user?.imageUrl ?? "");
+        fetchUserDetails();
       }
     }, [user]);
 
+    const fetchUserDetails = async () => {
+      if (user?.id) {
+        try {
+          const response = await fetch(`/api/user-details/${user.primaryEmailAddress?.emailAddress}`);
+          if (response.ok) {
+            const userData = await response.json();
+            setFirstName(userData.firstname);
+            setLastName(userData.lastname);
+            setEmail(userData.email);
+            setContactNumber(userData.contactnumber);
+            setUserId(userData.id);
+          } else {
+            setFirstName(user?.firstName ?? "");
+            setLastName(user?.lastName ?? "");
+            setEmail(user?.primaryEmailAddress?.emailAddress ?? "");
+          }
+          setImageUrl(user?.imageUrl ?? "");
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      }
+    };
+
+    const handleSave = async () => {
+      const userData = {
+        firstname: firstName,
+        lastname: lastName,
+        email: email,
+        contactnumber: contactNumber,
+      };
+
+      try {
+        let response;
+        if (userId) {
+          response = await fetch(`/api/user-details/${email}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData),
+          });
+        } else {
+          response = await fetch("/api/user-details", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData),
+          });
+        }
+
+        if (response.ok) {
+          const updatedUser = await response.json();
+          setUserId(updatedUser.id);
+          alert("User details saved successfully!");
+        } else {
+          throw new Error("Failed to save user details");
+        }
+      } catch (error) {
+        console.error("Error saving user details:", error);
+        alert("Failed to save user details. Please try again.");
+      }
+    };
   return (
     <div className=" bg-universal_gray_background pb-10 h-full">
       <div className="px-6 gap-3">
@@ -93,6 +151,8 @@ const UserDetails = () => {
                   </div>
                   <input
                     type="text"
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value)}
                     className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                   />
                 </div>
@@ -125,7 +185,9 @@ const UserDetails = () => {
             <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
               Cancel
             </button>
-            <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+            <button
+              onClick={handleSave}
+              className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
               Save
             </button>
           </div>
