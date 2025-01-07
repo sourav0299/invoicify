@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../utils/prisma';
 
 export async function GET(
-  request: NextRequest,
-  context: { params: { email: string } }
+  request: Request,
+  { params }: { params: Promise<{ email: string }> }
 ) {
   try {
-    const { email } = await context.params;
+    const {email} = (await params);
     if (!email) {
       return NextResponse.json({ error: 'Email parameter is required' }, { status: 400 });
     }
@@ -27,11 +27,11 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  context: { params: { email: string } }
+  request: Request,
+  { params }: { params: Promise<{ email: string }> }
 ) {
   try {
-    const { email } = await context.params;
+    const {email} = (await params); 
     if (!email) {
       return NextResponse.json({ error: 'Email parameter is required' }, { status: 400 });
     }
