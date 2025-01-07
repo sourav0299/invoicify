@@ -108,13 +108,20 @@ const SearchIcon = () => (
 
 const CaretIcon: React.FC<CaretIconProps> = ({ isOpen }) => (
   <svg
-    className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+    className={`w-4 h-4 ml-2 transition-transform ${
+      isOpen ? "rotate-180" : ""
+    }`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M19 9l-7 7-7-7"
+    />
   </svg>
 );
 
@@ -161,9 +168,9 @@ const Modal: React.FC = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('Select Categories');
+  const [selectedCategory, setSelectedCategory] = useState("Select Categories");
 
-  const categories = ['Product', 'Services'];
+  const categories = ["Product", "Services"];
 
   const handleDeleteClick = (product: Product) => {
     setProductToDelete(product);
@@ -364,7 +371,9 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              {productList.length < 10 ? `0${productList.length}` : productList.length}
+              {productList.length < 10
+                ? `0${productList.length}`
+                : productList.length}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               All Items
@@ -589,369 +598,253 @@ const Modal: React.FC = () => {
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-
-            <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
-              <div className="flex items-center justify-between w-full">
-                <div className="text-xl font-semibold">Add New Item</div>
-                <button className="" onClick={() => setShowModal(false)}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M17.696 6.24954C18.0316 6.58343 18.033 7.12614 17.6991 7.46172L13.2092 11.9742L17.7505 16.5383C18.0844 16.8739 18.083 17.4166 17.7474 17.7505C17.4119 18.0844 16.8692 18.083 16.5353 17.7474L12 13.1894L7.46475 17.7474C7.13086 18.083 6.58814 18.0844 6.25257 17.7505C5.917 17.4166 5.91564 16.8739 6.24954 16.5383L10.7908 11.9742L6.30095 7.46172C5.96705 7.12615 5.96841 6.58344 6.30398 6.24954C6.63956 5.91564 7.18227 5.917 7.51616 6.25258L12 10.7589L16.4838 6.25257C16.8177 5.917 17.3605 5.91564 17.696 6.24954Z"
-                      fill="#111928"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
-                <div className="flex gap-3">
-                  <div className="p-5 bg-universal_gray_background rounded-lg text-start">
-                    <div className="text-sidebar_black_text text-xs">
-                      Item Type
-                    </div>
-                    <div className="flex gap-10">
-                      <label className="flex items-center gap-3">
-                        <span className="text-sm py-3 text-semibold">
-                          Product
-                        </span>
-                        <input
-                          type="radio"
-                          name="gstRegistered"
-                          value="Product"
-                          className="custom-radio h-4 w-4"
-                        />
-                      </label>
-                      <label className="flex items-center gap-3">
-                        <span className="py-3 text-sm text-semibold">
-                          Service
-                        </span>
-                        <input
-                          type="radio"
-                          name="gstRegistered"
-                          value="Service"
-                          className="custom-radio h-4 w-4 "
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Category
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                      />
-                      <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
-                        Create New Category
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Item Name
-                    </div>
-                    <input
-                      type="text"
-                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                    />
-                  </div>
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Item Code
-                    </div>
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                      />
-                      <button className="w-full max-w-[116px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
-                        Generate
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Opening Stock
-                    </div>
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                      />
-                      <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center text-semibold">
-                        pcs
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Measuring Unit
-                    </div>
-                    <input
-                      type="text"
-                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Sales Price
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="relative w-full">
-                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sidebar_black_text font-semibold">
-                          ₹
-                        </span>
-                        <input
-                          type="text"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
-                        />
-                      </div>
-                      <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
-                        GST Included
-                        <input
-                          type="checkbox"
-                          name="taxIncluded"
-                          checked={product.taxIncluded}
-                          onChange={handleCheckboxChange}
-                          className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                          style={{
-                            backgroundImage: product.taxIncluded
-                              ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
-                              : "none",
-                            backgroundSize: "100% 100%",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "no-repeat",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                      Tax Rate
-                    </div>
-                    <input
-                      type="text"
-                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3">
-                  <button className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
-                    Cancel
-                  </button>
-                  <button className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
-                    Save
-                  </button>
-                </div>
+            <form onSubmit={handleSubmit}>
+              <div
+                className="fixed inset-0 transition-opacity"
+                aria-hidden="true"
+              >
+                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
-              {/* <div className="bg-white w-[849px] h-[570px]">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Create New Product
-                    </h3>
-                  </div>
+              <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+                <div className="flex items-center justify-between w-full">
+                  <div className="text-xl font-semibold">Add New Item</div>
+                  <button className="" onClick={() => setShowModal(false)}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M17.696 6.24954C18.0316 6.58343 18.033 7.12614 17.6991 7.46172L13.2092 11.9742L17.7505 16.5383C18.0844 16.8739 18.083 17.4166 17.7474 17.7505C17.4119 18.0844 16.8692 18.083 16.5353 17.7474L12 13.1894L7.46475 17.7474C7.13086 18.083 6.58814 18.0844 6.25257 17.7505C5.917 17.4166 5.91564 16.8739 6.24954 16.5383L10.7908 11.9742L6.30095 7.46172C5.96705 7.12615 5.96841 6.58344 6.30398 6.24954C6.63956 5.91564 7.18227 5.917 7.51616 6.25258L12 10.7589L16.4838 6.25257C16.8177 5.917 17.3605 5.91564 17.696 6.24954Z"
+                        fill="#111928"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                <div className="px-4 py-3 bg-gray-50 sm:px-6">
-                  <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="itemType"
-                        className="block text-sm font-medium text-gray-700"
-                      >
+                <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
+                  <div className="flex gap-3">
+                    <div className="p-5 bg-universal_gray_background rounded-lg text-start">
+                      <div className="text-sidebar_black_text text-xs">
                         Item Type
-                      </label>
-                      <select
-                        id="itemType"
-                        name="itemType"
-                        value={product.itemType}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
-                      >
-                        <option value="Product">Product</option>
-                        <option value="Services">Services</option>
-                      </select>
+                      </div>
+                      <div className="flex gap-10">
+                        <label className="flex items-center gap-3">
+                          <span className="text-sm py-3 text-semibold">
+                            Product
+                          </span>
+                          <input
+                            type="radio"
+                            name="itemType"
+                            value="Product"
+                            checked={product.itemType === "Product"}
+                            onChange={handleInputChange}
+                            className="custom-radio h-4 w-4"
+                          />
+                        </label>
+                        <label className="flex items-center gap-3">
+                          <span className="py-3 text-sm text-semibold">
+                            Service
+                          </span>
+                          <input
+                            type="radio"
+                            name="itemType"
+                            value="Service"
+                            checked={product.itemType === "Service"}
+                            onChange={handleInputChange}
+                            className="custom-radio h-4 w-4 "
+                          />
+                        </label>
+                      </div>
                     </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Name:
-                      </label>
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Category
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="relative w-full">
+                          <select
+                            name="category"
+                            value={product.itemType}
+                            onChange={handleInputChange}
+                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                          >
+                            <option value="">Select a category</option>
+                            <option value="category1">Product</option>
+                            <option value="category2">Service</option>
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <CaretIcon isOpen={isDropdownOpen} />
+                          </div>
+                        </div>
+                        <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
+                          Create New Category
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Item Name
+                      </div>
                       <input
                         type="text"
-                        id="itemName"
+                        className={`bg-transparent border ${
+                          errors.itemName
+                            ? "border-red-500"
+                            : "border-business_settings_gray_border"
+                        } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
                         name="itemName"
                         value={product.itemName}
                         onChange={handleInputChange}
-                        className={`mt-1 block w-full border ${
-                          errors.itemName ? "border-red-500" : "border-gray-300"
-                        } rounded-md shadow-sm sm:text-sm`}
                       />
-                      {errors.itemName && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.itemName}
-                        </p>
-                      )}
                     </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="serviceCode"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Service Code
-                      </label>
-                      <div className="flex items-center">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Item Code
+                      </div>
+                      <div className="flex gap-3">
                         <input
                           type="text"
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                           id="itemCode"
                           name="itemCode"
                           value={product.itemCode}
                           onChange={handleInputChange}
-                          className={`mt-1 block w-full border ${
-                            errors.itemCode
-                              ? "border-red-500"
-                              : "border-gray-300"
-                          } rounded-md shadow-sm sm:text-sm`}
                         />
                         <button
-                          type="button"
                           onClick={generateServiceCode}
-                          className="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          className="w-full max-w-[116px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                         >
                           Generate
                         </button>
                       </div>
-                      {errors.itemCode && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.itemCode}
-                        </p>
-                      )}
                     </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="price"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Sales Price
-                      </label>
-                      <div className="flex items-center">
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Opening Stock
+                      </div>
+                      <div className="flex gap-3">
                         <input
                           type="number"
-                          id="salesPrice"
-                          name="salesPrice"
-                          value={product.salesPrice}
+                          name="inventory"
+                          value={product.inventory}
                           onChange={handleInputChange}
-                          className={`mt-1 block w-full border ${
-                            errors.salesPrice ? "border-red-500" : "border-gray-300"
-                          } rounded-md shadow-sm sm:text-sm`}
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-                        <div className="ml-2">
-                          <label className="inline-flex items-center">
-                            <input
-                              type="checkbox"
-                              name="taxIncluded"
-                              checked={product.taxIncluded}
-                              onChange={handleCheckboxChange}
-                              className="form-checkbox h-5 w-5 text-blue-600"
-                            />
-                            <span className="ml-2 text-sm text-gray-700">
-                              Tax Included
-                            </span>
-                          </label>
+                        <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center text-semibold">
+                          {product.measuringUnit || "Pcs"}
                         </div>
                       </div>
-                      {errors.salesPrice && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.salesPrice}
-                        </p>
-                      )}
                     </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="taxRate"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Tax:
-                      </label>
-                      <select
-                        id="taxRate"
-                        name="taxRate"
-                        value={product.taxRate}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
-                      >
-                        <option value={0}>No Tax</option>
-                        <option value={5}>5%</option>
-                        <option value={12}>12%</option>
-                        <option value={18}>18%</option>
-                        <option value={28}>28%</option>
-                      </select>
-                    </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="measuringUnit"
-                        className="block text-sm font-medium text-gray-700"
-                      >
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Measuring Unit
-                      </label>
-                      <select
-                        id="measuringUnit"
-                        name="measuringUnit"
-                        value={product.measuringUnit}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
-                      >
-                        <option value="Pcs">Pcs</option>
-                        <option value="Pair">Pair</option>
-                        <option value="Dozen">Dozen</option>
-                      </select>
+                      </div>
+                      <div className="relative w-full">
+                        <select
+                          id="measuringUnit"
+                          name="measuringUnit"
+                          value={product.measuringUnit}
+                          onChange={handleInputChange}
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                        >
+                          <option value="Pcs">Pcs</option>
+                          <option value="Pair">Pair</option>
+                          <option value="Dozen">Dozen</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                          <CaretIcon isOpen={false} />
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-4">
-                      <button
-                        type="submit"
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto"
-                      >
-                        Create
-                      </button>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Sales Price
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="relative w-full">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sidebar_black_text font-semibold">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            id="salesPrice"
+                            name="salesPrice"
+                            value={product.salesPrice}
+                            onChange={handleInputChange}
+                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                        </div>
+                        <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
+                          GST Included
+                          <input
+                            type="checkbox"
+                            name="taxIncluded"
+                            checked={product.taxIncluded}
+                            onChange={handleCheckboxChange}
+                            className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                            style={{
+                              backgroundImage: product.taxIncluded
+                                ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
+                                : "none",
+                              backgroundSize: "100% 100%",
+                              backgroundPosition: "center",
+                              backgroundRepeat: "no-repeat",
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </form>
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Tax Rate
+                      </div>
+                      <div className="relative w-full">
+                        <select
+                          id="taxRate"
+                          name="taxRate"
+                          value={product.taxRate}
+                          onChange={handleInputChange}
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                        >
+                          <option value={0}>No Tax</option>
+                          <option value={5}>5%</option>
+                          <option value={12}>12%</option>
+                          <option value={18}>18%</option>
+                          <option value={28}>28%</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                          <CaretIcon isOpen={false} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={handleCloseModal}
+                      className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+                      Save
+                    </button>
+                  </div>
                 </div>
-                <div className="mt-5 sm:mt-6 sm:text-right">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-500 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 sm:w-auto"
-                    onClick={handleCloseModal}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div> */}
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
