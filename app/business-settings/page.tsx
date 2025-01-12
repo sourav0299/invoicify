@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import "../globals.css";
 
 const PhotoIcon = () => (
@@ -22,7 +22,73 @@ const PhotoIcon = () => (
 
 const BusinessSettings = () => {
   const [isGstRegistered, setIsGstRegistered] = useState(true);
+  const [formData, setFormData] = useState({
+    businessName: "",
+    businessType: "",
+    businessRegistrationType: "",
+    gstNumber: "",
+    panNumber: "",
+    companyEmail: "",
+    companyNumber: "",
+    billingAddress: "",
+    state: "",
+    pincode: "",
+    city: "",
+    termsAndConditions: "",
+  });
 
+  useEffect(() => {
+    fetchBusinessDetails();
+  }, []);
+
+  const fetchBusinessDetails = async () => {
+    try {
+      const response = await fetch("/api/business-details");
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(data);
+        setIsGstRegistered(data.isGstRegistered);
+      } else {
+        console.log("Failed to fetch business details");
+      }
+    } catch (error) {
+      console.log("Error fetching business details:", error);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
+    try {
+      const method = formData.businessName ? "PUT" : "POST";
+      const response = await fetch("/api/business-details", {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          isGstRegistered: isGstRegistered,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Business details saved successfully");
+      } else {
+        const errorData = await response.json();
+        console.log("Failed to save business details:", errorData.error);
+      }
+    } catch (error) {
+      console.log("Error saving business details:", error);
+    }
+  };
 
   return (
     <div className=" bg-universal_gray_background pb-10">
@@ -52,27 +118,42 @@ const BusinessSettings = () => {
                 </div>
                 <input
                   type="text"
+                  name="businessName"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
                   className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 />
               </div>
               <div className="flex w-full gap-3">
                 <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                   <div className="bg-transparent w-full text-xs text-sidebar_black_text">
-                    Buisness Type
+                    Business Type
                   </div>
-                  <input
-                    type="text"
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                  />
+                  <select
+                    name="businessType"
+                    value={formData.businessType}
+                    onChange={handleInputChange}
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                  >
+                    <option value="">Select Business Type</option>
+                    <option value="retailer">Retailer</option>
+                    <option value="wholesaler">Wholesaler</option>
+                  </select>
                 </div>
                 <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                   <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                     Business Registration Type
                   </div>
-                  <input
-                    type="text"
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                  />
+                  <select
+                    name="businessRegistrationType"
+                    value={formData.businessRegistrationType}
+                    onChange={handleInputChange}
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                  >
+                    <option value="">Select Registration Type</option>
+                    <option value="private">Private Limited</option>
+                    <option value="public">Public Limited</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -89,6 +170,7 @@ const BusinessSettings = () => {
                     type="radio"
                     name="gstRegistered"
                     value="yes"
+                    checked={isGstRegistered}
                     className="custom-radio h-4 w-4"
                     onChange={() => setIsGstRegistered(true)}
                   />
@@ -99,7 +181,8 @@ const BusinessSettings = () => {
                     type="radio"
                     name="gstRegistered"
                     value="no"
-                    className="custom-radio h-4 w-4 "
+                    checked={!isGstRegistered}
+                    className="custom-radio h-4 w-4"
                     onChange={() => setIsGstRegistered(false)}
                   />
                 </label>
@@ -115,6 +198,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleInputChange}
                 className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
                   !isGstRegistered ? "cursor-not-allowed" : ""
                 }`}
@@ -127,6 +213,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="panNumber"
+                value={formData.panNumber}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -138,6 +227,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="companyEmail"
+                value={formData.companyEmail}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -147,6 +239,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="companyNumber"
+                value={formData.companyNumber}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -156,7 +251,12 @@ const BusinessSettings = () => {
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                 Billing Address
               </div>
-              <textarea className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1 resize-none" />
+              <textarea
+                name="billingAddress"
+                value={formData.billingAddress}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1 resize-none"
+              />
             </div>
           </div>
           <div className="flex gap-3">
@@ -166,6 +266,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="state"
+                value={formData.state}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -175,6 +278,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="pincode"
+                value={formData.pincode}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -184,6 +290,9 @@ const BusinessSettings = () => {
               </div>
               <input
                 type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
@@ -194,7 +303,12 @@ const BusinessSettings = () => {
                 Terms & Conditions
               </div>
               <div className="flex gap-8">
-                <textarea className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4" />
+                <textarea
+                  name="termsAndConditions"
+                  value={formData.termsAndConditions}
+                  onChange={handleInputChange}
+                  className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
+                />
                 <div className="cursor-pointer flex justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1">
                   <span className="text-sidebar_green_button_background">
                     + Upload Signature
@@ -204,10 +318,16 @@ const BusinessSettings = () => {
             </div>
           </div>
           <div className="flex justify-end gap-3">
-            <button className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]">
+            <button
+              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              onClick={() => fetchBusinessDetails()}
+            >
               Cancel
             </button>
-            <button className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]">
+            <button
+              onClick={handleSave}
+              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]"
+            >
               Save
             </button>
           </div>

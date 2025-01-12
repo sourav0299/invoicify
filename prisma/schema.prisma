@@ -22,3 +22,23 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model BusinessSetting {
+  id                      Int      @id @default(autoincrement())
+  userEmail               String   @unique
+  businessName            String
+  businessType            String
+  businessRegistrationType String
+  isGstRegistered         Boolean
+  gstNumber               String?
+  panNumber               String
+  companyEmail            String
+  companyNumber           String
+  billingAddress          String
+  state                   String
+  pincode                 String
+  city                    String
+  termsAndConditions      String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
