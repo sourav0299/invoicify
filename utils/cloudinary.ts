@@ -7,7 +7,6 @@ cloudinary.config({
 })
 
 export async function saveFile(file: File, oldUrl?: string): Promise<string> {
-  // If there's an old URL, delete the old image
   if (oldUrl) {
     const publicId = oldUrl.split('/').pop()?.split('.')[0];
     if (publicId) {
@@ -15,7 +14,6 @@ export async function saveFile(file: File, oldUrl?: string): Promise<string> {
     }
   }
 
-  // Upload new file
   const result = await new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       { folder: 'business_settings' },

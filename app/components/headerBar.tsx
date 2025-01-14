@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface DropDownIconProps {
   isOpen: boolean;
@@ -41,8 +42,34 @@ const BellIcon: React.FC = () => (
   </svg>
 );
 
+
 const HeaderBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [businessDetails, setBusinessDetails] = useState<{
+    businessName: string;
+    businessLogoUrl: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchBusinessDetails = async () => {
+      try {
+        const response = await fetch("/api/business-details");
+        if (response.ok) {
+          const data = await response.json();
+          setBusinessDetails({
+            businessName: data.businessName,
+            businessLogoUrl: data.businessLogoUrl,
+          });
+        } else {
+          console.log("Failed to fetch business details");
+        }
+      } catch (error) {
+        console.log("Error fetching business details:", error);
+      }
+    };
+
+    fetchBusinessDetails();
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -56,14 +83,30 @@ const HeaderBar = () => {
           className="flex items-center space-x-2 cursor-pointer"
           onClick={toggleMenu}
         >
-          <div className="">Photo</div>
-          <div className="">Business Name</div>
+          <div className="w-8 h-8 rounded-full overflow-hidden">
+            {businessDetails?.businessLogoUrl ? (
+              <Image
+                src={businessDetails.businessLogoUrl}
+                alt="Business Logo"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                Logo
+              </div>
+            )}
+          </div>
+          <div className="text-sm font-medium">
+            {businessDetails?.businessName || "Business Name"}
+          </div>
           <div className="relative">
             <DropDownIcon isOpen={isMenuOpen} />
             {isMenuOpen && (
               <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 transition-all duration-300 ease-in-out">
                 <Link
-                  href="/edit-business"
+                  href="/business-settings"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Edit Business Details

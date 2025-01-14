@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../globals.css";
+import Image from "next/image";
 
 const PhotoIcon = () => (
   <svg
@@ -22,6 +23,14 @@ const PhotoIcon = () => (
 
 const BusinessSettings = () => {
   const [isGstRegistered, setIsGstRegistered] = useState(true);
+  const [businessLogo, setBusinessLogo] = useState<File | null>(null);
+  const [signature, setSignature] = useState<File | null>(null);
+  const businessLogoRef = useRef<HTMLInputElement>(null);
+  const signatureRef = useRef<HTMLInputElement>(null);
+  const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(
+    null
+  );
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     businessName: "",
     businessType: "",
@@ -41,13 +50,29 @@ const BusinessSettings = () => {
     fetchBusinessDetails();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (businessLogoPreview) URL.revokeObjectURL(businessLogoPreview);
+      if (signaturePreview) URL.revokeObjectURL(signaturePreview);
+    };
+  }, [businessLogoPreview, signaturePreview]);
+
   const fetchBusinessDetails = async () => {
     try {
       const response = await fetch("/api/business-details");
       if (response.ok) {
         const data = await response.json();
+        console.log("Fetched business details:", data);
         setFormData(data);
         setIsGstRegistered(data.isGstRegistered);
+        if (data.businessLogoUrl) {
+          setBusinessLogoPreview(data.businessLogoUrl);
+          console.log("Set business logo preview:", data.businessLogoUrl);
+        }
+        if (data.signatureUrl) {
+          setSignaturePreview(data.signatureUrl);
+          console.log("Set signature preview:", data.signatureUrl);
+        }
       } else {
         console.log("Failed to fetch business details");
       }
@@ -65,22 +90,75 @@ const BusinessSettings = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "businessLogo" | "signature"
+  ) => {
+    console.log(`File change event triggered for ${type}`);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      console.log(`File selected: ${file.name}`);
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        console.log(`FileReader onload event triggered for ${type}`);
+        if (event.target && typeof event.target.result === "string") {
+          if (type === "businessLogo") {
+            setBusinessLogo(file);
+            setBusinessLogoPreview(event.target.result);
+            console.log(
+              "Business Logo Preview set:",
+              event.target.result.substring(0, 50) + "..."
+            );
+          } else {
+            setSignature(file);
+            setSignaturePreview(event.target.result);
+            console.log(
+              "Signature Preview set:",
+              event.target.result.substring(0, 50) + "..."
+            );
+          }
+        }
+      };
+
+      reader.onerror = (error) => {
+        console.error(`FileReader error for ${type}:`, error);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     try {
+      const formDataToSend = new FormData();
+
+      // Append all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+
+      // Append isGstRegistered
+      formDataToSend.append("isGstRegistered", isGstRegistered.toString());
+
+      // Append files if they exist
+      if (businessLogo) {
+        formDataToSend.append("businessLogo", businessLogo);
+      }
+      if (signature) {
+        formDataToSend.append("signature", signature);
+      }
+
       const method = formData.businessName ? "PUT" : "POST";
       const response = await fetch("/api/business-details", {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          isGstRegistered: isGstRegistered,
-        }),
+        body: formDataToSend,
       });
 
       if (response.ok) {
         console.log("Business details saved successfully");
+        // Optionally, you can refresh the data here
+        await fetchBusinessDetails();
       } else {
         const errorData = await response.json();
         console.log("Failed to save business details:", errorData.error);
@@ -103,13 +181,35 @@ const BusinessSettings = () => {
         </div>
         <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
           <div className="flex gap-3">
-            <div className="cursor-pointer flex flex-col items-center justify-center p-4 w-[188px] h-[188px] rounded-lg border-dashed border border-business_settings_gray_border">
-              <div className="">
-                <PhotoIcon />
-              </div>
-              <div className="text-xs font-medium text-sidebar_green_button_background">
-                + Upload Image
-              </div>
+            <div
+              className="cursor-pointer flex flex-col items-center justify-center p-4 w-[188px] h-[188px] rounded-lg border-dashed border border-business_settings_gray_border"
+              onClick={() => businessLogoRef.current?.click()}
+            >
+              {businessLogoPreview ? (
+                <Image
+                  src={businessLogoPreview}
+                  alt="Business Logo"
+                  className="w-full h-full object-contain"
+                  height={188}
+                  width={188}
+                />
+              ) : (
+                <>
+                  <div className="">
+                    <PhotoIcon />
+                  </div>
+                  <div className="text-xs font-medium text-sidebar_green_button_background">
+                    + Upload Image
+                  </div>
+                </>
+              )}
+              <input
+                type="file"
+                ref={businessLogoRef}
+                onChange={(e) => handleFileChange(e, "businessLogo")}
+                accept="image/*"
+                hidden
+              />
             </div>
             <div className="flex flex-col w-full gap-6">
               <div className="p-5 bg-universal_gray_background rounded-lg gap-1">
@@ -309,10 +409,30 @@ const BusinessSettings = () => {
                   onChange={handleInputChange}
                   className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
                 />
-                <div className="cursor-pointer flex justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1">
-                  <span className="text-sidebar_green_button_background">
-                    + Upload Signature
-                  </span>
+                <div
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1"
+                  onClick={() => signatureRef.current?.click()}
+                >
+                  {signaturePreview ? (
+                    <Image
+                      src={signaturePreview}
+                      alt="Signature"
+                      className="max-w-full max-h-full object-contain"
+                      height={128}
+                      width={240}
+                    />
+                  ) : (
+                    <span className="text-sidebar_green_button_background">
+                      + Upload Signature
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    ref={signatureRef}
+                    onChange={(e) => handleFileChange(e, "signature")}
+                    accept="image/*"
+                    hidden
+                  />
                 </div>
               </div>
             </div>
