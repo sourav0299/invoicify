@@ -306,7 +306,7 @@ const Navbar = () => {
               <InvoicifyIcon />
             </span>
           </Link>
-          <div className="flex flex-col gap-[5.2px] w-full ">
+          <div className="flex flex-col gap-1 w-full ">
             {navItems.map((item) => (
               <Link
                 key={item.href}
