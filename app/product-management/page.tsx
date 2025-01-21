@@ -247,6 +247,9 @@ const Modal: React.FC = () => {
     const newErrors: { [K in keyof Product]?: string } = {};
 
     if (!product.itemName.trim()) {
+
+
+      
       newErrors.itemName = "Item Name is required";
     }
 
