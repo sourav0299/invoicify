@@ -169,6 +169,9 @@ const Modal: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Select Categories");
+  const [outOfStockCount, setOutOfStockCount] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [inStockCount, setInStockCount] = useState(0);
 
   const categories = ["Product", "Services"];
 
@@ -344,8 +347,17 @@ const Modal: React.FC = () => {
       }
       const products = await response.json();
       setProductList(products);
+      const outOfStock = products.filter((product: Product) => product.inventory == 0).length;
+      const lowStock = products.filter((product: Product) => product.inventory <= 10).length;
+      const inStock = products.length - outOfStock - lowStock;
+      setInStockCount(inStock);
+      setLowStockCount(lowStock);
+      setOutOfStockCount(outOfStock);
     } catch (error) {
       setProductList([]);
+      setOutOfStockCount(0);
+      setLowStockCount(0);
+      setInStockCount(0);
     }
   };
 
@@ -389,7 +401,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              3843
+              {inStockCount < 10 ? `0${inStockCount}`: inStockCount}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               In Stock
@@ -402,7 +414,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              3843
+              {lowStockCount < 10 ? `0${lowStockCount}`: lowStockCount}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               Low Stock
@@ -415,7 +427,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              3843
+              {outOfStockCount < 10 ? `0${outOfStockCount}`: outOfStockCount}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               Out of Stock
@@ -714,11 +726,12 @@ const Modal: React.FC = () => {
                       <div className="flex gap-3">
                         <input
                           type="text"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                          className="cursor-not-allowed bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                           id="itemCode"
                           name="itemCode"
                           value={product.itemCode}
                           onChange={handleInputChange}
+                          disabled
                         />
                         <button
                           onClick={generateServiceCode}
