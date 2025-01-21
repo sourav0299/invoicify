@@ -344,9 +344,9 @@ const Modal: React.FC = () => {
       }
       const products = await response.json();
       setProductList(products);
-      const outOfStock = products.filter((product: Product) => product.inventory == 0).length;
+      const outOfStock = products.filter((product: Product) => product.inventory <= 0).length;
       const lowStock = products.filter((product: Product) => product.inventory <= 10).length;
-      const inStock = products.length - outOfStock - lowStock;
+      const inStock = products.length - outOfStock;
       setInStockCount(inStock);
       setLowStockCount(lowStock);
       setOutOfStockCount(outOfStock);
@@ -492,7 +492,7 @@ const Modal: React.FC = () => {
                 <th className="py-6 px-4 border-b text-left">Product Code</th>
                 <th className="py-6 px-4 border-b text-left">Name</th>
                 <th className="py-6 px-4 border-b text-left">Type</th>
-                <th className="py-6 px-4 border-b text-left">Category</th>
+                <th className="py-6 px-4 border-b text-left">Inventory</th>
                 <th className="py-6 px-4 border-b text-left">Unit</th>
                 <th className="py-6 px-4 border-b text-left">Sales Price</th>
                 <th className="py-6 px-4 border-b text-left">Tax</th>
@@ -508,7 +508,7 @@ const Modal: React.FC = () => {
                   <td className="py-2 px-4 border-b">{product.itemCode}</td>
                   <td className="py-2 px-4 border-b">{product.itemName}</td>
                   <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
+                  <td className="py-2 px-4 border-b">{product.inventory}</td>
                   <td className="py-2 px-4 border-b">
                     {product.measuringUnit}
                   </td>
