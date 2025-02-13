@@ -51,20 +51,19 @@ type CustomTooltipProps = {
   content: React.ReactNode;
 };
 
-interface Product {
+interface Expense {
   _id?: string;
   userEmail: string;
-  itemName: string;
+  date: string;
   itemType: string;
-  itemCode: string;
-  inventory: number;
-  measuringUnit: string;
-  salesPrice: number;
+  invoiceName: string;
+  expenseName: string;
+  note: string;
+  expenseAmount: number;
   taxIncluded: boolean;
   taxRate: number;
   totalPrice?: number;
   taxAmount?: number;
-  qrCode?: string;
 }
 
 const Modal: React.FC = () => {
@@ -72,22 +71,22 @@ const Modal: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [product, setProduct] = useState<Product>({
+  const [expenseList, setExpenseList] = useState<Expense[]>([]);
+  const [expense, setExpense] = useState<Expense>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
-    itemName: "",
+    date: new Date().toISOString().split('T')[0],
     itemType: "Product",
-    itemCode: "",
-    inventory: 0,
-    measuringUnit: "Pcs",
-    salesPrice: 0,
+    invoiceName: "",
+    expenseName: "",
+    note: "",
+    expenseAmount: 0,
     taxIncluded: true,
-    taxRate: 0,
+    taxRate: 0
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [errors, setErrors] = useState<{ [K in keyof Product]?: string }>({});
+  const [errors, setErrors] = useState<{ [K in keyof Expense]?: string }>({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Expense | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Select Categories");
@@ -96,35 +95,6 @@ const Modal: React.FC = () => {
   const categories = ["Product", "Services"];
   const Duration = ["3 Month", "6 Month", "9 month"];
 
-  const handleDeleteClick = (product: Product) => {
-    setProductToDelete(product);
-    setShowDeleteConfirmation(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (productToDelete) {
-      try {
-        const response = await fetch(`/api/products/${productToDelete._id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete product");
-        }
-
-        console.log("Product deleted successfully");
-        setShowDeleteConfirmation(false);
-        fetchProductList();
-      } catch (error) {
-        console.error("Error deleting product:", error);
-      }
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirmation(false);
-    setProductToDelete(null);
-  };
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -132,24 +102,18 @@ const Modal: React.FC = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setProduct({
+    setExpense({
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
-      itemName: "",
+      date: "",
       itemType: "Product",
-      itemCode: "",
-      inventory: 0,
-      measuringUnit: "Pcs",
-      salesPrice: 0,
+      invoiceName: "",
+      expenseName: "",
+      note: "",
+      expenseAmount: 0,
       taxIncluded: true,
       taxRate: 0,
     });
     setErrors({});
-  };
-
-  const generateServiceCode = () => {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setProduct((prevProduct) => ({ ...prevProduct, itemCode: code }));
-    setErrors((prevErrors) => ({ ...prevErrors, itemCode: undefined }));
   };
 
   const handleInputChange = (
@@ -158,105 +122,101 @@ const Modal: React.FC = () => {
     >
   ) => {
     const { name, value } = event.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
+    setExpense((prevExpense) => ({ ...prevExpense, [name]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: checked }));
+    setExpense((prevProduct) => ({ ...prevProduct, [name]: checked }));
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: { [K in keyof Product]?: string } = {};
+  // const validateForm = (): boolean => {
+  //   const newErrors: { [K in keyof Product]?: string } = {};
 
-    if (!product.itemName.trim()) {
-      newErrors.itemName = "Item Name is required";
-    }
+  //   if (!product.itemName.trim()) {
+  //     newErrors.itemName = "Item Name is required";
+  //   }
 
-    if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
-      newErrors.salesPrice = "Price must be a positive number";
-    }
+  //   if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
+  //     newErrors.salesPrice = "Price must be a positive number";
+  //   }
 
-    if (!product.itemCode.trim()) {
-      newErrors.itemCode = "Service Code is required";
-    }
+  //   if (!product.itemCode.trim()) {
+  //     newErrors.itemCode = "Service Code is required";
+  //   }
 
-    setErrors(newErrors);
-    console.log("Validation errors:", newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  //   setErrors(newErrors);
+  //   console.log("Validation errors:", newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (validateForm()) {
-      console.log("Form is valid, showing confirmation dialog");
-      setShowConfirmation(true);
-    } else {
-      console.log("Form is invalid, not showing confirmation dialog");
-    }
+    // if (validateForm()) {
+    //   console.log("Form is valid, showing confirmation dialog");
+    //   setShowConfirmation(true);
+    // } else {
+    //   console.log("Form is invalid, not showing confirmation dialog");
+    // }
   };
 
-  const handleDownloadQr = (product: Product) => {
-    if (product.qrCode) {
-      const link = document.createElement("a");
-      link.href = product.qrCode;
-      link.download = `qr-code-${product.itemName}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  // const handleDownloadQr = (product: Expense) => {
+  //   if (product.qrCode) {
+  //     const link = document.createElement("a");
+  //     link.href = product.qrCode;
+  //     link.download = `qr-code-${product.itemName}.png`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // };
 
   const handleConfirm = async () => {
-    const taxRate = product.taxRate / 100;
+    const taxRate = expense.taxRate / 100;
     let totalPrice: number;
     let taxAmount: number;
-
-    if (product.taxIncluded) {
-      totalPrice = product.salesPrice;
-      taxAmount = (product.salesPrice * taxRate) / (1 + taxRate);
+  
+    if (expense.taxIncluded) {
+      totalPrice = expense.expenseAmount;
+      taxAmount = (expense.expenseAmount * taxRate) / (1 + taxRate);
     } else {
-      totalPrice = product.salesPrice * (1 + taxRate);
-      taxAmount = totalPrice * taxRate;
+      totalPrice = expense.expenseAmount * (1 + taxRate);
+      taxAmount = expense.expenseAmount * taxRate;
     }
-
-    const qrCode = await QRCode.toDataURL(JSON.stringify(product));
-
-    const productToSave = {
-      ...product,
+  
+    const expenseToSave = {
+      ...expense,
       totalPrice,
       taxAmount,
-      qrCode,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
     };
-
+  
     try {
-      const response = await fetch("/api/products", {
+      const response = await fetch("/api/expenses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(productToSave),
+        body: JSON.stringify(expenseToSave),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to save product");
+        throw new Error("Failed to save expense");
       }
-
-      const savedProduct = await response.json();
-
+  
+      const savedExpense = await response.json();
       setShowConfirmation(false);
       handleCloseModal();
       fetchProductList();
     } catch (error) {
-      console.error("Error saving product:", error);
+      console.error("Error saving expense:", error);
     }
   };
 
   const fetchProductList = async () => {
     try {
-      const response = await fetch("/api/products");
+      const response = await fetch("/api/expenses");
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
@@ -264,9 +224,9 @@ const Modal: React.FC = () => {
         );
       }
       const products = await response.json();
-      setProductList(products);
+      setExpenseList(products);
     } catch (error) {
-      setProductList([]);
+      setExpenseList([]);
     }
   };
 
@@ -340,7 +300,7 @@ const Modal: React.FC = () => {
             <div>{selectedDuration}</div>
             <CaretIcon isOpen={isDurationDropdownOpen} />
           </div>
-          {isDurationDropdownOpen && (
+          {/* {isDurationDropdownOpen && (
             <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
               {Duration.map((duration, index) => (
                 <li
@@ -355,7 +315,7 @@ const Modal: React.FC = () => {
                 </li>
               ))}
             </ul>
-          )}
+          )} */}
         </div>
         <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
           <div
@@ -404,21 +364,20 @@ const Modal: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {productList.map((product, index) => (
+              {expenseList.map((product, index) => (
                 <tr key={index} className="bg-white">
-                  <td className="py-2 px-4 border-b">{product.itemCode}</td>
-                  <td className="py-2 px-4 border-b">{product.itemName}</td>
+                  <td className="py-2 px-4 border-b">{product.date}</td>
+                  <td className="py-2 px-4 border-b">{product.invoiceName}</td>
+                  <td className="py-2 px-4 border-b">{product.expenseName}</td>
                   <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">
+                  {/* <td className="py-2 px-4 border-b">
                     {product.measuringUnit}
-                  </td>
-                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
-                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
+                  </td> */}
+                  <td className="py-2 px-4 border-b">{product.expenseAmount}</td>
                   <td className="py-2 px-4 border-b">
                     {Number(product.totalPrice).toFixed(2)}
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  {/* <td className="py-2 px-4 border-b">
                     <button
                       id={`button-${product._id}`}
                       className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
@@ -442,71 +401,14 @@ const Modal: React.FC = () => {
                         />
                       )}
                     />
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-      {showDeleteConfirmation && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Confirm Product Deletion
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to delete the following product?
-                      </p>
-                      {productToDelete && (
-                        <ul className="mt-2 list-disc">
-                          <li>Name: {productToDelete.itemName}</li>
-                          <li>Price: {productToDelete.salesPrice}</li>
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={handleDeleteConfirm}
-                >
-                  Delete
-                </button>
-                <button
-                  type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={handleDeleteCancel}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+     
 
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
@@ -545,53 +447,62 @@ const Modal: React.FC = () => {
                       <div className="text-sidebar_black_text text-xs ">
                         Date
                       </div>
-                      <input type="date" />
+                      <input 
+                      type="date"
+                      name="date"
+                      value={expense.date}
+                      onChange={handleInputChange}
+                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
                       <div className="flex gap-10"></div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Category
                       </div>
-                      <div className="flex gap-2">
+                                            <div className="flex gap-2">
                         <div className="relative w-full">
                           <select
-                            name="category"
-                            value={product.itemType}
+                            name="itemType"
+                            value={expense.itemType}
                             onChange={handleInputChange}
                             className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                           >
                             <option value="">Select a category</option>
-                            <option value="category1">Product</option>
-                            <option value="category2">Service</option>
+                            <option value="Product">Product</option>
+                            <option value="Service">Service</option>
                           </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                             <CaretIcon isOpen={isDropdownOpen} />
                           </div>
                         </div>
-                        <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
+                        <button 
+                          type="button"
+                          className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                        >
                           Create New Category
                         </button>
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                                        <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Invoice Number
                       </div>
                       <input
                         type="text"
                         className={`bg-transparent border ${
-                          errors.itemName
+                          errors.invoiceName
                             ? "border-red-500"
                             : "border-business_settings_gray_border"
                         } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
-                        name="itemName"
-                        value={product.itemName}
+                        name="invoiceName"
+                        value={expense.invoiceName}
                         onChange={handleInputChange}
                       />
                     </div>
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                                        <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Expense Number
                       </div>
@@ -599,10 +510,11 @@ const Modal: React.FC = () => {
                         <input
                           type="text"
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                          id="itemCode"
-                          name="itemCode"
-                          value={product.itemCode}
+                          id="expenseName"
+                          name="expenseName"
+                          value={expense.expenseName}
                           onChange={handleInputChange}
+                          placeholder="Enter expense number"
                         />
                       </div>
                     </div>
@@ -615,6 +527,9 @@ const Modal: React.FC = () => {
                       <div className="flex gap-3">
                         <input
                           type="textarea"
+                          name="note"
+                      value={expense.note}
+                      onChange={handleInputChange}
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
@@ -627,25 +542,24 @@ const Modal: React.FC = () => {
                       </div>
                       <div className="flex gap-3">
                         <div className="relative w-full">
-                          <input
-                            type="number"
-                            id="creditPeriod"
-                            name="CreditPeriod"
-                            // value={product.salesPrice}
-                            // onChange={handleInputChange}
-                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
+                        <input
+                        type="number"
+                        name="expenseAmount"
+                        value={expense.expenseAmount}
+                        onChange={handleInputChange}
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
+                      />
                         </div>
                         <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
                           GST Included
                           <input
                             type="checkbox"
                             name="taxIncluded"
-                            checked={product.taxIncluded}
+                            checked={expense.taxIncluded}
                             onChange={handleCheckboxChange}
                             className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
                             style={{
-                              backgroundImage: product.taxIncluded
+                              backgroundImage: expense.taxIncluded
                                 ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
                                 : "none",
                               backgroundSize: "100% 100%",
@@ -665,7 +579,7 @@ const Modal: React.FC = () => {
                         <select
                           id="taxRate"
                           name="taxRate"
-                          value={product.taxRate}
+                          value={expense.taxRate}
                           onChange={handleInputChange}
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                         >
@@ -681,8 +595,9 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-end gap-3">
+                                    <div className="flex justify-end gap-3">
                     <button
+                      type="button" // Changed from onClick handler to type="button"
                       onClick={handleCloseModal}
                       className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
                     >
@@ -690,6 +605,7 @@ const Modal: React.FC = () => {
                     </button>
                     <button
                       type="submit"
+                      onClick={handleConfirm} // Added onClick handler for form submission
                       className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
                     >
                       Save
@@ -702,7 +618,7 @@ const Modal: React.FC = () => {
         </div>
       )}
 
-      {showConfirmation && (
+      {/* {showConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
             <div
@@ -759,7 +675,7 @@ const Modal: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
