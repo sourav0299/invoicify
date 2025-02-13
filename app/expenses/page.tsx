@@ -6,17 +6,9 @@ import "../globals.css";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 
-
-
 interface CaretIconProps {
   isOpen: boolean;
 }
-
-
-
-
-
-
 
 const SearchIcon = () => (
   <svg
@@ -37,8 +29,9 @@ const SearchIcon = () => (
 
 const CaretIcon: React.FC<CaretIconProps> = ({ isOpen }) => (
   <svg
-    className={`w-4 h-4 ml-2 transition-transform ${isOpen ? "rotate-180" : ""
-      }`}
+    className={`w-4 h-4 ml-2 transition-transform ${
+      isOpen ? "rotate-180" : ""
+    }`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -287,21 +280,18 @@ const Modal: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
-
       <div className="flex flex-col items-start ">
         <div className="flex justify-between  w-full gap-3 ">
           <div>
             <div className="text-[28px] font-semibold text-business_settings_black_text">
-
               Expenses List
-
             </div>
 
             <div className="text-business_settings_gray_text">
               An Overview of all your transaction over the year.
             </div>
           </div>
-          <div className="flex gap-3 ">
+          {/* <div className="flex gap-3 ">
             <div>
               <button
                 className=" border rounded-lg py-2 px-3 w-full items-start max-w-[241px]  font-semibold bg-white text-black"
@@ -318,8 +308,7 @@ const Modal: React.FC = () => {
                 <div className="">Generate Report</div>
               </button>
             </div>
-          </div>
-
+          </div> */}
         </div>
       </div>
 
@@ -327,8 +316,9 @@ const Modal: React.FC = () => {
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
             <span
-              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${isFocused ? "translate-x-[530 px]" : "translate-x-0"
-                } text-business_settings_black_text font-bold`}
+              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${
+                isFocused ? "translate-x-[530 px]" : "translate-x-0"
+              } text-business_settings_black_text font-bold`}
               style={{ left: "0.1rem" }}
             >
               <SearchIcon />
@@ -404,24 +394,13 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
-                <th className="py-6 px-4 border-b text-left">
-
-
-                  Date
-
-
-
-                </th>
-
-
-
+                <th className="py-6 px-4 border-b text-left">Date</th>
 
                 <th className="py-6 px-4 border-b text-left">Name</th>
                 <th className="py-6 px-4 border-b text-left">Expense number</th>
                 <th className="py-6 px-4 border-b text-left">Category</th>
                 <th className="py-6 px-4 border-b text-left">GST</th>
                 <th className="py-6 px-4 border-b text-left">Amount</th>
-
               </tr>
             </thead>
             <tbody>
@@ -565,12 +544,9 @@ const Modal: React.FC = () => {
                     <div className="p-5 bg-universal_gray_background rounded-lg text-start">
                       <div className="text-sidebar_black_text text-xs ">
                         Date
-
                       </div>
                       <input type="date" />
-                      <div className="flex gap-10">
-
-                      </div>
+                      <div className="flex gap-10"></div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
@@ -605,10 +581,11 @@ const Modal: React.FC = () => {
                       </div>
                       <input
                         type="text"
-                        className={`bg-transparent border ${errors.itemName
-                          ? "border-red-500"
-                          : "border-business_settings_gray_border"
-                          } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
+                        className={`bg-transparent border ${
+                          errors.itemName
+                            ? "border-red-500"
+                            : "border-business_settings_gray_border"
+                        } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
                         name="itemName"
                         value={product.itemName}
                         onChange={handleInputChange}
@@ -627,7 +604,6 @@ const Modal: React.FC = () => {
                           value={product.itemCode}
                           onChange={handleInputChange}
                         />
-
                       </div>
                     </div>
                   </div>
@@ -641,10 +617,8 @@ const Modal: React.FC = () => {
                           type="textarea"
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-
                       </div>
                     </div>
-
                   </div>
                   <div className="flex gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
@@ -654,7 +628,6 @@ const Modal: React.FC = () => {
                       <div className="flex gap-3">
                         <div className="relative w-full">
                           <input
-
                             type="number"
                             id="creditPeriod"
                             name="CreditPeriod"
@@ -680,7 +653,6 @@ const Modal: React.FC = () => {
                               backgroundRepeat: "no-repeat",
                             }}
                           />
-
                         </div>
                       </div>
                     </div>
@@ -689,14 +661,24 @@ const Modal: React.FC = () => {
                         tax
                       </div>
 
-                      <div className="flex gap-3">
-                        <input
-                          type="Number"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
+                      <div className="relative w-full">
+                        <select
+                          id="taxRate"
+                          name="taxRate"
+                          value={product.taxRate}
+                          onChange={handleInputChange}
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                        >
+                          <option value={0}>No Tax</option>
+                          <option value={5}>5%</option>
+                          <option value={12}>12%</option>
+                          <option value={18}>18%</option>
+                          <option value={28}>28%</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                          <CaretIcon isOpen={false} />
+                        </div>
                       </div>
-
-
                     </div>
                   </div>
                   <div className="flex justify-end gap-3">
@@ -708,7 +690,8 @@ const Modal: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                    >
                       Save
                     </button>
                   </div>
