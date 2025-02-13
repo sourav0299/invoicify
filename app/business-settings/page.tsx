@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../globals.css";
 import Image from "next/image";
+import {toast} from "react-hot-toast";
 
 const PhotoIcon = () => (
   <svg
@@ -154,9 +155,11 @@ const BusinessSettings = () => {
         method,
         body: formDataToSend,
       });
-
+    
       if (response.ok) {
-        console.log("Business details saved successfully");
+        toast.success("form Submitted succesfully")
+
+        
         // Optionally, you can refresh the data here
         await fetchBusinessDetails();
       } else {

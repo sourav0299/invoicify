@@ -276,7 +276,8 @@ const Navbar = () => {
       icon: <ProductManagementIcon />,
       label: "Product Management",
     },
-    { href: "/parties", icon: <PartiesIcon />, label: "Parties" },
+ 
+   { href: "/parties", icon: <PartiesIcon />, label: "Parties" },
     { href: "/expenses", icon: <ExpensesIcon />, label: "Expenses" },
     { href: "/reports", icon: <ReportsIcon />, label: "Reports" },
     {
