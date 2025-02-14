@@ -373,9 +373,18 @@ const Modal: React.FC = () => {
                   {/* <td className="py-2 px-4 border-b">
                     {product.measuringUnit}
                   </td> */}
-                  <td className="py-2 px-4 border-b">{product.expenseAmount}</td>
+                                    <td className={`py-2 px-4 border-b`}>
+                                      <div className={`text-center rounded-[6px] ${
+                    product.taxIncluded 
+                      ? "bg-[#D2F8D5] text-[#1A7F22] border border-[#1A7F22]" 
+                      : "bg-[#FEF6D5] text-[#928037] border border-[#928037]"
+                  }`}>
+{product.taxIncluded ? "Included" : "Excluded"}
+                                      </div>
+                    
+                  </td>
                   <td className="py-2 px-4 border-b">
-                    {Number(product.totalPrice).toFixed(2)}
+                    {Number(product.expenseAmount).toFixed(2)}
                   </td>
                   {/* <td className="py-2 px-4 border-b">
                     <button
