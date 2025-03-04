@@ -89,10 +89,10 @@ export default function landing() {
           </div>
           <div className="flex items-center gap-3">
             <button className="px-4 py-2 text-white hover:text-gray-200 transition-colors">
-              <Link href="http://localhost:3000/">Log In</Link>
+              <Link href="http://invoicify.in/">Log In</Link>
             </button>
             <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-              <Link href="http://localhost:3000/">Sign Up</Link>
+              <Link href="http://invoicify.in/">Sign Up</Link>
             </button>
           </div>
         </header>
