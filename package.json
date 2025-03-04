@@ -15,8 +15,12 @@
     "@clerk/nextjs": "^6.3.4",
     "@cloudinary/url-gen": "^1.21.0",
     "@prisma/client": "^6.1.0",
+    "@radix-ui/react-slot": "^1.1.2",
     "@types/qrcode": "^1.5.5",
+    "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.5.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.477.0",
     "mongodb": "^6.11.0",
     "next": "15.0.3",
     "prisma": "^6.1.0",
@@ -24,7 +28,9 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-hot-toast": "^2.5.1",
-    "react-tooltip": "^5.28.0"
+    "react-tooltip": "^5.28.0",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",

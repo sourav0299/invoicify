@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "./components/navBar";
 import { ClerkProvider } from "@clerk/nextjs";
 import HeaderBar from "./components/headerBar";
 import { Toaster } from "react-hot-toast";
+import { usePathname } from "next/navigation";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -17,22 +19,31 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Invocify",
-  description: "Next Gen Invoice Management",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isLandingPage = pathname === "/landing";
+
+  if (isLandingPage) {
+    return (
+      <ClerkProvider>
+        <html lang="en">
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <Toaster />
+            <main className="w-full h-screen">{children}</main>
+          </body>
+        </html>
+      </ClerkProvider>
+    );
+  }
+
   return (
     <ClerkProvider>
       <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Toaster />
           <div className="flex h-screen overflow-hidden">
             <nav className="w-auto h-screen fixed left-0 top-0 overflow-y-auto">
