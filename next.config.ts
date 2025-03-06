@@ -1,13 +1,9 @@
-import { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     domains: ['img.clerk.com', 'res.cloudinary.com'],
   },
   reactStrictMode: true,
-};
-
-module.exports = {
   async redirects() {
     return [
       {
@@ -19,4 +15,4 @@ module.exports = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
