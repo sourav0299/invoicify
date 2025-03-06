@@ -5,7 +5,18 @@ const nextConfig: NextConfig = {
     domains: ['img.clerk.com', 'res.cloudinary.com'],
   },
   reactStrictMode: true,
-  // other config options...
+};
+
+module.exports = {
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/landing",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
