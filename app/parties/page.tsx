@@ -130,20 +130,27 @@ type CustomTooltipProps = {
   content: React.ReactNode;
 };
 
-interface Product {
+interface PartiesProp {
   _id?: string;
   userEmail: string;
-  itemName: string;
-  itemType: string;
-  itemCode: string;
-  inventory: number;
-  measuringUnit: string;
-  salesPrice: number;
-  taxIncluded: boolean;
-  taxRate: number;
-  totalPrice?: number;
-  taxAmount?: number;
-  qrCode?: string;
+  // itemName: string;
+  // itemType: string;
+  // itemCode: string;
+  // inventory: number;
+  // measuringUnit: string;
+  // salesPrice: number;
+  // taxIncluded: boolean;
+  // taxRate: number;
+  // totalPrice?: number;
+  // taxAmount?: number;
+  // qrCode?: string;
+  partyName: string;
+  partyType: string;
+  partyContactDetails: string;
+  billingAddress: string;
+  shippingAddress: string;
+  creditPeriod: number;
+  creditLimit: number;
 }
 
 const Modal: React.FC = () => {
@@ -151,22 +158,21 @@ const Modal: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [product, setProduct] = useState<Product>({
+  const [partiesList, setPartiesList] = useState<PartiesProp[]>([]);
+  const [parties, setParties] = useState<PartiesProp>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
-    itemName: "",
-    itemType: "Product",
-    itemCode: "",
-    inventory: 0,
-    measuringUnit: "Pcs",
-    salesPrice: 0,
-    taxIncluded: true,
-    taxRate: 0,
+    partyName: "",
+    partyType: "Customer",
+    partyContactDetails: "",
+    billingAddress: "",
+    shippingAddress: "",
+    creditPeriod: 0,
+    creditLimit: 0,
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [errors, setErrors] = useState<{ [K in keyof Product]?: string }>({});
+  const [errors, setErrors] = useState<{ [K in keyof Parties]?: string }>({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  // const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Select Categories");
   const [outOfStockCount, setOutOfStockCount] = useState(0);
@@ -175,34 +181,34 @@ const Modal: React.FC = () => {
 
   const categories = ["Product", "Services"];
 
-  const handleDeleteClick = (product: Product) => {
-    setProductToDelete(product);
-    setShowDeleteConfirmation(true);
-  };
+  // const handleDeleteClick = (product: Product) => {
+  //   setProductToDelete(product);
+  //   setShowDeleteConfirmation(true);
+  // };
 
-  const handleDeleteConfirm = async () => {
-    if (productToDelete) {
-      try {
-        const response = await fetch(`/api/products/${productToDelete._id}`, {
-          method: "DELETE",
-        });
+  // const handleDeleteConfirm = async () => {
+  //   if (productToDelete) {
+  //     try {
+  //       const response = await fetch(`/api/products/${productToDelete._id}`, {
+  //         method: "DELETE",
+  //       });
 
-        if (!response.ok) {
-          throw new Error("Failed to delete product");
-        }
+  //       if (!response.ok) {
+  //         throw new Error("Failed to delete product");
+  //       }
 
-        console.log("Product deleted successfully");
-        setShowDeleteConfirmation(false);
-        fetchProductList();
-      } catch (error) {
-        console.error("Error deleting product:", error);
-      }
-    }
-  };
+  //       console.log("Product deleted successfully");
+  //       setShowDeleteConfirmation(false);
+  //       fetchProductList();
+  //     } catch (error) {
+  //       console.error("Error deleting product:", error);
+  //     }
+  //   }
+  // };
 
   const handleDeleteCancel = () => {
     setShowDeleteConfirmation(false);
-    setProductToDelete(null);
+    // setProductToDelete(null);
   };
 
   const handleOpenModal = () => {
@@ -211,25 +217,24 @@ const Modal: React.FC = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setProduct({
+    setParties({
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
-      itemName: "",
-      itemType: "Product",
-      itemCode: "",
-      inventory: 0,
-      measuringUnit: "Pcs",
-      salesPrice: 0,
-      taxIncluded: true,
-      taxRate: 0,
+      partyName: "",
+      partyType: "Customer",
+      partyContactDetails: "",
+      billingAddress: "",
+      shippingAddress: "",
+      creditPeriod: 0,
+      creditLimit: 0,
     });
     setErrors({});
   };
 
-  const generateServiceCode = () => {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setProduct((prevProduct) => ({ ...prevProduct, itemCode: code }));
-    setErrors((prevErrors) => ({ ...prevErrors, itemCode: undefined }));
-  };
+  // const generateServiceCode = () => {
+  //   const code = Math.floor(1000 + Math.random() * 9000).toString();
+  //   setProduct((prevProduct) => ({ ...prevProduct, itemCode: code }));
+  //   setErrors((prevErrors) => ({ ...prevErrors, itemCode: undefined }));
+  // };
 
   const handleInputChange = (
     event: React.ChangeEvent<
@@ -237,31 +242,31 @@ const Modal: React.FC = () => {
     >
   ) => {
     const { name, value } = event.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
+    setParties((prevParties) => ({ ...prevParties, [name]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
-    setProduct((prevProduct) => ({ ...prevProduct, [name]: checked }));
+    setParties((prevParties) => ({ ...prevParties, [name]: checked }));
   };
 
   const validateForm = (): boolean => {
-    const newErrors: { [K in keyof Product]?: string } = {};
+    const newErrors: { [K in keyof Parties]?: string } = {};
 
-    if (!product.itemName.trim()) {
+    if (!parties.partyName.trim()) {
 
 
       
-      newErrors.itemName = "Item Name is required";
+      newErrors.partyName = "Name is required";
     }
 
-    if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
-      newErrors.salesPrice = "Price must be a positive number";
+    if (isNaN(parties.creditLimit) || parties.creditLimit <= 0) {
+      newErrors.creditLimit = "Price must be a positive number";
     }
 
-    if (!product.itemCode.trim()) {
-      newErrors.itemCode = "Service Code is required";
+    if (!parties.partyContactDetails.trim()) {
+      newErrors.partyContactDetails = "Contact Number is required";
     }
 
     setErrors(newErrors);
@@ -279,82 +284,79 @@ const Modal: React.FC = () => {
     }
   };
 
-  const handleDownloadQr = (product: Product) => {
-    if (product.qrCode) {
-      const link = document.createElement("a");
-      link.href = product.qrCode;
-      link.download = `qr-code-${product.itemName}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  // const handleDownloadQr = (product: Product) => {
+  //   if (product.qrCode) {
+  //     const link = document.createElement("a");
+  //     link.href = product.qrCode;
+  //     link.download = `qr-code-${product.itemName}.png`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // };
 
   const handleConfirm = async () => {
-    const taxRate = product.taxRate / 100;
-    let totalPrice: number;
-    let taxAmount: number;
+    // const taxRate = product.taxRate / 100;
+    // let totalPrice: number;
+    // let taxAmount: number;
 
-    if (product.taxIncluded) {
-      totalPrice = product.salesPrice;
-      taxAmount = (product.salesPrice * taxRate) / (1 + taxRate);
-    } else {
-      totalPrice = product.salesPrice * (1 + taxRate);
-      taxAmount = totalPrice * taxRate;
-    }
+    // if (product.taxIncluded) {
+    //   totalPrice = product.salesPrice;
+    //   taxAmount = (product.salesPrice * taxRate) / (1 + taxRate);
+    // } else {
+    //   totalPrice = product.salesPrice * (1 + taxRate);
+    //   taxAmount = totalPrice * taxRate;
+    // }
 
-    const qrCode = await QRCode.toDataURL(JSON.stringify(product));
+    // const qrCode = await QRCode.toDataURL(JSON.stringify(product));
 
-    const productToSave = {
-      ...product,
-      totalPrice,
-      taxAmount,
-      qrCode,
+    const partiesToSave = {
+      ...parties,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
     };
 
     try {
-      const response = await fetch("/api/products", {
+      const response = await fetch("/api/parties", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(productToSave),
+        body: JSON.stringify(partiesToSave),
       });
 
       if (!response.ok) {
         throw new Error("Failed to save product");
       }
 
-      const savedProduct = await response.json();
+      const savedParties = await response.json();
 
       setShowConfirmation(false);
       handleCloseModal();
-      fetchProductList();
+      fetchPartiesList();
     } catch (error) {
-      console.error("Error saving product:", error);
+      console.error("Error saving parties:", error);
     }
   };
 
-  const fetchProductList = async () => {
+  const fetchPartiesList = async () => {
     try {
-      const response = await fetch("/api/products");
+      const response = await fetch("/api/parties");
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
           errorData.error || `HTTP error! status: ${response.status}`
         );
       }
-      const products = await response.json();
-      setProductList(products);
-      const outOfStock = products.filter((product: Product) => product.inventory <= 0).length;
-      const lowStock = products.filter((product: Product) => product.inventory <= 10).length;
-      const inStock = products.length - outOfStock;
-      setInStockCount(inStock);
-      setLowStockCount(lowStock);
-      setOutOfStockCount(outOfStock);
+      const parties = await response.json();
+      setPartiesList(parties);
+      // const outOfStock = parties.filter((parties: Parties) => parties.inventory <= 0).length;
+      // const lowStock = parties.filter((parties: Parties) => parties.inventory <= 10).length;
+      // const inStock = parties.length - outOfStock;
+      // setInStockCount(inStock);
+      // setLowStockCount(lowStock);
+      // setOutOfStockCount(outOfStock);
     } catch (error) {
-      setProductList([]);
+      setPartiesList([]);
       setOutOfStockCount(0);
       setLowStockCount(0);
       setInStockCount(0);
@@ -362,7 +364,7 @@ const Modal: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProductList();
+    fetchPartiesList();
   }, []);
 
   const handleCancel = () => {
@@ -386,9 +388,9 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              {productList.length < 10
-                ? `0${productList.length}`
-                : productList.length}
+              {partiesList.length < 10
+                ? `0${partiesList.length}`
+                : partiesList.length}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               All Customers
@@ -414,7 +416,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              {lowStockCount < 10 ? `0${lowStockCount}`: lowStockCount}
+            ₹{lowStockCount < 10 ? `0${lowStockCount}`: lowStockCount}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               To Collect
@@ -427,7 +429,7 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              553{outOfStockCount < 10 ? `0${outOfStockCount}`: outOfStockCount}
+            ₹{outOfStockCount < 10 ? `0${outOfStockCount}`: outOfStockCount}
             </div>
             <div className="text-xl font-bold text-business_settings_gray_text">
               To Pay
@@ -489,58 +491,24 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
-                <th className="py-6 px-4 border-b text-left">Product Code</th>
                 <th className="py-6 px-4 border-b text-left">Name</th>
+                <th className="py-6 px-4 border-b text-left">Category</th>
                 <th className="py-6 px-4 border-b text-left">Type</th>
-                <th className="py-6 px-4 border-b text-left">Inventory</th>
-                <th className="py-6 px-4 border-b text-left">Unit</th>
-                <th className="py-6 px-4 border-b text-left">Sales Price</th>
-                <th className="py-6 px-4 border-b text-left">Tax</th>
-                <th className="py-6 px-4 border-b text-left">
-                  After Tax Price
-                </th>
-                <th className="py-6 px-4 border-b text-left">Action</th>
+                <th className="py-6 px-4 border-b text-left">Mobile Number</th>
+                <th className="py-6 px-4 border-b text-left">Date</th>
+                <th className="py-6 px-4 border-b text-left">Balance</th>
               </tr>
             </thead>
             <tbody>
-              {productList.map((product, index) => (
+              {partiesList.map((product, index) => (
                 <tr key={index} className="bg-white">
-                  <td className="py-2 px-4 border-b">{product.itemCode}</td>
-                  <td className="py-2 px-4 border-b">{product.itemName}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">{product.inventory}</td>
+                  <td className="py-2 px-4 border-b">{product.partyName}</td>
+                  <td className="py-2 px-4 border-b">{product.partyType}</td>
+                  <td className="py-2 px-4 border-b">{product.partyType}</td>
+                  <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
+                  <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
                   <td className="py-2 px-4 border-b">
-                    {product.measuringUnit}
-                  </td>
-                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
-                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
-                  <td className="py-2 px-4 border-b">
-                    {Number(product.totalPrice).toFixed(2)}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      id={`button-${product._id}`}
-                      className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
-                      onClick={() => handleDownloadQr(product)}
-                      data-tooltip-id={`tooltip-${product._id}`}
-                    >
-                      Download QR
-                    </button>
-                    <Tooltip
-                      id={`tooltip-${product._id}`}
-                      place="top"
-                      render={() => (
-                        <img
-                          src={product.qrCode}
-                          alt="QR Code"
-                          style={{
-                            width: "150px",
-                            height: "150px",
-                            borderRadius: "8px",
-                          }}
-                        />
-                      )}
-                    />
+                    {Number(product.creditLimit).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -576,12 +544,12 @@ const Modal: React.FC = () => {
                       <p className="text-sm text-gray-500">
                         Are you sure you want to delete the following product?
                       </p>
-                      {productToDelete && (
+                      {/* {productToDelete && (
                         <ul className="mt-2 list-disc">
                           <li>Name: {productToDelete.itemName}</li>
                           <li>Price: {productToDelete.salesPrice}</li>
                         </ul>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>
@@ -590,7 +558,7 @@ const Modal: React.FC = () => {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={handleDeleteConfirm}
+                  // onClick={handleDeleteConfirm}
                 >
                   Delete
                 </button>
@@ -642,31 +610,31 @@ const Modal: React.FC = () => {
                   <div className="flex gap-3">
                     <div className="p-5 bg-universal_gray_background rounded-lg text-start">
                       <div className="text-sidebar_black_text text-xs">
-                        Item Type
+                        Type
                       </div>
                       <div className="flex gap-10">
                         <label className="flex items-center gap-3">
                           <span className="text-sm py-3 text-semibold">
-                            Product
+                            Customer
                           </span>
                           <input
                             type="radio"
-                            name="itemType"
-                            value="Product"
-                            checked={product.itemType === "Product"}
+                            name="partyType"
+                            value="Customer"
+                            checked={parties.partyType === "Customer"}
                             onChange={handleInputChange}
                             className="custom-radio h-4 w-4"
                           />
                         </label>
                         <label className="flex items-center gap-3">
                           <span className="py-3 text-sm text-semibold">
-                            Service
+                            Supplier
                           </span>
                           <input
                             type="radio"
-                            name="itemType"
-                            value="Service"
-                            checked={product.itemType === "Service"}
+                            name="partyType"
+                            value="Supplier"
+                            checked={parties.partyType === "Supplier"}
                             onChange={handleInputChange}
                             className="custom-radio h-4 w-4 "
                           />
@@ -681,13 +649,13 @@ const Modal: React.FC = () => {
                         <div className="relative w-full">
                           <select
                             name="category"
-                            value={product.itemType}
+                            value={parties.partyType}
                             onChange={handleInputChange}
                             className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                           >
                             <option value="">Select a category</option>
-                            <option value="category1">Product</option>
-                            <option value="category2">Service</option>
+                            <option value="customer">Customer</option>
+                            <option value="supplier">Supplier</option>
                           </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                             <CaretIcon isOpen={isDropdownOpen} />
@@ -702,87 +670,97 @@ const Modal: React.FC = () => {
                   <div className="flex gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Item Name
+                        Party Name
                       </div>
                       <input
                         type="text"
                         className={`bg-transparent border ${
-                          errors.itemName
+                          errors.partyName
                             ? "border-red-500"
                             : "border-business_settings_gray_border"
                         } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
-                        name="itemName"
-                        value={product.itemName}
+                        name="partyName"
+                        value={parties.partyName}
                         onChange={handleInputChange}
                       />
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Item Code
+                        Mobile Number
                       </div>
                       <div className="flex gap-3">
                         <input
                           type="text"
-                          className="cursor-not-allowed bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                          id="itemCode"
-                          name="itemCode"
-                          value={product.itemCode}
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                          id="partyContactDetails"
+                          name="partyContactDetails"
+                          value={parties.partyContactDetails}
                           onChange={handleInputChange}
-                          disabled
                         />
-                        <button
+                        {/* <button
                           onClick={generateServiceCode}
                           className="w-full max-w-[116px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                         >
                           Generate
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Opening Stock
+                        Billing Address
                       </div>
                       <div className="flex gap-3">
                         <input
-                          type="number"
-                          name="inventory"
-                          value={product.inventory}
+                          type="text"
+                          name="billingAddress"
+                          value={parties.billingAddress}
                           onChange={handleInputChange}
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-                        <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center text-semibold">
-                          {product.measuringUnit || "Pcs"}
-                        </div>
                       </div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Measuring Unit
+                        Shipping Address
                       </div>
-                      <div className="relative w-full">
-                        <select
-                          id="measuringUnit"
-                          name="measuringUnit"
-                          value={product.measuringUnit}
+                      <div className="flex gap-3">
+                        <input
+                          type="text"
+                          name="shippingAddress"
+                          value={parties.shippingAddress}
                           onChange={handleInputChange}
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
-                        >
-                          <option value="Pcs">Pcs</option>
-                          <option value="Pair">Pair</option>
-                          <option value="Dozen">Dozen</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                          <CaretIcon isOpen={false} />
-                        </div>
+                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
                       </div>
                     </div>
+                    
                   </div>
                   <div className="flex gap-3">
+                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
+                        Credit Period
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="relative w-full">
+                          <input
+                            type="number"
+                            id="salesPrice"
+                            name="salesPrice"
+                            placeHolder="eg-30"
+                            onChange={handleInputChange}
+                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-3 pr-2 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                        </div>
+                        <div className="flex items-center justify-center rounded-lg bg-unit_gray_button_background px-10 py-2 text-sm">
+                          days
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Sales Price
+                        Credit Limit
                       </div>
                       <div className="flex gap-3">
                         <div className="relative w-full">
@@ -791,53 +769,11 @@ const Modal: React.FC = () => {
                           </span>
                           <input
                             type="number"
-                            id="salesPrice"
-                            name="salesPrice"
-                            value={product.salesPrice}
+                            id="creditLimit"
+                            name="creditLimit"
                             onChange={handleInputChange}
                             className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
-                        </div>
-                        <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
-                          GST Included
-                          <input
-                            type="checkbox"
-                            name="taxIncluded"
-                            checked={product.taxIncluded}
-                            onChange={handleCheckboxChange}
-                            className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                            style={{
-                              backgroundImage: product.taxIncluded
-                                ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
-                                : "none",
-                              backgroundSize: "100% 100%",
-                              backgroundPosition: "center",
-                              backgroundRepeat: "no-repeat",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Tax Rate
-                      </div>
-                      <div className="relative w-full">
-                        <select
-                          id="taxRate"
-                          name="taxRate"
-                          value={product.taxRate}
-                          onChange={handleInputChange}
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
-                        >
-                          <option value={0}>No Tax</option>
-                          <option value={5}>5%</option>
-                          <option value={12}>12%</option>
-                          <option value={18}>18%</option>
-                          <option value={28}>28%</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                          <CaretIcon isOpen={false} />
                         </div>
                       </div>
                     </div>
@@ -891,8 +827,8 @@ const Modal: React.FC = () => {
                         Are you sure you want to create the following product?
                       </p>
                       <ul className="mt-2 list-disc">
-                        <li>Name: {product.itemName}</li>
-                        <li>Price: {product.salesPrice}</li>
+                        <li>Name: {parties.partyName}</li>
+                        <li>Price: {parties.creditLimit}</li>
                       </ul>
                     </div>
                   </div>
