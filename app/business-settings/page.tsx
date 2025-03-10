@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import "../globals.css";
 import Image from "next/image";
 import {toast} from "react-hot-toast";
+import axios from "axios"
+import { FaLocationCrosshairs } from "react-icons/fa6";
 
 const PhotoIcon = () => (
   <svg
@@ -25,6 +27,7 @@ const PhotoIcon = () => (
 const BusinessSettings = () => {
   const [isGstRegistered, setIsGstRegistered] = useState(true);
   const [businessLogo, setBusinessLogo] = useState<File | null>(null);
+  const [location, setLocation] = useState({city: "", state: "", pincode: ""})
   const [signature, setSignature] = useState<File | null>(null);
   const businessLogoRef = useRef<HTMLInputElement>(null);
   const signatureRef = useRef<HTMLInputElement>(null);
@@ -81,6 +84,41 @@ const BusinessSettings = () => {
       console.log("Error fetching business details:", error);
     }
   };
+
+  const getlocation = async() => {
+    if("geolocation" in navigator){
+        navigator.geolocation.getCurrentPosition(
+            async(position) => {
+            const { latitude, longitude } = position.coords;
+
+            try{
+                const API_KEY = process.env.NEXT_PUBLIC_OPENCAGE_API_KEY;
+                const response = await axios.get(
+                    `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${API_KEY}`
+                );
+                if(response.data.results.length > 0){
+                    const details = response.data.results[0].components;
+                    setFormData(prev => ({
+                      ...prev,
+                      city: details.city || details.town || details.village || "",
+                      state: details.state || "",
+                      pincode: details.postcode || "",
+                  }));
+                  toast.success("Location updated successfully!");
+                }
+            }catch (error){
+                console.error("error", error);
+            }
+        },
+        (error) => {
+            console.error("error getting location: ", error); 
+        }
+    );
+    }else {
+        console.error("geolocation is not supported by this browser")
+    }
+}
+
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -362,6 +400,7 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
+          <button className="flex justify-end items-center gap-4 " onClick={getlocation}>Get Location <FaLocationCrosshairs className="border border-gray text-blue-400" /></button>
           <div className="flex gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">

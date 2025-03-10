@@ -1,11 +1,18 @@
-import { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     domains: ['img.clerk.com', 'res.cloudinary.com'],
   },
   reactStrictMode: true,
-  // other config options...
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/landing",
+        permanent: true,
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
