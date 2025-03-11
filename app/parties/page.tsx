@@ -170,7 +170,7 @@ const Modal: React.FC = () => {
     creditLimit: 0,
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [errors, setErrors] = useState<{ [K in keyof Parties]?: string }>({});
+  const [errors, setErrors] = useState<{ [K in keyof PartiesProp]?: string }>({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   // const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -252,7 +252,7 @@ const Modal: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: { [K in keyof Parties]?: string } = {};
+    const newErrors: { [K in keyof PartiesProp]?: string } = {};
 
     if (!parties.partyName.trim()) {
 
@@ -748,7 +748,7 @@ const Modal: React.FC = () => {
                             type="number"
                             id="salesPrice"
                             name="salesPrice"
-                            placeHolder="eg-30"
+                            placeholder="eg-30"
                             onChange={handleInputChange}
                             className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-3 pr-2 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
