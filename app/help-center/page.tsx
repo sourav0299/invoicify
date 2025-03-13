@@ -14,10 +14,22 @@ import { cn } from "@/lib/utils"
 const faqData = {
   general: [
     {
+      question: "Hello",
+      answer:
+        "Hello, How can i assist you?",
+    },
+    {
+      question: "Hi",
+      answer:
+        "Hello, how can i assist you?",
+    },
+    
+    {
       question: "What is the purpose of this billing software?",
       answer:
         "This software automates billing processes for subscription-based services, streamlining invoicing and payment management.",
     },
+
     {
       question: "How do I create an account?",
       answer:
