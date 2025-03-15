@@ -25,9 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLandingPage = pathname === "/landing";
+  const fullScreenPaths = ['/landing', '/sync-user'];
+  const isFullScreenLayout = fullScreenPaths.includes(pathname);
 
-  if (isLandingPage) {
+  if (isFullScreenLayout) {
     return (
       <ClerkProvider>
         <html lang="en">
