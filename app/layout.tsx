@@ -25,7 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const fullScreenPaths = ['/landing', '/sync-user'];
+  const fullScreenPaths = ['/landing', '/sync-user', '/sync-business', '/sync-plans','/sync-reviewplan'];
+  // const fullScreenPaths = ['/landing', '/sync-business'];
   const isFullScreenLayout = fullScreenPaths.includes(pathname);
 
   if (isFullScreenLayout) {
