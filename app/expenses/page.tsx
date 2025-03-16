@@ -1,110 +1,80 @@
-"use client";
-import { useState, useEffect } from "react";
-import QRCode from "qrcode";
-import { useUser } from "@clerk/nextjs";
-import "../globals.css";
-import { Tooltip } from "react-tooltip";
-import "react-tooltip/dist/react-tooltip.css";
+"use client"
+import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useUser } from "@clerk/nextjs"
+// import "./app/globals.css"
+import "../globals.css"
+import "react-tooltip/dist/react-tooltip.css"
+import { ChevronDown, Search, Trash2 } from "lucide-react"
 
 interface CaretIconProps {
-  isOpen: boolean;
+  isOpen: boolean
 }
 
-const SearchIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M21 21L17.5 17.5M17 10C17 10.9193 16.8189 11.8295 16.4672 12.6788C16.1154 13.5281 15.5998 14.2997 14.9497 14.9497C14.2997 15.5998 13.5281 16.1154 12.6788 16.4672C11.8295 16.8189 10.9193 17 10 17C9.08075 17 8.1705 16.8189 7.32122 16.4672C6.47194 16.1154 5.70026 15.5998 5.05025 14.9497C4.40024 14.2997 3.88463 13.5281 3.53284 12.6788C3.18106 11.8295 3 10.9193 3 10C3 8.14348 3.7375 6.36301 5.05025 5.05025C6.36301 3.7375 8.14348 3 10 3C11.8565 3 13.637 3.7375 14.9497 5.05025C16.2625 6.36301 17 8.14348 17 10Z"
-      stroke="black"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
 const CaretIcon: React.FC<CaretIconProps> = ({ isOpen }) => (
-  <svg
-    className={`w-4 h-4 ml-2 transition-transform ${
-      isOpen ? "rotate-180" : ""
-    }`}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M19 9l-7 7-7-7"
-    />
-  </svg>
-);
-
-type CustomTooltipProps = {
-  anchorId: string;
-  content: React.ReactNode;
-};
+  <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+)
 
 interface Expense {
-  _id?: string;
-  userEmail: string;
-  date: string;
-  itemType: string;
-  invoiceName: string;
-  expenseName: string;
-  note: string;
-  expenseAmount: number;
-  taxIncluded: boolean;
-  taxRate: number;
-  totalPrice?: number;
-  taxAmount?: number;
+  _id?: string
+  userEmail: string
+  date: string
+  itemType: string
+  invoiceName: string
+  expenseName: string
+  note: string
+  expenseAmount: number
+  taxIncluded: boolean
+  taxRate: number
+  totalPrice?: number
+  taxAmount?: number
 }
 
 const Modal: React.FC = () => {
-  const { user } = useUser();
-  const [showModal, setShowModal] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [expenseList, setExpenseList] = useState<Expense[]>([]);
+  const { user } = useUser()
+  const [showModal, setShowModal] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [expenseList, setExpenseList] = useState<Expense[]>([])
+  const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([])
   const [expense, setExpense] = useState<Expense>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split("T")[0],
     itemType: "Product",
     invoiceName: "",
     expenseName: "",
     note: "",
     expenseAmount: 0,
     taxIncluded: true,
-    taxRate: 0
-  });
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [errors, setErrors] = useState<{ [K in keyof Expense]?: string }>({});
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Expense | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Select Categories");
-  const [selectedDuration, setSelectedDuration] = useState("Select Duration");
+    taxRate: 0,
+  })
+  const [errors, setErrors] = useState<{ [K in keyof Expense]?: string }>({})
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState("All Categories")
+  const [selectedDuration, setSelectedDuration] = useState("Select Duration")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Expense; direction: "ascending" | "descending" } | null>(
+    null,
+  )
+  const [selectedExpenses, setSelectedExpenses] = useState<string[]>([])
+  const [selectAll, setSelectAll] = useState(false)
+  const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
 
-  const categories = ["Product", "Services"];
-  const Duration = ["3 Month", "6 Month", "9 month"];
-
+  const categories = ["Product", "Service", "All Categories"]
+  const durations = ["Last 3 Months", "Last 6 Months", "Last 9 Months", "All Time"]
 
   const handleOpenModal = () => {
-    setShowModal(true);
-  };
+    setShowModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
+    setShowModal(false)
     setExpense({
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       itemType: "Product",
       invoiceName: "",
       expenseName: "",
@@ -112,86 +82,46 @@ const Modal: React.FC = () => {
       expenseAmount: 0,
       taxIncluded: true,
       taxRate: 0,
-    });
-    setErrors({});
-  };
+    })
+    setErrors({})
+  }
 
-  const handleInputChange = (
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = event.target;
-    setExpense((prevExpense) => ({ ...prevExpense, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
-  };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target
+    setExpense((prevExpense) => ({ ...prevExpense, [name]: value }))
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }))
+  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    setExpense((prevProduct) => ({ ...prevProduct, [name]: checked }));
-  };
-
-  // const validateForm = (): boolean => {
-  //   const newErrors: { [K in keyof Product]?: string } = {};
-
-  //   if (!product.itemName.trim()) {
-  //     newErrors.itemName = "Item Name is required";
-  //   }
-
-  //   if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
-  //     newErrors.salesPrice = "Price must be a positive number";
-  //   }
-
-  //   if (!product.itemCode.trim()) {
-  //     newErrors.itemCode = "Service Code is required";
-  //   }
-
-  //   setErrors(newErrors);
-  //   console.log("Validation errors:", newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
+    const { name, checked } = event.target
+    setExpense((prevExpense) => ({ ...prevExpense, [name]: checked }))
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // if (validateForm()) {
-    //   console.log("Form is valid, showing confirmation dialog");
-    //   setShowConfirmation(true);
-    // } else {
-    //   console.log("Form is invalid, not showing confirmation dialog");
-    // }
-  };
-
-  // const handleDownloadQr = (product: Expense) => {
-  //   if (product.qrCode) {
-  //     const link = document.createElement("a");
-  //     link.href = product.qrCode;
-  //     link.download = `qr-code-${product.itemName}.png`;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   }
-  // };
+    event.preventDefault()
+    handleConfirm()
+  }
 
   const handleConfirm = async () => {
-    const taxRate = expense.taxRate / 100;
-    let totalPrice: number;
-    let taxAmount: number;
-  
+    const taxRate = expense.taxRate / 100
+    let totalPrice: number
+    let taxAmount: number
+
     if (expense.taxIncluded) {
-      totalPrice = expense.expenseAmount;
-      taxAmount = (expense.expenseAmount * taxRate) / (1 + taxRate);
+      totalPrice = expense.expenseAmount
+      taxAmount = (expense.expenseAmount * taxRate) / (1 + taxRate)
     } else {
-      totalPrice = expense.expenseAmount * (1 + taxRate);
-      taxAmount = expense.expenseAmount * taxRate;
+      totalPrice = expense.expenseAmount * (1 + taxRate)
+      taxAmount = expense.expenseAmount * taxRate
     }
-  
+
     const expenseToSave = {
       ...expense,
       totalPrice,
       taxAmount,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
-    };
-  
+    }
+
     try {
       const response = await fetch("/api/expenses", {
         method: "POST",
@@ -199,76 +129,183 @@ const Modal: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(expenseToSave),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to save expense");
-      }
-  
-      const savedExpense = await response.json();
-      setShowConfirmation(false);
-      handleCloseModal();
-      fetchProductList();
-    } catch (error) {
-      console.error("Error saving expense:", error);
-    }
-  };
+      })
 
-  const fetchProductList = async () => {
-    try {
-      const response = await fetch("/api/expenses");
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        throw new Error("Failed to save expense")
       }
-      const products = await response.json();
-      setExpenseList(products);
+
+      const savedExpense = await response.json()
+      handleCloseModal()
+      fetchExpenseList()
     } catch (error) {
-      setExpenseList([]);
+      console.error("Error saving expense:", error)
     }
-  };
+  }
+
+  const fetchExpenseList = async () => {
+    try {
+      const response = await fetch("/api/expenses")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      const expenses = await response.json()
+      setExpenseList(expenses)
+      setFilteredExpenses(expenses)
+    } catch (error) {
+      setExpenseList([])
+      setFilteredExpenses([])
+    }
+  }
+
+  // Search and filter functionality
+  useEffect(() => {
+    let result = [...expenseList]
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(
+        (expense) =>
+          expense.invoiceName.toLowerCase().includes(query) ||
+          expense.expenseName.toLowerCase().includes(query) ||
+          expense.note.toLowerCase().includes(query),
+      )
+    }
+
+    // Apply category filter
+    if (selectedCategory !== "All Categories") {
+      result = result.filter((expense) => expense.itemType === selectedCategory)
+    }
+
+    // Apply duration filter
+    if (selectedDuration !== "Select Duration") {
+      const now = new Date()
+      let monthsAgo = 0
+
+      if (selectedDuration === "Last 3 Months") monthsAgo = 3
+      else if (selectedDuration === "Last 6 Months") monthsAgo = 6
+      else if (selectedDuration === "Last 9 Months") monthsAgo = 9
+
+      if (monthsAgo > 0) {
+        const cutoffDate = new Date()
+        cutoffDate.setMonth(now.getMonth() - monthsAgo)
+        result = result.filter((expense) => new Date(expense.date) >= cutoffDate)
+      }
+    }
+
+    // Apply sorting
+    if (sortConfig) {
+      result.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? -1 : 1
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? 1 : -1
+        }
+        return 0
+      })
+    }
+
+    setFilteredExpenses(result)
+  }, [expenseList, searchQuery, selectedCategory, selectedDuration, sortConfig])
+
+  // Handle sorting
+  const requestSort = (key: keyof Expense) => {
+    let direction: "ascending" | "descending" = "ascending"
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending"
+    }
+    setSortConfig({ key, direction })
+  }
+
+  // Handle selection for bulk delete
+  const handleSelectExpense = (id: string | undefined) => {
+    if (!id) return
+
+    setSelectedExpenses((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id)
+      } else {
+        return [...prev, id]
+      }
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedExpenses([])
+    } else {
+      setSelectedExpenses(filteredExpenses.map((expense) => expense._id || "").filter((id) => id !== ""))
+    }
+    setSelectAll(!selectAll)
+  }
+
+  // Delete functionality
+  const handleDeleteExpense = async (id: string | undefined) => {
+    if (!id) return
+
+    try {
+      const response = await fetch(`/api/expenses/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete expense")
+      }
+
+      fetchExpenseList()
+      setShowDeleteConfirmation(false)
+      setExpenseToDelete(null)
+    } catch (error) {
+      console.error("Error deleting expense:", error)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    try {
+      // In a real app, you might want to use a batch delete endpoint
+      // For now, we'll delete one by one
+      for (const id of selectedExpenses) {
+        await fetch(`/api/expenses/${id}`, {
+          method: "DELETE",
+        })
+      }
+
+      fetchExpenseList()
+      setSelectedExpenses([])
+      setSelectAll(false)
+      setShowBulkDeleteConfirmation(false)
+    } catch (error) {
+      console.error("Error bulk deleting expenses:", error)
+    }
+  }
 
   useEffect(() => {
-    fetchProductList();
-  }, []);
-
-  const handleCancel = () => {
-    setShowConfirmation(false);
-  };
+    fetchExpenseList()
+  }, [])
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
-      <div className="flex flex-col items-start ">
-        <div className="flex justify-between  w-full gap-3 ">
+      <div className="flex flex-col items-start">
+        <div className="flex justify-between w-full gap-3">
           <div>
-            <div className="text-[28px] font-semibold text-business_settings_black_text">
-              Expenses List
-            </div>
+            <div className="text-[28px] font-semibold text-business_settings_black_text">Expenses List</div>
 
-            <div className="text-business_settings_gray_text">
-              An Overview of all your transaction over the year.
-            </div>
+            <div className="text-business_settings_gray_text">An Overview of all your transaction over the year.</div>
           </div>
-          {/* <div className="flex gap-3 ">
-            <div>
+          <div className="flex gap-3">
+            {selectedExpenses.length > 0 && (
               <button
-                className=" border rounded-lg py-2 px-3 w-full items-start max-w-[241px]  font-semibold bg-white text-black"
-              // onClick={() => setShowModal(true)}
+                className="border rounded-lg py-2 px-3 w-full items-start max-w-[241px] font-semibold bg-red-50 text-red-600 border-red-200 flex items-center gap-2"
+                onClick={() => setShowBulkDeleteConfirmation(true)}
               >
-                <div className="">Delete Expenses</div>
+                <Trash2 size={16} />
+                <div>Delete Selected ({selectedExpenses.length})</div>
               </button>
-            </div>
-            <div>
-              <button
-                className=" border rounded-lg py-2 px-3 w-full items-start max-w-[194px] text-semibold bg-sidebar_green_button_background text-white"
-              // onClick={() => setShowModal(true)}
-              >
-                <div className="">Generate Report</div>
-              </button>
-            </div>
-          </div> */}
+            )}
+          </div>
         </div>
       </div>
 
@@ -281,41 +318,43 @@ const Modal: React.FC = () => {
               } text-business_settings_black_text font-bold`}
               style={{ left: "0.1rem" }}
             >
-              <SearchIcon />
+              <Search size={24} />
             </span>
             <input
               type="text"
-              placeholder="Search Customer/Supplier"
+              placeholder="Search by invoice, expense name or note"
               className="w-full outline-none text-business_settings_black_text font-bold pl-10"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
         <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
           <div
             className="flex items-center justify-between cursor-pointer"
-            onClick={(e) => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
+            onClick={() => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
           >
             <div>{selectedDuration}</div>
             <CaretIcon isOpen={isDurationDropdownOpen} />
           </div>
-          {/* {isDurationDropdownOpen && (
+          {isDurationDropdownOpen && (
             <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-              {Duration.map((duration, index) => (
+              {durations.map((duration, index) => (
                 <li
                   key={index}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-                    setSelectedDuration(duration);
-                    setIsDurationDropdownOpen(false);
+                    setSelectedDuration(duration)
+                    setIsDurationDropdownOpen(false)
                   }}
                 >
                   {duration}
                 </li>
               ))}
             </ul>
-          )} */}
+          )}
         </div>
         <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
           <div
@@ -332,8 +371,8 @@ const Modal: React.FC = () => {
                   key={index}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-                    setSelectedCategory(category);
-                    setIsDropdownOpen(false);
+                    setSelectedCategory(category)
+                    setIsDropdownOpen(false)
                   }}
                 >
                   {category}
@@ -354,93 +393,141 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
-                <th className="py-6 px-4 border-b text-left">Date</th>
-
-                <th className="py-6 px-4 border-b text-left">Name</th>
-                <th className="py-6 px-4 border-b text-left">Expense number</th>
-                <th className="py-6 px-4 border-b text-left">Category</th>
+                <th className="py-6 px-4 border-b text-left">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
+                    />
+                  </div>
+                </th>
+                <th
+                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  onClick={() => requestSort("date")}
+                >
+                  <div className="flex items-center">
+                    Date
+                    {sortConfig?.key === "date" && (
+                      <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  onClick={() => requestSort("invoiceName")}
+                >
+                  <div className="flex items-center">
+                    Name
+                    {sortConfig?.key === "invoiceName" && (
+                      <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  onClick={() => requestSort("expenseName")}
+                >
+                  <div className="flex items-center">
+                    Expense number
+                    {sortConfig?.key === "expenseName" && (
+                      <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  onClick={() => requestSort("itemType")}
+                >
+                  <div className="flex items-center">
+                    Category
+                    {sortConfig?.key === "itemType" && (
+                      <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
                 <th className="py-6 px-4 border-b text-left">GST</th>
-                <th className="py-6 px-4 border-b text-left">Amount</th>
+                <th
+                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  onClick={() => requestSort("expenseAmount")}
+                >
+                  <div className="flex items-center">
+                    Amount
+                    {sortConfig?.key === "expenseAmount" && (
+                      <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
+                </th>
+                <th className="py-6 px-4 border-b text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {expenseList.map((product, index) => (
-                <tr key={index} className="bg-white">
-                  <td className="py-2 px-4 border-b">{product.date}</td>
-                  <td className="py-2 px-4 border-b">{product.invoiceName}</td>
-                  <td className="py-2 px-4 border-b">{product.expenseName}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  {/* <td className="py-2 px-4 border-b">
-                    {product.measuringUnit}
-                  </td> */}
-                                    <td className={`py-2 px-4 border-b`}>
-                                      <div className={`text-center rounded-[6px] ${
-                    product.taxIncluded 
-                      ? "bg-[#D2F8D5] text-[#1A7F22] border border-[#1A7F22]" 
-                      : "bg-[#FEF6D5] text-[#928037] border border-[#928037]"
-                  }`}>
-{product.taxIncluded ? "Included" : "Excluded"}
-                                      </div>
-                    
-                  </td>
+              {filteredExpenses.map((expense, index) => (
+                <tr key={index} className="bg-white hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">
-                    {Number(product.expenseAmount).toFixed(2)}
-                  </td>
-                  {/* <td className="py-2 px-4 border-b">
-                    <button
-                      id={`button-${product._id}`}
-                      className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
-                      onClick={() => handleDownloadQr(product)}
-                      data-tooltip-id={`tooltip-${product._id}`}
-                    >
-                      Download QR
-                    </button>
-                    <Tooltip
-                      id={`tooltip-${product._id}`}
-                      place="top"
-                      render={() => (
-                        <img
-                          src={product.qrCode}
-                          alt="QR Code"
-                          style={{
-                            width: "150px",
-                            height: "150px",
-                            borderRadius: "8px",
-                          }}
-                        />
-                      )}
+                    <input
+                      type="checkbox"
+                      checked={selectedExpenses.includes(expense._id || "")}
+                      onChange={() => handleSelectExpense(expense._id)}
+                      className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
                     />
-                  </td> */}
+                  </td>
+                  <td className="py-2 px-4 border-b">{expense.date}</td>
+                  <td className="py-2 px-4 border-b">{expense.invoiceName}</td>
+                  <td className="py-2 px-4 border-b">{expense.expenseName}</td>
+                  <td className="py-2 px-4 border-b">{expense.itemType}</td>
+                  <td className={`py-2 px-4 border-b`}>
+                    <div
+                      className={`text-center rounded-[6px] ${
+                        expense.taxIncluded
+                          ? "bg-[#D2F8D5] text-[#1A7F22] border border-[#1A7F22]"
+                          : "bg-[#FEF6D5] text-[#928037] border border-[#928037]"
+                      }`}
+                    >
+                      {expense.taxIncluded ? "Included" : "Excluded"}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border-b">{Number(expense.expenseAmount).toFixed(2)}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      className="text-red-500 hover:text-red-700 p-1"
+                      onClick={() => {
+                        setExpenseToDelete(expense)
+                        setShowDeleteConfirmation(true)
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
+              {filteredExpenses.length === 0 && (
+                <tr className="bg-white">
+                  <td colSpan={8} className="py-4 px-4 text-center text-gray-500">
+                    No expenses found. Try adjusting your search or filters.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
-     
 
+      {/* Add Expense Modal */}
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
             <form onSubmit={handleSubmit}>
-              <div
-                className="fixed inset-0 transition-opacity"
-                aria-hidden="true"
-              >
+              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
               <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add Expenses</div>
-                  <button className="" onClick={() => setShowModal(false)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
+                  <button type="button" className="" onClick={() => setShowModal(false)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                       <path
                         fillRule="evenodd"
                         clipRule="evenodd"
@@ -453,23 +540,19 @@ const Modal: React.FC = () => {
                 <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
                   <div className="flex gap-3">
                     <div className="p-5 bg-universal_gray_background rounded-lg text-start">
-                      <div className="text-sidebar_black_text text-xs ">
-                        Date
-                      </div>
-                      <input 
-                      type="date"
-                      name="date"
-                      value={expense.date}
-                      onChange={handleInputChange}
-                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                    />
+                      <div className="text-sidebar_black_text text-xs ">Date</div>
+                      <input
+                        type="date"
+                        name="date"
+                        value={expense.date}
+                        onChange={handleInputChange}
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
                       <div className="flex gap-10"></div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Category
-                      </div>
-                                            <div className="flex gap-2">
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Category</div>
+                      <div className="flex gap-2">
                         <div className="relative w-full">
                           <select
                             name="itemType"
@@ -485,7 +568,7 @@ const Modal: React.FC = () => {
                             <CaretIcon isOpen={isDropdownOpen} />
                           </div>
                         </div>
-                        <button 
+                        <button
                           type="button"
                           className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                         >
@@ -495,23 +578,21 @@ const Modal: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                                        <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Invoice Number
                       </div>
                       <input
                         type="text"
                         className={`bg-transparent border ${
-                          errors.invoiceName
-                            ? "border-red-500"
-                            : "border-business_settings_gray_border"
+                          errors.invoiceName ? "border-red-500" : "border-business_settings_gray_border"
                         } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
                         name="invoiceName"
                         value={expense.invoiceName}
                         onChange={handleInputChange}
                       />
                     </div>
-                                        <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Expense Number
                       </div>
@@ -530,15 +611,13 @@ const Modal: React.FC = () => {
                   </div>
                   <div className="flex gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Note
-                      </div>
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Note</div>
                       <div className="flex gap-3">
                         <input
                           type="textarea"
                           name="note"
-                      value={expense.note}
-                      onChange={handleInputChange}
+                          value={expense.note}
+                          onChange={handleInputChange}
                           className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
@@ -551,13 +630,13 @@ const Modal: React.FC = () => {
                       </div>
                       <div className="flex gap-3">
                         <div className="relative w-full">
-                        <input
-                        type="number"
-                        name="expenseAmount"
-                        value={expense.expenseAmount}
-                        onChange={handleInputChange}
-                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
-                      />
+                          <input
+                            type="number"
+                            name="expenseAmount"
+                            value={expense.expenseAmount}
+                            onChange={handleInputChange}
+                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
+                          />
                         </div>
                         <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
                           GST Included
@@ -580,9 +659,7 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        tax
-                      </div>
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">tax</div>
 
                       <div className="relative w-full">
                         <select
@@ -604,9 +681,9 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                                    <div className="flex justify-end gap-3">
+                  <div className="flex justify-end gap-3">
                     <button
-                      type="button" // Changed from onClick handler to type="button"
+                      type="button"
                       onClick={handleCloseModal}
                       className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
                     >
@@ -614,7 +691,6 @@ const Modal: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      onClick={handleConfirm} // Added onClick handler for form submission
                       className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
                     >
                       Save
@@ -627,66 +703,114 @@ const Modal: React.FC = () => {
         </div>
       )}
 
-      {/* {showConfirmation && (
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
               &#8203;
             </span>
 
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Confirm Product Creation
-                    </h3>
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <Trash2 className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Delete Expense</h3>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        Are you sure you want to create the following product?
+                        Are you sure you want to delete this expense? This action cannot be undone.
                       </p>
-                      <ul className="mt-2 list-disc">
-                        <li>Name: {product.itemName}</li>
-                        <li>Price: {product.salesPrice}</li>
-                      </ul>
                     </div>
                   </div>
                 </div>
-                <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:py-4">
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-500 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={handleConfirm}
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => {
+                    if (expenseToDelete?._id) {
+                      handleDeleteExpense(expenseToDelete._id)
+                    }
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => {
+                    setShowDeleteConfirmation(false)
+                    setExpenseToDelete(null)
+                  }}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
         </div>
-      )} */}
-    </div>
-  );
-};
+      )}
 
-export default Modal;
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirmation && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+              &#8203;
+            </span>
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <Trash2 className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Bulk Delete Expenses</h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete {selectedExpenses.length} selected expenses? This action cannot
+                        be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={handleBulkDelete}
+                >
+                  Delete All
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => setShowBulkDeleteConfirmation(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Modal
+
