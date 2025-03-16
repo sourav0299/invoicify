@@ -1,19 +1,19 @@
 import Image from "next/image"
 import { Check, X } from "lucide-react"
 
-export default function Plans() {
+export default function PricingPage() {
     return (
         <div className="min-h-screen bg-[#fafafa] flex items-center justify-center py-8 sm:py-12 md:py-16 px-4">
-            <div className="max-w-6xl w-full bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12">
+            <div className="max-w-7xl w-[95%] bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12">
                 <div className="flex flex-col items-center mb-8 md:mb-12">
                     <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0.5" y="16.5" width="7.99999" height="7.99999" fill="#1EB386" />
-                            <rect x="24.5" y="24.5" width="8" height="7.99999" transform="rotate(180 24.5 24.5)" fill="#1EB386" />
-                            <path d="M8.5 16.5L16.5 8.49998V16.5L8.5 24.5V16.5Z" fill="#ADEDD2" />
-                            <path d="M16.5 24.5L8.50001 32.5L8.50001 24.5L16.5 16.5L16.5 24.5Z" fill="#77DEB8" />
-                            <path d="M0.5 16.5L16.5 0.5V8.49999L8.49999 16.5H0.5Z" fill="#77DEB8" />
-                            <path d="M24.5 24.5L8.50002 40.5L8.50002 32.5L16.5 24.5L24.5 24.5Z" fill="#40C79A" />
+                        <svg width="36" height="41" viewBox="0 0 36 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6.5" y="16.5" width="7.99999" height="7.99999" fill="#1EB386" />
+                            <rect x="30.5" y="24.5" width="8" height="7.99999" transform="rotate(180 30.5 24.5)" fill="#1EB386" />
+                            <path d="M14.5 16.5L22.5 8.49998V16.5L14.5 24.5V16.5Z" fill="#ADEDD2" />
+                            <path d="M22.5 24.5L14.5 32.5L14.5 24.5L22.5 16.5L22.5 24.5Z" fill="#77DEB8" />
+                            <path d="M6.5 16.5L22.5 0.5V8.49999L14.5 16.5H6.5Z" fill="#77DEB8" />
+                            <path d="M30.5 24.5L14.5 40.5L14.5 32.5L22.5 24.5L30.5 24.5Z" fill="#40C79A" />
                         </svg>
 
                         <span className="text-[#667085] text-lg md:text-xl font-medium">Invoicify</span>
@@ -21,7 +21,7 @@ export default function Plans() {
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#212626] text-center">Choose a Plan</h1>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
                     {/* Essential Plan */}
                     <div className="bg-white border border-[#e5e7eb] rounded-xl md:rounded-2xl p-5 sm:p-6 md:p-8 flex flex-col shadow-lg">
                         <h2 className="text-xl md:text-2xl font-semibold text-[#212626] mb-1 md:mb-2">Essential</h2>
@@ -136,7 +136,7 @@ export default function Plans() {
 
                         <h2 className="text-xl md:text-2xl font-semibold text-[#212626] mb-1 md:mb-2">Elite</h2>
                         <p className="text-[#667085] text-sm md:text-base mb-4 md:mb-6 whitespace-nowrap min-h-[20px] md:min-h-[24px]">
-                            More benefits, more flexibility. 
+                            More benefits, more flexibility.
                         </p>
 
                         <div className="mb-4 md:mb-6">

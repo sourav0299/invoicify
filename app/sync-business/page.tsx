@@ -1,619 +1,581 @@
 "use client"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
+// import "./app/globals.css"
 import Image from "next/image"
 import { toast } from "react-hot-toast"
 import axios from "axios"
 import { FaLocationCrosshairs } from "react-icons/fa6"
+import { ArrowUpFromLine } from "lucide-react"
 
 const PhotoIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path
-            d="M3 16L8 9L14 15.5M20.5 18L16 13L11.7143 19M14 10H14.01M4 19H20C20.5523 19 21 18.5523 21 18V6C21 5.44772 20.5523 5 20 5H4C3.44772 5 3 5.44772 3 6V18C3 18.5523 3.44772 19 4 19Z"
-            stroke="#1EB386"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M3 16L8 9L14 15.5M20.5 18L16 13L11.7143 19M14 10H14.01M4 19H20C20.5523 19 21 18.5523 21 18V6C21 5.44772 20.5523 5 20 5H4C3.44772 5 3 5.44772 3 6V18C3 18.5523 3.44772 19 4 19Z"
+      stroke="#1EB386"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
 )
 
 const BusinessSettings = () => {
-    const [isGstRegistered, setIsGstRegistered] = useState(true)
-    const [businessLogo, setBusinessLogo] = useState<File | null>(null)
-    const [location, setLocation] = useState({ city: "", state: "", pincode: "" })
-    const [signature, setSignature] = useState<File | null>(null)
-    const businessLogoRef = useRef<HTMLInputElement>(null)
-    const signatureRef = useRef<HTMLInputElement>(null)
-    const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null)
-    const [signaturePreview, setSignaturePreview] = useState<string | null>(null)
-    const [formData, setFormData] = useState({
-        businessName: "",
-        businessType: "",
-        businessRegistrationType: "",
-        gstNumber: "",
-        panNumber: "",
-        companyEmail: "",
-        companyNumber: "",
-        billingAddress: "",
-        state: "",
-        pincode: "",
-        city: "",
-        termsAndConditions: "",
-    })
+  const [isGstRegistered, setIsGstRegistered] = useState(true)
+  const [signature, setSignature] = useState<File | null>(null)
+  const [businessLogo, setBusinessLogo] = useState<File | null>(null)
+  const signatureRef = useRef<HTMLInputElement>(null)
+  const businessLogoRef = useRef<HTMLInputElement>(null)
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null)
+  const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    businessName: "",
+    businessType: "",
+    businessRegistrationType: "",
+    gstNumber: "",
+    panNumber: "",
+    companyEmail: "",
+    companyNumber: "",
+    billingAddress: "",
+    state: "",
+    pincode: "",
+    city: "",
+    termsAndConditions: "",
+  })
+  const [errors, setErrors] = useState({
+    gstNumber: "",
+    panNumber: "",
+  })
 
-    // Validation states
-    const [errors, setErrors] = useState({
-        gstNumber: "",
-        panNumber: "",
-    })
-    const [touched, setTouched] = useState({
-        gstNumber: false,
-        panNumber: false,
-    })
+  useEffect(() => {
+    fetchBusinessDetails()
+  }, [])
 
-    useEffect(() => {
-        fetchBusinessDetails()
-    }, [])
+  useEffect(() => {
+    return () => {
+      if (signaturePreview) URL.revokeObjectURL(signaturePreview)
+      if (businessLogoPreview) URL.revokeObjectURL(businessLogoPreview)
+    }
+  }, [signaturePreview, businessLogoPreview])
 
-    useEffect(() => {
-        return () => {
-            if (businessLogoPreview) URL.revokeObjectURL(businessLogoPreview)
-            if (signaturePreview) URL.revokeObjectURL(signaturePreview)
+  const fetchBusinessDetails = async () => {
+    try {
+      const response = await fetch("/api/business-details")
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Fetched business details:", data)
+        setFormData(data)
+        setIsGstRegistered(data.isGstRegistered)
+        if (data.signatureUrl) {
+          setSignaturePreview(data.signatureUrl)
+          console.log("Set signature preview:", data.signatureUrl)
         }
-    }, [businessLogoPreview, signaturePreview])
-
-    // Validate GST Number
-    const validateGSTNumber = (gstNumber: string): boolean => {
-        // GST Number format: 22AAAAA0000A1Z5 (15 characters)
-        const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/
-        return gstRegex.test(gstNumber)
-    }
-
-    // Validate PAN Number
-    const validatePANNumber = (panNumber: string): boolean => {
-        // PAN Number format: AAAAA0000A (10 characters)
-        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-        return panRegex.test(panNumber)
-    }
-
-    const fetchBusinessDetails = async () => {
-        try {
-            const response = await fetch("/api/business-details")
-            if (response.ok) {
-                const data = await response.json()
-                console.log("Fetched business details:", data)
-                setFormData(data)
-                setIsGstRegistered(data.isGstRegistered)
-                if (data.businessLogoUrl) {
-                    setBusinessLogoPreview(data.businessLogoUrl)
-                    console.log("Set business logo preview:", data.businessLogoUrl)
-                }
-                if (data.signatureUrl) {
-                    setSignaturePreview(data.signatureUrl)
-                    console.log("Set signature preview:", data.signatureUrl)
-                }
-            } else {
-                console.log("Failed to fetch business details")
-            }
-        } catch (error) {
-            console.log("Error fetching business details:", error)
+        if (data.businessLogoUrl) {
+          setBusinessLogoPreview(data.businessLogoUrl)
+          console.log("Set business logo preview:", data.businessLogoUrl)
         }
+      } else {
+        console.log("Failed to fetch business details")
+      }
+    } catch (error) {
+      console.log("Error fetching business details:", error)
     }
+  }
 
-    const getlocation = async () => {
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude } = position.coords
+  const getlocation = async () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
 
-                    try {
-                        const API_KEY = process.env.NEXT_PUBLIC_OPENCAGE_API_KEY
-                        const response = await axios.get(
-                            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${API_KEY}`,
-                        )
-                        if (response.data.results.length > 0) {
-                            const details = response.data.results[0].components
-                            setFormData((prev) => ({
-                                ...prev,
-                                city: details.city || details.town || details.village || "",
-                                state: details.state || "",
-                                pincode: details.postcode || "",
-                            }))
-                            toast.success("Location updated successfully!")
-                        }
-                    } catch (error) {
-                        console.error("error", error)
-                    }
-                },
-                (error) => {
-                    console.error("error getting location: ", error)
-                },
+          try {
+            const API_KEY = process.env.NEXT_PUBLIC_OPENCAGE_API_KEY
+            const response = await axios.get(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${API_KEY}`,
             )
-        } else {
-            console.error("geolocation is not supported by this browser")
-        }
+            if (response.data.results.length > 0) {
+              const details = response.data.results[0].components
+              setFormData((prev) => ({
+                ...prev,
+                city: details.city || details.town || details.village || "",
+                state: details.state || "",
+                pincode: details.postcode || "",
+              }))
+              toast.success("Location updated successfully!")
+            }
+          } catch (error) {
+            console.error("error", error)
+          }
+        },
+        (error) => {
+          console.error("error getting location: ", error)
+        },
+      )
+    } else {
+      console.error("geolocation is not supported by this browser")
+    }
+  }
+
+  const validateGSTNumber = (gstNumber: string): boolean => {
+    // GST format: 2 digits + 5 letters + 4 digits + 1 letter + 1 letter/digit + Z + 1 letter/digit
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
+
+    if (!gstNumber) {
+      setErrors((prev) => ({ ...prev, gstNumber: "GST Number is required" }))
+      return false
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
-
-        // Validate on change for GST and PAN
-        if (name === "gstNumber" && isGstRegistered) {
-            if (value && !validateGSTNumber(value)) {
-                setErrors((prev) => ({ ...prev, gstNumber: "Invalid GST Number format. Should be like: 22AAAAA0000A1Z5" }))
-            } else {
-                setErrors((prev) => ({ ...prev, gstNumber: "" }))
-            }
-        }
-
-        if (name === "panNumber") {
-            if (value && !validatePANNumber(value)) {
-                setErrors((prev) => ({ ...prev, panNumber: "Invalid PAN Number format. Should be like: AAAAA0000A" }))
-            } else {
-                setErrors((prev) => ({ ...prev, panNumber: "" }))
-            }
-        }
+    if (gstNumber.length !== 15) {
+      setErrors((prev) => ({ ...prev, gstNumber: "GST Number must be 15 characters" }))
+      return false
     }
 
-    const handleBlur = (field: "gstNumber" | "panNumber") => {
-        setTouched((prev) => ({ ...prev, [field]: true }))
-
-        // Validate on blur
-        if (field === "gstNumber" && isGstRegistered) {
-            const value = formData.gstNumber
-            if (value && !validateGSTNumber(value)) {
-                setErrors((prev) => ({ ...prev, gstNumber: "Invalid GST Number format. Should be like: 22AAAAA0000A1Z5" }))
-            } else if (!value && isGstRegistered) {
-                setErrors((prev) => ({ ...prev, gstNumber: "GST Number is required" }))
-            } else {
-                setErrors((prev) => ({ ...prev, gstNumber: "" }))
-            }
-        }
-
-        if (field === "panNumber") {
-            const value = formData.panNumber
-            if (value && !validatePANNumber(value)) {
-                setErrors((prev) => ({ ...prev, panNumber: "Invalid PAN Number format. Should be like: AAAAA0000A" }))
-            } else if (!value) {
-                setErrors((prev) => ({ ...prev, panNumber: "PAN Number is required" }))
-            } else {
-                setErrors((prev) => ({ ...prev, panNumber: "" }))
-            }
-        }
+    if (!gstRegex.test(gstNumber)) {
+      setErrors((prev) => ({ ...prev, gstNumber: "Invalid GST Number format (e.g. 27AAPFU0939F1ZV)" }))
+      return false
     }
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "businessLogo" | "signature") => {
-        console.log(`File change event triggered for ${type}`)
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0]
-            console.log(`File selected: ${file.name}`)
-            const reader = new FileReader()
+    setErrors((prev) => ({ ...prev, gstNumber: "" }))
+    return true
+  }
 
-            reader.onload = (event) => {
-                console.log(`FileReader onload event triggered for ${type}`)
-                if (event.target && typeof event.target.result === "string") {
-                    if (type === "businessLogo") {
-                        setBusinessLogo(file)
-                        setBusinessLogoPreview(event.target.result)
-                        console.log("Business Logo Preview set:", event.target.result.substring(0, 50) + "...")
-                    } else {
-                        setSignature(file)
-                        setSignaturePreview(event.target.result)
-                        console.log("Signature Preview set:", event.target.result.substring(0, 50) + "...")
-                    }
-                }
-            }
+  const validatePANNumber = (panNumber: string): boolean => {
+    // PAN format: 5 letters + 4 digits + 1 letter
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
 
-            reader.onerror = (error) => {
-                console.error(`FileReader error for ${type}:`, error)
-            }
-
-            reader.readAsDataURL(file)
-        }
+    if (!panNumber) {
+      setErrors((prev) => ({ ...prev, panNumber: "PAN Number is required" }))
+      return false
     }
 
-    const validateForm = (): boolean => {
-        let isValid = true
-        const newErrors = { ...errors }
-
-        // Validate GST Number if registered
-        if (isGstRegistered) {
-            if (!formData.gstNumber) {
-                newErrors.gstNumber = "GST Number is required"
-                isValid = false
-            } else if (!validateGSTNumber(formData.gstNumber)) {
-                newErrors.gstNumber = "Invalid GST Number format. Should be like: 22AAAAA0000A1Z5"
-                isValid = false
-            } else {
-                newErrors.gstNumber = ""
-            }
-        } else {
-            newErrors.gstNumber = ""
-        }
-
-        // Validate PAN Number
-        if (!formData.panNumber) {
-            newErrors.panNumber = "PAN Number is required"
-            isValid = false
-        } else if (!validatePANNumber(formData.panNumber)) {
-            newErrors.panNumber = "Invalid PAN Number format. Should be like: AAAAA0000A"
-            isValid = false
-        } else {
-            newErrors.panNumber = ""
-        }
-
-        setErrors(newErrors)
-        return isValid
+    if (panNumber.length !== 10) {
+      setErrors((prev) => ({ ...prev, panNumber: "PAN Number must be 10 characters" }))
+      return false
     }
 
-    const handleSave = async () => {
-        // Mark all fields as touched
-        setTouched({
-            gstNumber: true,
-            panNumber: true,
-        })
-
-        // Validate form before submission
-        if (!validateForm()) {
-            toast.error("Please fix the errors before submitting")
-            return
-        }
-
-        try {
-            const formDataToSend = new FormData()
-
-            // Append all form fields
-            Object.entries(formData).forEach(([key, value]) => {
-                formDataToSend.append(key, value)
-            })
-
-            // Append isGstRegistered
-            formDataToSend.append("isGstRegistered", isGstRegistered.toString())
-
-            // Append files if they exist
-            if (businessLogo) {
-                formDataToSend.append("businessLogo", businessLogo)
-            }
-            if (signature) {
-                formDataToSend.append("signature", signature)
-            }
-
-            const method = formData.businessName ? "PUT" : "POST"
-            const response = await fetch("/api/business-details", {
-                method,
-                body: formDataToSend,
-            })
-
-            if (response.ok) {
-                toast.success("Form submitted successfully")
-
-                // Optionally, you can refresh the data here
-                await fetchBusinessDetails()
-            } else {
-                const errorData = await response.json()
-                console.log("Failed to save business details:", errorData.error)
-                toast.error("Failed to save business details")
-            }
-        } catch (error) {
-            console.log("Error saving business details:", error)
-            toast.error("An error occurred while saving")
-        }
+    if (!panRegex.test(panNumber)) {
+      setErrors((prev) => ({ ...prev, panNumber: "Invalid PAN Number format (e.g. ABCDE1234F)" }))
+      return false
     }
 
-    return (
-        <div className="w-full max-w-4xl mx-auto bg-[#fafafa] px-4 sm:px-6 py-4 sm:py-6">
-            <div className="flex flex-col items-center mb-6 sm:mb-8">
-                <div className="text-[#1eb386] mb-2">
-                    <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0.500977" y="16.5" width="7.99999" height="7.99999" fill="#1EB386" />
-                        <rect x="24.501" y="24.5" width="8" height="7.99999" transform="rotate(180 24.501 24.5)" fill="#1EB386" />
-                        <path d="M8.50098 16.5L16.501 8.49998V16.5L8.50098 24.5V16.5Z" fill="#ADEDD2" />
-                        <path d="M16.501 24.5L8.50099 32.5L8.50099 24.5L16.501 16.5L16.501 24.5Z" fill="#77DEB8" />
-                        <path d="M0.500977 16.5L16.5009 0.5V8.49999L8.50096 16.5H0.500977Z" fill="#77DEB8" />
-                        <path d="M24.501 24.5L8.501 40.5L8.501 32.5L16.501 24.5L24.501 24.5Z" fill="#40C79A" />
-                    </svg>
+    setErrors((prev) => ({ ...prev, panNumber: "" }))
+    return true
+  }
 
-                </div>
-                <h1 className="text-xl sm:text-2xl font-semibold text-[#212626] mb-1 text-center">
-                    Set Up your Business Details
-                </h1>
-            </div>
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
-            <div className="bg-white rounded-lg p-4 sm:p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
-                <div className="grid grid-cols-1 gap-4 sm:gap-6">
-                    {/* Logo Upload and Business Name */}
-                    <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                        <div className="flex flex-col items-center mb-4 md:mb-0">
-                            <div
-                                className="cursor-pointer flex flex-col items-center justify-center p-4 w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] rounded-lg border-dashed border border-[#e0e2e7]"
-                                onClick={() => businessLogoRef.current?.click()}
-                            >
-                                {businessLogoPreview ? (
-                                    <Image
-                                        src={businessLogoPreview || "/placeholder.svg"}
-                                        alt="Business Logo"
-                                        className="w-full h-full object-contain"
-                                        height={150}
-                                        width={150}
-                                    />
-                                ) : (
-                                    <>
-                                        <div className="mb-2">
-                                            <PhotoIcon />
-                                        </div>
-                                        <div className="text-xs font-medium text-[#1eb386]">+ Upload Logo</div>
-                                    </>
-                                )}
-                                <input
-                                    type="file"
-                                    ref={businessLogoRef}
-                                    onChange={(e) => handleFileChange(e, "businessLogo")}
-                                    accept="image/*"
-                                    hidden
-                                />
-                            </div>
-                        </div>
+    // Validate GST and PAN numbers as user types
+    if (name === "gstNumber" && isGstRegistered) {
+      validateGSTNumber(value)
+    }
 
-                        <div className="flex-1 w-full space-y-4">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-[#667085]">Business Name</label>
-                                <input
-                                    type="text"
-                                    name="businessName"
-                                    value={formData.businessName}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                                />
-                            </div>
+    if (name === "panNumber") {
+      validatePANNumber(value)
+    }
+  }
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-[#667085]">Business Type</label>
-                                    <select
-                                        name="businessType"
-                                        value={formData.businessType}
-                                        onChange={handleInputChange}
-                                        className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                                    >
-                                        <option value="">Select Business Type</option>
-                                        <option value="retailer">Retailer</option>
-                                        <option value="wholesaler">Wholesaler</option>
-                                    </select>
-                                </div>
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "signature" | "businessLogo") => {
+    console.log(`File change event triggered for ${type}`)
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      console.log(`File selected: ${file.name}`)
+      const reader = new FileReader()
 
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-[#667085]">Business Registration Type</label>
-                                    <select
-                                        name="businessRegistrationType"
-                                        value={formData.businessRegistrationType}
-                                        onChange={handleInputChange}
-                                        className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                                    >
-                                        <option value="">Select Registration Type</option>
-                                        <option value="private">Private Limited</option>
-                                        <option value="public">Public Limited</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      reader.onload = (event) => {
+        console.log(`FileReader onload event triggered for ${type}`)
+        if (event.target && typeof event.target.result === "string") {
+          if (type === "signature") {
+            setSignature(file)
+            setSignaturePreview(event.target.result)
+            console.log("Signature Preview set:", event.target.result.substring(0, 50) + "...")
+          } else if (type === "businessLogo") {
+            setBusinessLogo(file)
+            setBusinessLogoPreview(event.target.result)
+            console.log("Business Logo Preview set:", event.target.result.substring(0, 50) + "...")
+          }
+        }
+      }
 
-                    {/* GST and PAN */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">GST Registered?</label>
-                            <div className="flex gap-6 mt-2">
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="gstRegistered"
-                                        value="yes"
-                                        checked={isGstRegistered}
-                                        className="text-[#1eb386]"
-                                        onChange={() => {
-                                            setIsGstRegistered(true)
-                                            // Reset GST validation when toggling
-                                            if (!isGstRegistered) {
-                                                setErrors((prev) => ({ ...prev, gstNumber: "" }))
-                                                setTouched((prev) => ({ ...prev, gstNumber: false }))
-                                            }
-                                        }}
-                                    />
-                                    <span className="text-sm">Yes</span>
-                                </label>
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="gstRegistered"
-                                        value="no"
-                                        checked={!isGstRegistered}
-                                        className="text-[#1eb386]"
-                                        onChange={() => {
-                                            setIsGstRegistered(false)
-                                            // Clear GST errors when not registered
-                                            setErrors((prev) => ({ ...prev, gstNumber: "" }))
-                                        }}
-                                    />
-                                    <span className="text-sm">No</span>
-                                </label>
-                            </div>
-                        </div>
+      reader.onerror = (error) => {
+        console.error(`FileReader error for ${type}:`, error)
+      }
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">GST Number</label>
-                            <input
-                                type="text"
-                                name="gstNumber"
-                                value={formData.gstNumber}
-                                onChange={handleInputChange}
-                                onBlur={() => handleBlur("gstNumber")}
-                                className={`w-full p-2 border rounded-md focus:outline-none focus:ring-1 
-                  ${errors.gstNumber && touched.gstNumber ? "border-red-500 focus:ring-red-500" : "border-[#e0e2e7] focus:ring-[#1eb386]"}
-                  ${!isGstRegistered ? "opacity-50 cursor-not-allowed" : ""}`}
-                                disabled={!isGstRegistered}
-                                placeholder="22AAAAA0000A1Z5"
-                            />
-                            {errors.gstNumber && touched.gstNumber && <p className="text-red-500 text-xs mt-1">{errors.gstNumber}</p>}
-                        </div>
+      reader.readAsDataURL(file)
+    }
+  }
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">PAN Number</label>
-                            <input
-                                type="text"
-                                name="panNumber"
-                                value={formData.panNumber}
-                                onChange={handleInputChange}
-                                onBlur={() => handleBlur("panNumber")}
-                                className={`w-full p-2 border rounded-md focus:outline-none focus:ring-1 
-                  ${errors.panNumber && touched.panNumber ? "border-red-500 focus:ring-red-500" : "border-[#e0e2e7] focus:ring-[#1eb386]"}`}
-                                placeholder="AAAAA0000A"
-                            />
-                            {errors.panNumber && touched.panNumber && <p className="text-red-500 text-xs mt-1">{errors.panNumber}</p>}
-                        </div>
-                    </div>
+  const handleSave = async () => {
+    // Validate all fields before submission
+    let isValid = true
 
-                    {/* Company Contact */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">Company E-mail</label>
-                            <input
-                                type="email"
-                                name="companyEmail"
-                                value={formData.companyEmail}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                            />
-                        </div>
+    // Validate GST number if registered
+    if (isGstRegistered) {
+      const isGstValid = validateGSTNumber(formData.gstNumber)
+      if (!isGstValid) {
+        toast.error("Please enter a valid GST Number")
+        isValid = false
+      }
+    }
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">Company Number</label>
-                            <input
-                                type="text"
-                                name="companyNumber"
-                                value={formData.companyNumber}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                            />
-                        </div>
-                    </div>
+    // Validate PAN number
+    const isPanValid = validatePANNumber(formData.panNumber)
+    if (!isPanValid) {
+      toast.error("Please enter a valid PAN Number")
+      isValid = false
+    }
 
-                    {/* Billing Address */}
-                    <div className="space-y-2">
-                        <label className="block text-sm font-medium text-[#667085]">Billing Address</label>
-                        <textarea
-                            name="billingAddress"
-                            value={formData.billingAddress}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386] resize-none h-20 sm:h-24"
-                        />
-                    </div>
+    if (!isValid) return
 
-                    {/* Location */}
-                    <div className="flex justify-end">
-                        <button
-                            className="flex items-center gap-2 text-[#1eb386] text-sm py-1 px-2 rounded hover:bg-[#f0f9f6] transition-colors"
-                            onClick={getlocation}
-                        >
-                            Get Location <FaLocationCrosshairs className="text-[#1eb386]" />
-                        </button>
-                    </div>
+    try {
+      const formDataToSend = new FormData()
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">State</label>
-                            <input
-                                type="text"
-                                name="state"
-                                value={formData.state}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                            />
-                        </div>
+      // Append all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value)
+      })
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">Pincode</label>
-                            <input
-                                type="text"
-                                name="pincode"
-                                value={formData.pincode}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                            />
-                        </div>
+      // Append isGstRegistered
+      formDataToSend.append("isGstRegistered", isGstRegistered.toString())
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">City</label>
-                            <input
-                                type="text"
-                                name="city"
-                                value={formData.city}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386]"
-                            />
-                        </div>
-                    </div>
+      // Append files if they exist
+      if (signature) {
+        formDataToSend.append("signature", signature)
+      }
 
-                    {/* Terms & Conditions */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2 space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">Terms & Conditions</label>
-                            <textarea
-                                name="termsAndConditions"
-                                value={formData.termsAndConditions}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border border-[#e0e2e7] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1eb386] resize-none h-28 sm:h-32"
-                            />
-                        </div>
+      if (businessLogo) {
+        formDataToSend.append("businessLogo", businessLogo)
+      }
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-[#667085]">Signature</label>
-                            <div
-                                className="cursor-pointer flex flex-col items-center justify-center p-4 h-28 sm:h-32 rounded-md border-dashed border border-[#e0e2e7]"
-                                onClick={() => signatureRef.current?.click()}
-                            >
-                                {signaturePreview ? (
-                                    <Image
-                                        src={signaturePreview || "/placeholder.svg"}
-                                        alt="Signature"
-                                        className="max-w-full max-h-full object-contain"
-                                        height={128}
-                                        width={200}
-                                    />
-                                ) : (
-                                    <span className="text-sm text-[#1eb386]">+ Upload Signature</span>
-                                )}
-                                <input
-                                    type="file"
-                                    ref={signatureRef}
-                                    onChange={(e) => handleFileChange(e, "signature")}
-                                    accept="image/*"
-                                    hidden
-                                />
-                            </div>
-                        </div>
-                    </div>
+      const method = formData.businessName ? "PUT" : "POST"
+      const response = await fetch("/api/business-details", {
+        method,
+        body: formDataToSend,
+      })
 
-                    {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4">
-                        <button
-                            className="px-4 sm:px-6 py-2 border border-[#e0e2e7] rounded-md text-[#667085] w-full sm:w-auto order-2 sm:order-1"
-                            onClick={() => fetchBusinessDetails()}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 sm:px-6 py-2 bg-[#1eb386] text-white rounded-md hover:bg-[#40c79a] transition-colors w-full sm:w-auto order-1 sm:order-2"
-                        >
-                            Save & Continue
-                        </button>
-                    </div>
-                </div>
-            </div>
+      if (response.ok) {
+        toast.success("form Submitted succesfully")
+
+        // Optionally, you can refresh the data here
+        await fetchBusinessDetails()
+      } else {
+        const errorData = await response.json()
+        console.log("Failed to save business details:", errorData.error)
+      }
+    } catch (error) {
+      console.log("Error saving business details:", error)
+    }
+  }
+
+  return (
+    <div className="bg-universal_gray_background pb-10">
+      <div className="px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
+        <div className="flex flex-col items-center py-4">
+          {/* Logo and heading area */}
+          <div className="flex items-center justify-center mb-4">
+            <svg width="36" height="41" viewBox="0 0 36 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="6.50098" y="16.5" width="7.99999" height="7.99999" fill="#1EB386" />
+              <rect x="30.501" y="24.5" width="8" height="7.99999" transform="rotate(180 30.501 24.5)" fill="#1EB386" />
+              <path d="M14.501 16.5L22.501 8.49998V16.5L14.501 24.5V16.5Z" fill="#ADEDD2" />
+              <path d="M22.501 24.5L14.501 32.5L14.501 24.5L22.501 16.5L22.501 24.5Z" fill="#77DEB8" />
+              <path d="M6.50098 16.5L22.5009 0.5V8.49999L14.501 16.5H6.50098Z" fill="#77DEB8" />
+              <path d="M30.501 24.5L14.501 40.5L14.501 32.5L22.501 24.5L30.501 24.5Z" fill="#40C79A" />
+            </svg>
+
+            <span className="ml-2 text-xl font-semibold text-[#667085]">Invoicify</span>
+          </div>
+
+          {/* Heading area */}
+          <div className="text-3xl font-semibold text-business_settings_black_text text-center">
+            Set Up your Business Details
+          </div>
         </div>
-    )
+
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
+          <div className="flex gap-6">
+            {/* Business Logo Upload Section */}
+            <div className="flex flex-col items-center">
+              <div
+                className="w-[140px] h-[140px] border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50"
+                onClick={() => businessLogoRef.current?.click()}
+              >
+                {businessLogoPreview ? (
+                  <Image
+                    src={businessLogoPreview || "/placeholder.svg"}
+                    alt="Business Logo"
+                    width={120}
+                    height={120}
+                    className="object-contain max-w-full max-h-full"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-4">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-gray-300"
+                    >
+                      <rect width="24" height="24" fill="white" />
+                      <path
+                        d="M4 16L8.586 11.414C8.96106 11.0391 9.46967 10.8284 10 10.8284C10.5303 10.8284 11.0389 11.0391 11.414 11.414L16 16M14 14L15.586 12.414C15.9611 12.0391 16.4697 11.8284 17 11.8284C17.5303 11.8284 18.0389 12.0391 18.414 12.414L20 14M14 8H14.01M6 20H18C18.5304 20 19.0391 19.7893 19.4142 19.4142C19.7893 19.0391 20 18.5304 20 18V6C20 5.46957 19.7893 4.96086 19.4142 4.58579C19.0391 4.21071 18.5304 4 18 4H6C5.46957 4 4.96086 4.21071 4.58579 4.58579C4.21071 4.96086 4 5.46957 4 6V18C4 18.5304 4.21071 19.0391 4.58579 19.4142C4.96086 19.7893 5.46957 20 6 20Z"
+                        stroke="#9CA3AF"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  ref={businessLogoRef}
+                  onChange={(e) => handleFileChange(e, "businessLogo")}
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+              <button
+                className="mt-2 text-[#1EB386] text-sm flex items-center gap-1"
+                onClick={() => businessLogoRef.current?.click()}
+              >
+                <ArrowUpFromLine size={14} />
+                Upload Logo Image
+              </button>
+            </div>
+
+            {/* Business Details Section */}
+            <div className="flex flex-col w-full gap-6">
+              <div className="p-5 bg-universal_gray_background rounded-lg gap-1">
+                <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Name</div>
+                <input
+                  type="text"
+                  name="businessName"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
+                  className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                />
+              </div>
+              <div className="flex w-full gap-3">
+                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Type</div>
+                  <select
+                    name="businessType"
+                    value={formData.businessType}
+                    onChange={handleInputChange}
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                  >
+                    <option value="">Select Business Type</option>
+                    <option value="retailer">Retailer</option>
+                    <option value="wholesaler">Wholesaler</option>
+                  </select>
+                </div>
+                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                    Business Registration Type
+                  </div>
+                  <select
+                    name="businessRegistrationType"
+                    value={formData.businessRegistrationType}
+                    onChange={handleInputChange}
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                  >
+                    <option value="">Select Registration Type</option>
+                    <option value="private">Private Limited</option>
+                    <option value="public">Public Limited</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg">
+              <div className="text-sidebar_black_text text-xs">Gst Registered?</div>
+              <div className="flex gap-10">
+                <label className="flex items-center gap-3">
+                  <span className="text-sm py-3">Yes</span>
+                  <input
+                    type="radio"
+                    name="gstRegistered"
+                    value="yes"
+                    checked={isGstRegistered}
+                    className="custom-radio h-4 w-4"
+                    onChange={() => setIsGstRegistered(true)}
+                  />
+                </label>
+                <label className="flex items-center gap-3">
+                  <span className="py-3 text-sm">No</span>
+                  <input
+                    type="radio"
+                    name="gstRegistered"
+                    value="no"
+                    checked={!isGstRegistered}
+                    className="custom-radio h-4 w-4"
+                    onChange={() => {
+                      setIsGstRegistered(false)
+                      setErrors((prev) => ({ ...prev, gstNumber: "" }))
+                      setFormData((prev) => ({ ...prev, gstNumber: "" }))
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            <div
+              className={`p-5 bg-universal_gray_background rounded-lg w-full gap-1 ${
+                !isGstRegistered ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Gst Number</div>
+              <input
+                type="text"
+                name="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleInputChange}
+                className={`bg-transparent border ${errors.gstNumber ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
+                  !isGstRegistered ? "cursor-not-allowed" : ""
+                }`}
+                disabled={!isGstRegistered}
+                placeholder="27AAPFU0939F1ZV"
+              />
+              {errors.gstNumber && isGstRegistered && <p className="text-xs text-red-500 mt-1">{errors.gstNumber}</p>}
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">PAN Number</div>
+              <input
+                type="text"
+                name="panNumber"
+                value={formData.panNumber}
+                onChange={handleInputChange}
+                className={`bg-transparent border ${errors.panNumber ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
+                placeholder="ABCDE1234F"
+              />
+              {errors.panNumber && <p className="text-xs text-red-500 mt-1">{errors.panNumber}</p>}
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full max-w-[365px] gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company E-mail</div>
+              <input
+                type="text"
+                name="companyEmail"
+                value={formData.companyEmail}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company Number</div>
+              <input
+                type="text"
+                name="companyNumber"
+                value={formData.companyNumber}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Billing Address</div>
+              <textarea
+                name="billingAddress"
+                value={formData.billingAddress}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1 resize-none"
+              />
+            </div>
+          </div>
+          <button className="flex justify-end items-center gap-4 " onClick={getlocation}>
+            Get Location <FaLocationCrosshairs className="border border-gray text-blue-400" />
+          </button>
+          <div className="flex gap-3">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">State</div>
+              <input
+                type="text"
+                name="state"
+                value={formData.state}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Pincode</div>
+              <input
+                type="text"
+                name="pincode"
+                value={formData.pincode}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">City</div>
+              <input
+                type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+              />
+            </div>
+          </div>
+          <div className="flex">
+            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Terms & Conditions</div>
+              <div className="flex gap-8">
+                <textarea
+                  name="termsAndConditions"
+                  value={formData.termsAndConditions}
+                  onChange={handleInputChange}
+                  className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
+                />
+                <div
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1"
+                  onClick={() => signatureRef.current?.click()}
+                >
+                  {signaturePreview ? (
+                    <Image
+                      src={signaturePreview || "/placeholder.svg"}
+                      alt="Signature"
+                      className="max-w-full max-h-full object-contain"
+                      height={128}
+                      width={240}
+                    />
+                  ) : (
+                    <span className="text-sidebar_green_button_background">+ Upload Signature</span>
+                  )}
+                  <input
+                    type="file"
+                    ref={signatureRef}
+                    onChange={(e) => handleFileChange(e, "signature")}
+                    accept="image/*"
+                    hidden
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              onClick={() => fetchBusinessDetails()}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default BusinessSettings

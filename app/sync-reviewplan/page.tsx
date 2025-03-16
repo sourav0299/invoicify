@@ -30,7 +30,7 @@ export default function SubscriptionReview() {
                 </div>
 
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 md:mt-10 md:gap-6 lg:grid-cols-2">
-                    {/* Left Column - Plan Details */}
+                     {/* Plan Details  */}
                     <div className="relative rounded-lg border border-[#d9d9d9] bg-white p-4 sm:p-6">
                         <p className="mb-4 text-base font-medium text-[#212626] sm:text-lg">You are signing up for:</p>
 
@@ -107,7 +107,7 @@ export default function SubscriptionReview() {
                         </div>
                     </div>
 
-                    {/* Right Column - Pricing Details */}
+                     {/* Pricing Details  */}
                     <div className="rounded-lg border border-[#d9d9d9] bg-white p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
                             <h3 className="text-3xl font-bold text-[#212626] sm:text-4xl">₹249.00</h3>
