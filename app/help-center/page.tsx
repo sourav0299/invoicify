@@ -15,15 +15,13 @@ const faqData = {
   general: [
     {
       question: "Hello",
-      answer:
-        "Hello, How can i assist you?",
+      answer: "Hello, How can i assist you?",
     },
     {
       question: "Hi",
-      answer:
-        "Hello, how can i assist you?",
+      answer: "Hello, how can i assist you?",
     },
-    
+
     {
       question: "What is the purpose of this billing software?",
       answer:
@@ -205,8 +203,8 @@ export default function HelpCenter() {
     : []
 
   return (
-    <div className="h-screen bg-background p-4">
-      <Card className="mx-auto max-w-4xl h-[calc(100vh-32px)]">
+    <main className="flex-1 h-screen overflow-hidden">
+      <Card className="w-full h-full rounded-none border-0 shadow-none">
         <div className="flex flex-col h-full">
           <CardHeader className="px-4 py-3 border-b">
             <div className="flex items-center justify-between">
@@ -237,7 +235,6 @@ export default function HelpCenter() {
                       onClick={() =>
                         setMessages([
                           { role: "bot", content: "Hi there! I'm your Invoicify assistant. How can I help you today?" },
-                      
                         ])
                       }
                     >
@@ -368,7 +365,7 @@ export default function HelpCenter() {
           </div>
         </div>
       </Card>
-    </div>
+    </main>
   )
 }
 
