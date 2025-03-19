@@ -562,75 +562,77 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
-                <th className="py-6 px-4 border-b text-left">
-                  <div className="flex items-center">
-                    <button onClick={handleSelectAll} className="mr-2">
+                <th className="py-6 px-4 border-b text-center">
+                  <div className="flex items-center justify-center">
+                    <button onClick={handleSelectAll} className="">
                       {selectAll ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
                     </button>
                   </div>
                 </th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("itemCode")}>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("itemCode")}>
                     Product Code
                     {sortField === "itemCode" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("itemName")}>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("itemName")}>
                     Name
                     {sortField === "itemName" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("itemType")}>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("itemType")}>
                     Type
                     {sortField === "itemType" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("inventory")}>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("inventory")}>
                     Inventory
                     {sortField === "inventory" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">Unit</th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("salesPrice")}>
+                <th className="py-6 px-4 border-b text-center">Unit</th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("salesPrice")}>
                     Sales Price
                     {sortField === "salesPrice" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">Tax</th>
-                <th className="py-6 px-4 border-b text-left">
-                  <button className="flex items-center" onClick={() => handleSort("totalPrice")}>
+                <th className="py-6 px-4 border-b text-center">Tax</th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("totalPrice")}>
                     After Tax Price
                     {sortField === "totalPrice" && <ArrowUpDown className="ml-1 h-4 w-4" />}
                   </button>
                 </th>
-                <th className="py-6 px-4 border-b text-left">Action</th>
+                <th className="py-6 px-4 border-b text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((product, index) => (
                 <tr key={index} className="bg-white">
-                  <td className="py-2 px-4 border-b">
-                    <button onClick={() => handleSelectProduct(product._id || "")} className="mr-2">
-                      {selectedProducts.includes(product._id || "") ? (
-                        <CheckSquare className="h-5 w-5" />
-                      ) : (
-                        <Square className="h-5 w-5" />
-                      )}
-                    </button>
+                  <td className="py-2 px-4 border-b text-center">
+                    <div className="flex justify-center">
+                      <button onClick={() => handleSelectProduct(product._id || "")}>
+                        {selectedProducts.includes(product._id || "") ? (
+                          <CheckSquare className="h-5 w-5" />
+                        ) : (
+                          <Square className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                   </td>
-                  <td className="py-2 px-4 border-b">{product.itemCode}</td>
-                  <td className="py-2 px-4 border-b">{product.itemName}</td>
-                  <td className="py-2 px-4 border-b">{product.itemType}</td>
-                  <td className="py-2 px-4 border-b">{product.inventory}</td>
-                  <td className="py-2 px-4 border-b">{product.measuringUnit}</td>
-                  <td className="py-2 px-4 border-b">{product.salesPrice}</td>
-                  <td className="py-2 px-4 border-b">{product.taxRate}%</td>
-                  <td className="py-2 px-4 border-b">{Number(product.totalPrice).toFixed(2)}</td>
-                  <td className="py-2 px-4 border-b flex gap-2">
+                  <td className="py-2 px-4 border-b text-center">{product.itemCode}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.itemName}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.itemType}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.inventory}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.measuringUnit}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.salesPrice}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.taxRate}%</td>
+                  <td className="py-2 px-4 border-b text-center">{Number(product.totalPrice).toFixed(2)}</td>
+                  <td className="py-2 px-4 border-b flex gap-2 justify-center">
                     <button
                       id={`button-${product._id}`}
                       className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"

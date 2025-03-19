@@ -144,6 +144,7 @@ interface PartiesProp {
   // totalPrice?: number;
   // taxAmount?: number;
   // qrCode?: string;
+
   partyName: string;
   partyType: string;
   partyContactDetails: string;
@@ -168,6 +169,7 @@ const Modal: React.FC = () => {
     shippingAddress: "",
     creditPeriod: 0,
     creditLimit: 0,
+    
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errors, setErrors] = useState<{ [K in keyof PartiesProp]?: string }>({});

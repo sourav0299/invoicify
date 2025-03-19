@@ -393,21 +393,21 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
-                <th className="py-6 px-4 border-b text-left">
-                  <div className="flex items-center">
+                <th className="py-6 px-4 border-b text-center">
+                  <div className="flex items-center justify-center">
                     <input
                       type="checkbox"
                       checked={selectAll}
                       onChange={handleSelectAll}
-                      className="mr-2 h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
+                      className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
                     />
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("date")}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Date
                     {sortConfig?.key === "date" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
@@ -415,10 +415,10 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("invoiceName")}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Name
                     {sortConfig?.key === "invoiceName" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
@@ -426,10 +426,10 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("expenseName")}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Expense number
                     {sortConfig?.key === "expenseName" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
@@ -437,47 +437,49 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("itemType")}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Category
                     {sortConfig?.key === "itemType" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
-                <th className="py-6 px-4 border-b text-left">GST</th>
+                <th className="py-6 px-4 border-b text-center">GST</th>
                 <th
-                  className="py-6 px-4 border-b text-left cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
                   onClick={() => requestSort("expenseAmount")}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Amount
                     {sortConfig?.key === "expenseAmount" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
-                <th className="py-6 px-4 border-b text-left">Actions</th>
+                <th className="py-6 px-4 border-b text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredExpenses.map((expense, index) => (
                 <tr key={index} className="bg-white hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">
-                    <input
-                      type="checkbox"
-                      checked={selectedExpenses.includes(expense._id || "")}
-                      onChange={() => handleSelectExpense(expense._id)}
-                      className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
-                    />
+                  <td className="py-2 px-4 border-b text-center">
+                    <div className="flex justify-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedExpenses.includes(expense._id || "")}
+                        onChange={() => handleSelectExpense(expense._id)}
+                        className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
+                      />
+                    </div>
                   </td>
-                  <td className="py-2 px-4 border-b">{expense.date}</td>
-                  <td className="py-2 px-4 border-b">{expense.invoiceName}</td>
-                  <td className="py-2 px-4 border-b">{expense.expenseName}</td>
-                  <td className="py-2 px-4 border-b">{expense.itemType}</td>
-                  <td className={`py-2 px-4 border-b`}>
+                  <td className="py-2 px-4 border-b text-center">{expense.date}</td>
+                  <td className="py-2 px-4 border-b text-center">{expense.invoiceName}</td>
+                  <td className="py-2 px-4 border-b text-center">{expense.expenseName}</td>
+                  <td className="py-2 px-4 border-b text-center">{expense.itemType}</td>
+                  <td className={`py-2 px-4 border-b text-center`}>
                     <div
                       className={`text-center rounded-[6px] ${
                         expense.taxIncluded
@@ -488,17 +490,19 @@ const Modal: React.FC = () => {
                       {expense.taxIncluded ? "Included" : "Excluded"}
                     </div>
                   </td>
-                  <td className="py-2 px-4 border-b">{Number(expense.expenseAmount).toFixed(2)}</td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      className="text-red-500 hover:text-red-700 p-1"
-                      onClick={() => {
-                        setExpenseToDelete(expense)
-                        setShowDeleteConfirmation(true)
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <td className="py-2 px-4 border-b text-center">{Number(expense.expenseAmount).toFixed(2)}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    <div className="flex justify-center">
+                      <button
+                        className="text-red-500 hover:text-red-700 p-1"
+                        onClick={() => {
+                          setExpenseToDelete(expense)
+                          setShowDeleteConfirmation(true)
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
