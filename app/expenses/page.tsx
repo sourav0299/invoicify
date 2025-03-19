@@ -1,11 +1,8 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import type React from "react"
-
 import { useUser } from "@clerk/nextjs"
-// import "./app/globals.css"
-import "../globals.css"
-import "react-tooltip/dist/react-tooltip.css"
 import { ChevronDown, Search, Trash2 } from "lucide-react"
 
 interface CaretIconProps {
@@ -31,7 +28,7 @@ interface Expense {
   taxAmount?: number
 }
 
-const Modal: React.FC = () => {
+const ExpensesManager: React.FC = () => {
   const { user } = useUser()
   const [showModal, setShowModal] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -103,20 +100,23 @@ const Modal: React.FC = () => {
   }
 
   const handleConfirm = async () => {
+    // Convert expenseAmount to a number to ensure calculations work correctly
+    const expenseAmountNum = Number(expense.expenseAmount)
     const taxRate = expense.taxRate / 100
     let totalPrice: number
     let taxAmount: number
 
     if (expense.taxIncluded) {
-      totalPrice = expense.expenseAmount
-      taxAmount = (expense.expenseAmount * taxRate) / (1 + taxRate)
+      totalPrice = expenseAmountNum
+      taxAmount = (expenseAmountNum * taxRate) / (1 + taxRate)
     } else {
-      totalPrice = expense.expenseAmount * (1 + taxRate)
-      taxAmount = expense.expenseAmount * taxRate
+      totalPrice = expenseAmountNum * (1 + taxRate)
+      taxAmount = expenseAmountNum * taxRate
     }
 
     const expenseToSave = {
       ...expense,
+      expenseAmount: expenseAmountNum, // Ensure we're saving a number
       totalPrice,
       taxAmount,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -135,7 +135,7 @@ const Modal: React.FC = () => {
         throw new Error("Failed to save expense")
       }
 
-      const savedExpense = await response.json()
+      await response.json()
       handleCloseModal()
       fetchExpenseList()
     } catch (error) {
@@ -154,6 +154,7 @@ const Modal: React.FC = () => {
       setExpenseList(expenses)
       setFilteredExpenses(expenses)
     } catch (error) {
+      console.error("Error fetching expenses:", error)
       setExpenseList([])
       setFilteredExpenses([])
     }
@@ -198,10 +199,14 @@ const Modal: React.FC = () => {
     // Apply sorting
     if (sortConfig) {
       result.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        // Get values with fallbacks for undefined
+        const aValue = a[sortConfig.key] ?? ""
+        const bValue = b[sortConfig.key] ?? ""
+
+        if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === "ascending" ? 1 : -1
         }
         return 0
@@ -287,13 +292,12 @@ const Modal: React.FC = () => {
   }, [])
 
   return (
-    <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
+    <div className="flex flex-col gap-3 pt-3 px-6 bg-gray-50">
       <div className="flex flex-col items-start">
         <div className="flex justify-between w-full gap-3">
           <div>
-            <div className="text-[28px] font-semibold text-business_settings_black_text">Expenses List</div>
-
-            <div className="text-business_settings_gray_text">An Overview of all your transaction over the year.</div>
+            <div className="text-[28px] font-semibold text-gray-900">Expenses List</div>
+            <div className="text-gray-500">An Overview of all your transaction over the year.</div>
           </div>
           <div className="flex gap-3">
             {selectedExpenses.length > 0 && (
@@ -309,13 +313,13 @@ const Modal: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap md:flex-nowrap">
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
             <span
-              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-[2000ms] ease-in-out ${
-                isFocused ? "translate-x-[530 px]" : "translate-x-0"
-              } text-business_settings_black_text font-bold`}
+              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-300 ease-in-out ${
+                isFocused ? "translate-x-2" : "translate-x-0"
+              } text-gray-900 font-bold`}
               style={{ left: "0.1rem" }}
             >
               <Search size={24} />
@@ -323,7 +327,7 @@ const Modal: React.FC = () => {
             <input
               type="text"
               placeholder="Search by invoice, expense name or note"
-              className="w-full outline-none text-business_settings_black_text font-bold pl-10"
+              className="w-full outline-none text-gray-900 font-bold pl-10"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               value={searchQuery}
@@ -331,7 +335,7 @@ const Modal: React.FC = () => {
             />
           </div>
         </div>
-        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
+        <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full md:max-w-[339px]">
           <div
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
@@ -356,7 +360,7 @@ const Modal: React.FC = () => {
             </ul>
           )}
         </div>
-        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
+        <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full md:max-w-[339px]">
           <div
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -382,29 +386,29 @@ const Modal: React.FC = () => {
           )}
         </div>
         <button
-          className="border rounded-lg py-4 px-5 w-full items-start max-w-[287px] text-semibold bg-sidebar_green_button_background text-white"
+          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-green-600 text-white"
           onClick={() => setShowModal(true)}
         >
           <div className="">+Add New Expenses</div>
         </button>
       </div>
-      <div className="border-[0.5px]">
+      <div className="border-[0.5px] bg-white rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full bg-universal_gray_background">
+          <table className="w-full">
             <thead>
-              <tr className="">
+              <tr className="bg-gray-50">
                 <th className="py-6 px-4 border-b text-center">
                   <div className="flex items-center justify-center">
                     <input
                       type="checkbox"
                       checked={selectAll}
                       onChange={handleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
+                      className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
                     />
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-100"
                   onClick={() => requestSort("date")}
                 >
                   <div className="flex items-center justify-center">
@@ -415,7 +419,7 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-100"
                   onClick={() => requestSort("invoiceName")}
                 >
                   <div className="flex items-center justify-center">
@@ -426,7 +430,7 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-100"
                   onClick={() => requestSort("expenseName")}
                 >
                   <div className="flex items-center justify-center">
@@ -437,7 +441,7 @@ const Modal: React.FC = () => {
                   </div>
                 </th>
                 <th
-                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-100"
                   onClick={() => requestSort("itemType")}
                 >
                   <div className="flex items-center justify-center">
@@ -449,7 +453,7 @@ const Modal: React.FC = () => {
                 </th>
                 <th className="py-6 px-4 border-b text-center">GST</th>
                 <th
-                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-50"
+                  className="py-6 px-4 border-b text-center cursor-pointer hover:bg-gray-100"
                   onClick={() => requestSort("expenseAmount")}
                 >
                   <div className="flex items-center justify-center">
@@ -471,7 +475,7 @@ const Modal: React.FC = () => {
                         type="checkbox"
                         checked={selectedExpenses.includes(expense._id || "")}
                         onChange={() => handleSelectExpense(expense._id)}
-                        className="h-4 w-4 rounded border-gray-300 text-sidebar_green_button_background focus:ring-sidebar_green_button_background"
+                        className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
                       />
                     </div>
                   </td>
@@ -483,8 +487,8 @@ const Modal: React.FC = () => {
                     <div
                       className={`text-center rounded-[6px] ${
                         expense.taxIncluded
-                          ? "bg-[#D2F8D5] text-[#1A7F22] border border-[#1A7F22]"
-                          : "bg-[#FEF6D5] text-[#928037] border border-[#928037]"
+                          ? "bg-green-100 text-green-800 border border-green-800"
+                          : "bg-yellow-100 text-yellow-800 border border-yellow-800"
                       }`}
                     >
                       {expense.taxIncluded ? "Included" : "Excluded"}
@@ -521,185 +525,161 @@ const Modal: React.FC = () => {
       {/* Add Expense Modal */}
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
-          <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <form onSubmit={handleSubmit}>
-              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+          <div className="relative bg-white rounded-lg shadow-xl max-w-[849px] w-full mx-4 md:mx-auto">
+            <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
+              <div className="flex items-center justify-between w-full">
+                <div className="text-xl font-semibold">Add Expenses</div>
+                <button type="button" className="focus:outline-none" onClick={() => setShowModal(false)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M17.696 6.24954C18.0316 6.58343 18.033 7.12614 17.6991 7.46172L13.2092 11.9742L17.7505 16.5383C18.0844 16.8739 18.083 17.4166 17.7474 17.7505C17.4119 18.0844 16.8692 18.083 16.5353 17.7474L12 13.1894L7.46475 17.7474C7.13086 18.083 6.58814 18.0844 6.25257 17.7505C5.917 17.4166 5.91564 16.8739 6.24954 16.5383L10.7908 11.9742L6.30095 7.46172C5.96705 7.12615 5.96841 6.58344 6.30398 6.24954C6.63956 5.91564 7.18227 5.917 7.51616 6.25258L12 10.7589L16.4838 6.25257C16.8177 5.917 17.3605 5.91564 17.696 6.24954Z"
+                      fill="#111928"
+                    />
+                  </svg>
+                </button>
               </div>
-
-              <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
-                <div className="flex items-center justify-between w-full">
-                  <div className="text-xl font-semibold">Add Expenses</div>
-                  <button type="button" className="" onClick={() => setShowModal(false)}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M17.696 6.24954C18.0316 6.58343 18.033 7.12614 17.6991 7.46172L13.2092 11.9742L17.7505 16.5383C18.0844 16.8739 18.083 17.4166 17.7474 17.7505C17.4119 18.0844 16.8692 18.083 16.5353 17.7474L12 13.1894L7.46475 17.7474C7.13086 18.083 6.58814 18.0844 6.25257 17.7505C5.917 17.4166 5.91564 16.8739 6.24954 16.5383L10.7908 11.9742L6.30095 7.46172C5.96705 7.12615 5.96841 6.58344 6.30398 6.24954C6.63956 5.91564 7.18227 5.917 7.51616 6.25258L12 10.7589L16.4838 6.25257C16.8177 5.917 17.3605 5.91564 17.696 6.24954Z"
-                        fill="#111928"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
-                  <div className="flex gap-3">
-                    <div className="p-5 bg-universal_gray_background rounded-lg text-start">
-                      <div className="text-sidebar_black_text text-xs ">Date</div>
-                      <input
-                        type="date"
-                        name="date"
-                        value={expense.date}
-                        onChange={handleInputChange}
-                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                      />
-                      <div className="flex gap-10"></div>
-                    </div>
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Category</div>
-                      <div className="flex gap-2">
-                        <div className="relative w-full">
-                          <select
-                            name="itemType"
-                            value={expense.itemType}
-                            onChange={handleInputChange}
-                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
-                          >
-                            <option value="">Select a category</option>
-                            <option value="Product">Product</option>
-                            <option value="Service">Service</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                            <CaretIcon isOpen={isDropdownOpen} />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
-                        >
-                          Create New Category
-                        </button>
-                      </div>
-                    </div>
+              <div className="flex flex-col rounded-lg p-3 border border-gray-200 w-full gap-3">
+                <div className="flex gap-3 flex-col md:flex-row">
+                  <div className="p-5 bg-gray-50 rounded-lg text-start w-full">
+                    <div className="text-gray-900 text-xs">Date</div>
+                    <input
+                      type="date"
+                      name="date"
+                      value={expense.date}
+                      onChange={handleInputChange}
+                      className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Invoice Number
-                      </div>
-                      <input
-                        type="text"
-                        className={`bg-transparent border ${
-                          errors.invoiceName ? "border-red-500" : "border-business_settings_gray_border"
-                        } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
-                        name="invoiceName"
-                        value={expense.invoiceName}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Expense Number
-                      </div>
-                      <div className="flex gap-3">
-                        <input
-                          type="text"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                          id="expenseName"
-                          name="expenseName"
-                          value={expense.expenseName}
-                          onChange={handleInputChange}
-                          placeholder="Enter expense number"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Note</div>
-                      <div className="flex gap-3">
-                        <input
-                          type="textarea"
-                          name="note"
-                          value={expense.note}
-                          onChange={handleInputChange}
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Expense Amount
-                      </div>
-                      <div className="flex gap-3">
-                        <div className="relative w-full">
-                          <input
-                            type="number"
-                            name="expenseAmount"
-                            value={expense.expenseAmount}
-                            onChange={handleInputChange}
-                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
-                          />
-                        </div>
-                        <div className="w-full max-w-[130px] rounded bg-unit_gray_button_background text-sm flex items-center justify-center font-semibold gap-2">
-                          GST Included
-                          <input
-                            type="checkbox"
-                            name="taxIncluded"
-                            checked={expense.taxIncluded}
-                            onChange={handleCheckboxChange}
-                            className="appearance-none h-4 w-4 border border-sidebar_green_button_background rounded-sm bg-white checked:bg-white focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                            style={{
-                              backgroundImage: expense.taxIncluded
-                                ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%231EB386' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
-                                : "none",
-                              backgroundSize: "100% 100%",
-                              backgroundPosition: "center",
-                              backgroundRepeat: "no-repeat",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">tax</div>
-
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Category</div>
+                    <div className="flex gap-2 flex-col sm:flex-row">
                       <div className="relative w-full">
                         <select
-                          id="taxRate"
-                          name="taxRate"
-                          value={expense.taxRate}
+                          name="itemType"
+                          value={expense.itemType}
                           onChange={handleInputChange}
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                          className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                         >
-                          <option value={0}>No Tax</option>
-                          <option value={5}>5%</option>
-                          <option value={12}>12%</option>
-                          <option value={18}>18%</option>
-                          <option value={28}>28%</option>
+                          <option value="">Select a category</option>
+                          <option value="Product">Product</option>
+                          <option value="Service">Service</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                           <CaretIcon isOpen={false} />
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        className="w-full sm:max-w-[176px] border bg-green-50 border-green-600 text-green-600 rounded text-sm font-semibold h-8"
+                      >
+                        Create New Category
+                      </button>
                     </div>
                   </div>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={handleCloseModal}
-                      className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
-                    >
-                      Save
-                    </button>
+                </div>
+                <div className="flex gap-3 flex-col md:flex-row">
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Invoice Number</div>
+                    <input
+                      type="text"
+                      className={`bg-transparent border ${
+                        errors.invoiceName ? "border-red-500" : "border-gray-300"
+                      } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
+                      name="invoiceName"
+                      value={expense.invoiceName}
+                      onChange={handleInputChange}
+                    />
                   </div>
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Expense Number</div>
+                    <input
+                      type="text"
+                      className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      id="expenseName"
+                      name="expenseName"
+                      value={expense.expenseName}
+                      onChange={handleInputChange}
+                      placeholder="Enter expense number"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Note</div>
+                    <input
+                      type="text"
+                      name="note"
+                      value={expense.note}
+                      onChange={handleInputChange}
+                      className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 flex-col md:flex-row">
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Expense Amount</div>
+                    <div className="flex gap-3 flex-col sm:flex-row">
+                      <div className="relative w-full">
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2">$</span>
+                        <input
+                          type="number"
+                          name="expenseAmount"
+                          value={expense.expenseAmount}
+                          onChange={handleInputChange}
+                          className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none pl-6 pr-2 font-semibold"
+                        />
+                      </div>
+                      <div className="w-full sm:max-w-[130px] rounded bg-gray-200 text-sm flex items-center justify-center font-semibold gap-2 h-8">
+                        GST Included
+                        <input
+                          type="checkbox"
+                          name="taxIncluded"
+                          checked={expense.taxIncluded}
+                          onChange={handleCheckboxChange}
+                          className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Tax</div>
+                    <div className="relative w-full">
+                      <select
+                        id="taxRate"
+                        name="taxRate"
+                        value={expense.taxRate}
+                        onChange={handleInputChange}
+                        className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                      >
+                        <option value={0}>No Tax</option>
+                        <option value={5}>5%</option>
+                        <option value={12}>12%</option>
+                        <option value={18}>18%</option>
+                        <option value={28}>28%</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <CaretIcon isOpen={false} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="bg-white px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-green-600 h-10 text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                  >
+                    Save
+                  </button>
                 </div>
               </div>
             </form>
@@ -816,5 +796,5 @@ const Modal: React.FC = () => {
   )
 }
 
-export default Modal
+export default ExpensesManager
 
