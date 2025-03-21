@@ -43,7 +43,7 @@ const DashboardIcon = () => (
 const InvoiceManagementIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
-      d="M10 3V7C10 7.26522 9.89464 7.51957 9.70711 7.70711C9.51957 7.89464 9.26522 8 9 8H5M13 6H16M13 9H16M12 12V18M16 15H8M19 4V20C19 20.2652 18.8946 20.5196 18.7071 20.7071C18.5196 20.8946 18.2652 21 18 21H6C5.73478 21 5.48043 20.8946 5.29289 20.7071C5.10536 20.5196 5 20.2652 5 20V7.914C5.00006 7.64881 5.10545 7.39449 5.293 7.207L9.207 3.293C9.39449 3.10545 9.6488 3.00006 9.914 3H18C18.2652 3 18.5196 3.10536 18.7071 3.29289C18.8946 3.48043 19 3.73478 19 4ZM8 12V18H16V12H8Z"
+      d="M10 3V7C10 7.26522 9.89464 7.51957 9.70711 7.70711C9.51957 7.89464 9.26522 8 8 8H5M13 6H16M13 9H16M12 12V18M16 15H8M19 4V20C19 20.2652 18.8946 20.5196 18.7071 20.7071C18.5196 20.8946 18.2652 21 18 21H6C5.73478 21 5.48043 20.8946 5.29289 20.7071C5.10536 20.5196 5 20.2652 5 20V7.914C5.00006 7.64881 5.10545 7.39449 5.293 7.207L9.207 3.293C9.39449 3.10545 9.6488 3.00006 9.914 3H18C18.2652 3 18.5196 3.10536 18.7071 3.29289C18.8946 3.48043 19 3.73478 19 4ZM8 12V18H16V12H8Z"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -250,7 +250,6 @@ export default function Navbar() {
       }`}
     >
       <div className="flex flex-col h-full">
-        {/* Logo and toggle section */}
         <div className="flex items-center justify-between p-6 mb-2">
           <div className={`flex items-center ${collapsed ? "w-full" : ""}`}>
             <div className="flex-shrink-0">
@@ -277,7 +276,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Navigation section - removed overflow-y-auto */}
         <div className="flex-1 hide-scrollbar">
           <nav className="space-y-2 px-4">
             {navItems.map((item) => {
@@ -307,17 +305,27 @@ export default function Navbar() {
           <div className={`flex ${collapsed ? "justify-center" : "justify-between"} items-center`}>
             {!collapsed && (
               <div className="flex items-center">
-                <UserButton />
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">{user?.fullName || "User"}</p>
-                  <p className="text-xs text-gray-500 truncate max-w-[140px]">
-                    {user?.primaryEmailAddress?.emailAddress || "user@example.com"}
-                  </p>
-                </div>
+                <Link href="/user-details">
+                  <div className="cursor-pointer">
+                    <UserButton />
+                  </div>
+                </Link>
+                <Link href="/user-details">
+                  <div className="ml-3 cursor-pointer">
+                    <p className="text-sm font-medium text-gray-700">{user?.fullName || "User"}</p>
+                    <p className="text-xs text-gray-500 truncate max-w-[140px]">
+                      {user?.primaryEmailAddress?.emailAddress || "user@example.com"}
+                    </p>
+                  </div>
+                </Link>
               </div>
             )}
             {collapsed ? (
-              <UserButton />
+              <Link href="/user-details">
+                <div className="cursor-pointer">
+                  <UserButton />
+                </div>
+              </Link>
             ) : (
               <SignOutButton>
                 <button className="p-2 text-red-500 hover:bg-red-50 rounded-md">
@@ -331,5 +339,4 @@ export default function Navbar() {
     </div>
   )
 }
-
 

@@ -386,7 +386,7 @@ const ExpensesManager: React.FC = () => {
           )}
         </div>
         <button
-          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-green-600 text-white"
+          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-sidebar_green_button_background text-white"
           onClick={() => setShowModal(true)}
         >
           <div className="">+Add New Expenses</div>
@@ -623,7 +623,7 @@ const ExpensesManager: React.FC = () => {
                     <div className="bg-transparent w-full text-xs text-gray-900 text-start">Expense Amount</div>
                     <div className="flex gap-3 flex-col sm:flex-row">
                       <div className="relative w-full">
-                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2">$</span>
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2">₹</span>
                         <input
                           type="number"
                           name="expenseAmount"
