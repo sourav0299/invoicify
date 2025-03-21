@@ -1,16 +1,18 @@
-"use client";
-import Link from "next/link";
-import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+"use client"
+import Link from "next/link"
+import { SignOutButton, UserButton, useUser } from "@clerk/nextjs"
+import { usePathname } from "next/navigation"
+import { createContext, useContext } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+
+// Create context for navbar collapsed state
+export const NavbarContext = createContext({
+  collapsed: false,
+  setCollapsed: (value: boolean) => {},
+})
 
 const DashboardIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -36,16 +38,10 @@ const DashboardIcon = () => (
       fill="currentColor"
     />
   </svg>
-);
+)
 
 const InvoiceManagementIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M10 3V7C10 7.26522 9.89464 7.51957 9.70711 7.70711C9.51957 7.89464 9.26522 8 9 8H5M13 6H16M13 9H16M12 12V18M16 15H8M19 4V20C19 20.2652 18.8946 20.5196 18.7071 20.7071C18.5196 20.8946 18.2652 21 18 21H6C5.73478 21 5.48043 20.8946 5.29289 20.7071C5.10536 20.5196 5 20.2652 5 20V7.914C5.00006 7.64881 5.10545 7.39449 5.293 7.207L9.207 3.293C9.39449 3.10545 9.6488 3.00006 9.914 3H18C18.2652 3 18.5196 3.10536 18.7071 3.29289C18.8946 3.48043 19 3.73478 19 4ZM8 12V18H16V12H8Z"
       stroke="currentColor"
@@ -54,16 +50,10 @@ const InvoiceManagementIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const ProductManagementIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M5.00525 11.1906V12L12.0026 16.0418L19 12V11.1906M5 16.1489V16.9582L11.9974 21L18.9948 16.9582V16.1489M12.0026 3L5.00525 7.04176L12.0026 11.0835L19 7.04176L12.0026 3Z"
       stroke="currentColor"
@@ -72,16 +62,10 @@ const ProductManagementIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const PartiesIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M16 19H20C20.5523 19 21 18.5523 21 18V17C21 15.3431 19.6569 14 18 14H16M13.7639 10C14.3132 10.6137 15.1115 11 16 11C17.6569 11 19 9.65685 19 8C19 6.34315 17.6569 5 16 5C15.1115 5 14.3132 5.38625 13.7639 6M3 18V17C3 15.3431 4.34315 14 6 14H10C11.6569 14 13 15.3431 13 17V18C13 18.5523 12.5523 19 12 19H4C3.44772 19 3 18.5523 3 18ZM11 8C11 9.65685 9.65685 11 8 11C6.34315 11 5 9.65685 5 8C5 6.34315 6.34315 5 8 5C9.65685 5 11 6.34315 11 8Z"
       stroke="currentColor"
@@ -89,16 +73,10 @@ const PartiesIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-);
+)
 
 const ExpensesIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M17.65 8.2H5.05M17.65 8.2C18.2299 8.2 18.7 8.6701 18.7 9.25V11.98M17.65 8.2L13.45 4M5.05 8.2C4.4701 8.2 4 8.6701 4 9.25V19.75C4 20.3299 4.4701 20.8 5.05 20.8H17.65C18.2299 20.8 18.7 20.3299 18.7 19.75V17.02M5.05 8.2L9.25 4L13.45 8.2M19.75 12.4H15.55C14.3902 12.4 13.45 13.3402 13.45 14.5C13.45 15.6598 14.3902 16.6 15.55 16.6H19.75C20.3299 16.6 20.8 16.1299 20.8 15.55V13.45C20.8 12.8701 20.3299 12.4 19.75 12.4Z"
       stroke="currentColor"
@@ -107,16 +85,10 @@ const ExpensesIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const ReportsIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M10 3V7C10 7.55228 9.55228 8 9 8H5M9 18V16M12 18V12M15 18V15M19 4V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V7.91421C5 7.649 5.10536 7.39464 5.29289 7.20711L9.20711 3.29289C9.39464 3.10536 9.649 3 9.91421 3H18C18.5523 3 19 3.44772 19 4Z"
       stroke="currentColor"
@@ -125,16 +97,10 @@ const ReportsIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const BankAccountsIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M3 20.9999H21M4 17.9999H20M6 9.99987L6 17.9999M10 9.99987L10 17.9999M14 9.99987L14 17.9999M18 9.99987L18 17.9999M4 9.49987V8.54457C4 8.20499 4.17233 7.88862 4.45761 7.70444L11.4576 3.18526C11.7878 2.9721 12.2122 2.9721 12.5424 3.18526L19.5424 7.70444C19.8277 7.88862 20 8.20499 20 8.54457V9.49987C20 9.77602 19.7761 9.99987 19.5 9.99987H4.5C4.22386 9.99987 4 9.77602 4 9.49987Z"
       stroke="currentColor"
@@ -142,16 +108,10 @@ const BankAccountsIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-);
+)
 
 const InvoiceSettingsIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M18.875 16.5C18.875 18.364 17.364 19.875 15.5 19.875M18.875 16.5C18.875 14.636 17.364 13.125 15.5 13.125M18.875 16.5L20 16.5M15.5 19.875C13.6361 19.875 12.125 18.364 12.125 16.5M15.5 19.875V21M12.125 16.5C12.125 14.636 13.6361 13.125 15.5 13.125M12.125 16.5L11 16.5001M15.5 13.125V12M13.1135 14.1135L12.318 13.318M18.682 19.682L17.8865 18.8865M13.1135 18.8865L12.318 19.682M18.682 13.318L17.8865 14.1135"
       stroke="currentColor"
@@ -167,16 +127,10 @@ const InvoiceSettingsIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const BusinessSettingsIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
       stroke="currentColor"
@@ -194,16 +148,10 @@ const BusinessSettingsIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const HelpCenterIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M19.3449 15.1631L17.9445 13.7618C17.573 13.3904 17.0693 13.1818 16.5442 13.1818C16.019 13.1818 15.5154 13.3904 15.1438 13.7618L14.4437 14.4625C14.0723 14.8341 13.5686 15.0429 13.0433 15.0429C12.5181 15.0429 12.0144 14.8341 11.643 14.4625L9.54249 12.3605C9.17113 11.9888 8.9625 11.4848 8.9625 10.9592C8.9625 10.4336 9.17113 9.92951 9.54249 9.55785L10.2427 8.85718C10.6138 8.48539 10.8222 7.98137 10.8222 7.45586C10.8222 6.93035 10.6138 6.42633 10.2427 6.05453L8.84233 4.65321C8.6707 4.44865 8.45641 4.28417 8.21449 4.17132C7.97257 4.05848 7.7089 4 7.44199 4C7.17508 4 6.9114 4.05848 6.66949 4.17132C6.42757 4.28417 6.21327 4.44865 6.04165 4.65321C2.35876 8.31167 4.09718 12.5347 7.77807 16.2161C11.459 19.8976 15.68 21.6393 19.3449 17.9698C19.55 17.7981 19.7149 17.5834 19.8281 17.3409C19.9413 17.0985 20 16.8341 20 16.5665C20 16.2989 19.9413 16.0345 19.8281 15.792C19.7149 15.5495 19.55 15.3349 19.3449 15.1631Z"
       stroke="currentColor"
@@ -212,16 +160,10 @@ const HelpCenterIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const LogoutIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
     <path
       d="M20 12L8 12M20 12L16 16M20 12L16 8M9 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H9"
       stroke="#FF7A7A"
@@ -230,138 +172,164 @@ const LogoutIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const InvoicifyIcon = () => (
-  <svg
-    width="144"
-    height="40"
-    viewBox="0 0 144 40"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect x="12" y="16" width="7.99999" height="7.99999" fill="#1EB386" />
-    <rect
-      x="36"
-      y="24"
-      width="8"
-      height="7.99999"
-      transform="rotate(180 36 24)"
-      fill="#1EB386"
-    />
-    <path d="M20 16L28 8V16L20 24V16Z" fill="#ADEDD2" />
-    <path d="M28 24L20 32L20 24L28 16L28 24Z" fill="#77DEB8" />
-    <path d="M12 16L28 0V7.99999L20 16H12Z" fill="#77DEB8" />
-    <path d="M36 24L20 40L20 32L28 24L36 24Z" fill="#40C79A" />
-    <path
-      d="M64.3395 12.4545V27H61.2642V12.4545H64.3395ZM69.9384 20.6932V27H66.9129V16.0909H69.7964V18.0156H69.9242C70.1657 17.3812 70.5705 16.8793 71.1387 16.5099C71.7069 16.1359 72.3958 15.9489 73.2055 15.9489C73.963 15.9489 74.6236 16.1146 75.187 16.446C75.7505 16.7775 76.1884 17.2509 76.5009 17.8665C76.8134 18.4773 76.9697 19.2064 76.9697 20.054V27H73.9441V20.5938C73.9488 19.9261 73.7784 19.4053 73.4327 19.0312C73.0871 18.6525 72.6112 18.4631 72.0052 18.4631C71.598 18.4631 71.2381 18.5507 70.9256 18.7259C70.6179 18.901 70.3764 19.1567 70.2012 19.4929C70.0308 19.8243 69.9432 20.2244 69.9384 20.6932ZM89.2341 16.0909L85.4202 27H82.0111L78.1972 16.0909H81.3932L83.6588 23.8963H83.7724L86.031 16.0909H89.2341ZM95.4598 27.2131C94.3566 27.2131 93.4025 26.9787 92.5976 26.5099C91.7974 26.0365 91.1795 25.3783 90.7439 24.5355C90.3083 23.688 90.0905 22.7055 90.0905 21.5881C90.0905 20.4612 90.3083 19.4763 90.7439 18.6335C91.1795 17.786 91.7974 17.1278 92.5976 16.6591C93.4025 16.1856 94.3566 15.9489 95.4598 15.9489C96.563 15.9489 97.5147 16.1856 98.3149 16.6591C99.1198 17.1278 99.7401 17.786 100.176 18.6335C100.611 19.4763 100.829 20.4612 100.829 21.5881C100.829 22.7055 100.611 23.688 100.176 24.5355C99.7401 25.3783 99.1198 26.0365 98.3149 26.5099C97.5147 26.9787 96.563 27.2131 95.4598 27.2131ZM95.474 24.8693C95.9759 24.8693 96.3949 24.7273 96.7311 24.4432C97.0673 24.1544 97.3206 23.7614 97.4911 23.2642C97.6662 22.767 97.7538 22.2012 97.7538 21.5668C97.7538 20.9323 97.6662 20.3665 97.4911 19.8693C97.3206 19.3722 97.0673 18.9792 96.7311 18.6903C96.3949 18.4015 95.9759 18.2571 95.474 18.2571C94.9674 18.2571 94.5412 18.4015 94.1956 18.6903C93.8547 18.9792 93.5966 19.3722 93.4214 19.8693C93.251 20.3665 93.1658 20.9323 93.1658 21.5668C93.1658 22.2012 93.251 22.767 93.4214 23.2642C93.5966 23.7614 93.8547 24.1544 94.1956 24.4432C94.5412 24.7273 94.9674 24.8693 95.474 24.8693ZM102.896 27V16.0909H105.922V27H102.896ZM104.416 14.6847C103.967 14.6847 103.581 14.5355 103.259 14.2372C102.941 13.9342 102.783 13.572 102.783 13.1506C102.783 12.7339 102.941 12.3764 103.259 12.0781C103.581 11.7751 103.967 11.6236 104.416 11.6236C104.866 11.6236 105.25 11.7751 105.567 12.0781C105.889 12.3764 106.05 12.7339 106.05 13.1506C106.05 13.572 105.889 13.9342 105.567 14.2372C105.25 14.5355 104.866 14.6847 104.416 14.6847ZM113.375 27.2131C112.257 27.2131 111.296 26.9763 110.491 26.5028C109.691 26.0246 109.075 25.3617 108.645 24.5142C108.218 23.6667 108.005 22.6913 108.005 21.5881C108.005 20.4706 108.221 19.4905 108.652 18.6477C109.087 17.8002 109.705 17.1397 110.505 16.6662C111.306 16.188 112.257 15.9489 113.36 15.9489C114.312 15.9489 115.145 16.1217 115.86 16.4673C116.575 16.813 117.141 17.2983 117.558 17.9233C117.975 18.5483 118.204 19.2822 118.247 20.125H115.392C115.311 19.5805 115.098 19.1425 114.752 18.8111C114.412 18.4749 113.964 18.3068 113.41 18.3068C112.941 18.3068 112.532 18.4347 112.181 18.6903C111.836 18.9413 111.566 19.3082 111.372 19.7912C111.178 20.2741 111.081 20.8589 111.081 21.5455C111.081 22.2415 111.175 22.8333 111.365 23.321C111.559 23.8087 111.831 24.1804 112.181 24.4361C112.532 24.6918 112.941 24.8196 113.41 24.8196C113.756 24.8196 114.066 24.7486 114.341 24.6065C114.62 24.4645 114.85 24.2585 115.029 23.9886C115.214 23.714 115.335 23.3849 115.392 23.0014H118.247C118.199 23.8348 117.972 24.5687 117.565 25.2031C117.163 25.8329 116.606 26.3253 115.896 26.6804C115.186 27.0355 114.345 27.2131 113.375 27.2131ZM120.284 27V16.0909H123.31V27H120.284ZM121.804 14.6847C121.354 14.6847 120.968 14.5355 120.646 14.2372C120.329 13.9342 120.17 13.572 120.17 13.1506C120.17 12.7339 120.329 12.3764 120.646 12.0781C120.968 11.7751 121.354 11.6236 121.804 11.6236C122.254 11.6236 122.637 11.7751 122.954 12.0781C123.276 12.3764 123.437 12.7339 123.437 13.1506C123.437 13.572 123.276 13.9342 122.954 14.2372C122.637 14.5355 122.254 14.6847 121.804 14.6847ZM131.7 16.0909V18.3636H124.967V16.0909H131.7ZM126.508 27V15.3026C126.508 14.5118 126.662 13.8561 126.97 13.3352C127.282 12.8144 127.708 12.4238 128.248 12.1634C128.788 11.9029 129.401 11.7727 130.087 11.7727C130.551 11.7727 130.975 11.8082 131.359 11.8793C131.747 11.9503 132.036 12.0142 132.225 12.071L131.685 14.3438C131.567 14.3059 131.42 14.2704 131.245 14.2372C131.075 14.2041 130.899 14.1875 130.72 14.1875C130.274 14.1875 129.964 14.2917 129.789 14.5C129.614 14.7036 129.526 14.9901 129.526 15.3594V27H126.508ZM135.516 31.0909C135.132 31.0909 134.773 31.0601 134.436 30.9986C134.105 30.9418 133.83 30.8684 133.613 30.7784L134.294 28.5199C134.649 28.6288 134.969 28.688 135.253 28.6974C135.542 28.7069 135.791 28.6406 135.999 28.4986C136.212 28.3565 136.385 28.1151 136.517 27.7741L136.695 27.3125L132.782 16.0909H135.963L138.222 24.1023H138.336L140.615 16.0909H143.818L139.578 28.179C139.375 28.7661 139.098 29.2775 138.747 29.7131C138.402 30.1534 137.964 30.492 137.434 30.7287C136.903 30.9702 136.264 31.0909 135.516 31.0909Z"
-      fill="#667085"
-    />
+  <svg width="25" height="40" viewBox="0 0 25 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect y="16" width="7.99999" height="7.99999" fill="#1EB386" />
+    <rect x="24" y="24" width="8" height="7.99999" transform="rotate(180 24 24)" fill="#1EB386" />
+    <path d="M8 16L16 8V16L8 24V16Z" fill="#ADEDD2" />
+    <path d="M16 24L8.00001 32L8.00001 24L16 16L16 24Z" fill="#77DEB8" />
+    <path d="M0 16L16 0V7.99999L7.99999 16H0Z" fill="#77DEB8" />
+    <path d="M24 24L8.00002 40L8.00002 32L16 24L24 24Z" fill="#40C79A" />
   </svg>
-);
+)
 
-const Navbar = () => {
-  const { user } = useUser();
-  const pathname = usePathname();
+const navItems = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: DashboardIcon,
+  },
+  {
+    name: "Invoice Management",
+    href: "/invoice-management",
+    icon: InvoiceManagementIcon,
+  },
+  {
+    name: "Product Management",
+    href: "/product-management",
+    icon: ProductManagementIcon,
+  },
+  {
+    name: "Parties",
+    href: "/parties",
+    icon: PartiesIcon,
+  },
+  {
+    name: "Expenses",
+    href: "/expenses",
+    icon: ExpensesIcon,
+  },
+  {
+    name: "Reports",
+    href: "/reports",
+    icon: ReportsIcon,
+  },
+  {
+    name: "Bank Accounts",
+    href: "/bank-accounts",
+    icon: BankAccountsIcon,
+  },
+  {
+    name: "Invoice Settings",
+    href: "/invoice-settings",
+    icon: InvoiceSettingsIcon,
+  },
+  {
+    name: "Business Settings",
+    href: "/business-settings",
+    icon: BusinessSettingsIcon,
+  },
+  {
+    name: "Help Center",
+    href: "/help-center",
+    icon: HelpCenterIcon,
+  },
+]
 
-  const navItems = [
-    { href: "/dashboard", icon: <DashboardIcon />, label: "Dashboard" },
-    {
-      href: "/invoice-management",
-      icon: <InvoiceManagementIcon />,
-      label: "Invoice Management",
-    },
-    {
-      href: "/product-management",
-      icon: <ProductManagementIcon />,
-      label: "Product Management",
-    },
- 
-   { href: "/parties", icon: <PartiesIcon />, label: "Parties" },
-    { href: "/expenses", icon: <ExpensesIcon />, label: "Expenses" },
-    { href: "/reports", icon: <ReportsIcon />, label: "Reports" },
-    {
-      href: "/bank-accounts",
-      icon: <BankAccountsIcon />,
-      label: "Bank Accounts",
-    },
-    {
-      href: "/invoice-settings",
-      icon: <InvoiceSettingsIcon />,
-      label: "Invoice Settings",
-    },
-    {
-      href: "/business-settings",
-      icon: <BusinessSettingsIcon />,
-      label: "Business Settings",
-    },
-    { href: "/help-center", icon: <HelpCenterIcon />, label: "Help Center" },
-  ];
+export default function Navbar() {
+  const pathname = usePathname()
+  const { user } = useUser()
+  const { collapsed, setCollapsed } = useContext(NavbarContext)
 
   return (
-    <>
-      <nav className="bg-sidebar_white_background text-sidebar_black_text p-4 w-[264px] h-auto border border-sidebar_gray_border">
-        <div className="container mx-auto flex flex-col items-start">
-          <Link href="/" className="py-4">
-            <span className="">
+    <div
+      className={`h-full bg-white border-r border-gray-200 transition-all duration-300 ${
+        collapsed ? "w-[80px]" : "w-[264px]"
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        {/* Logo and toggle section */}
+        <div className="flex items-center justify-between p-6 mb-2">
+          <div className={`flex items-center ${collapsed ? "w-full" : ""}`}>
+            <div className="flex-shrink-0">
               <InvoicifyIcon />
-            </span>
-          </Link>
-          <div className="flex flex-col gap-1 w-full ">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`p-3 flex items-center gap-3 hover:bg-sidebar_green_button_background hover:text-white rounded-lg ${
-                  pathname === item.href
-                    ? "bg-sidebar_green_button_background text-white"
-                    : ""
-                }`}
-              >
-                <span className="">{item.icon}</span> {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </nav>
-      {user && (
-        <div className="w-[264px] h-[100px] px-6 py-3 bg-sidebar_white_background border border-t-0">
-          <div className="border-b-2 pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-[30px] h-[30px] flex items-center justify-center">
-                  <UserButton />
-                </div>
-                <Link
-                  href="/user-details"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{user.fullName}</span>
-                    <span className="text-xs">
-                      {user.primaryEmailAddress?.emailAddress}
-                    </span>
-                  </div>
-                </Link>
-              </div>
             </div>
+            {!collapsed && <span className="ml-3 text-[#667085] text-xl font-medium">Invoicify</span>}
           </div>
-          <div className="">
-            <SignOutButton>
-              <div className="flex gap-2 items-center justify-center pt-2 cursor-pointer">
-                <span className="text-[10px] text-sidebar_bottom_red_logout_text_color font-medium">
-                  Log Out
-                </span>
-                <span className="cursor-pointer">
-                  <LogoutIcon />
-                </span>
+          {collapsed ? (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1 rounded-md hover:bg-gray-100"
+              aria-label="Expand sidebar"
+            >
+              <ChevronRight size={20} />
+            </button>
+          ) : (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1 rounded-md hover:bg-gray-100"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation section - removed overflow-y-auto */}
+        <div className="flex-1 hide-scrollbar">
+          <nav className="space-y-2 px-4">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center ${
+                    collapsed ? "justify-center" : "justify-start"
+                  } px-4 py-3 text-sm font-medium rounded-md transition-colors ${
+                    isActive ? "bg-[#1EB386] text-white" : "text-[#667085] hover:bg-[#e6f7f1] hover:text-[#1EB386]"
+                  }`}
+                >
+                  <span className={isActive ? "text-white" : "text-[#667085]"}>
+                    <item.icon />
+                  </span>
+                  {!collapsed && <span className="ml-3">{item.name}</span>}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+
+        {/* User section */}
+        <div className="p-4 border-t border-gray-200 mt-4">
+          <div className={`flex ${collapsed ? "justify-center" : "justify-between"} items-center`}>
+            {!collapsed && (
+              <div className="flex items-center">
+                <UserButton />
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-700">{user?.fullName || "User"}</p>
+                  <p className="text-xs text-gray-500 truncate max-w-[140px]">
+                    {user?.primaryEmailAddress?.emailAddress || "user@example.com"}
+                  </p>
+                </div>
               </div>
-            </SignOutButton>
+            )}
+            {collapsed ? (
+              <UserButton />
+            ) : (
+              <SignOutButton>
+                <button className="p-2 text-red-500 hover:bg-red-50 rounded-md">
+                  <LogoutIcon />
+                </button>
+              </SignOutButton>
+            )}
           </div>
         </div>
-      )}
-    </>
-  );
-};
+      </div>
+    </div>
+  )
+}
 
-export default Navbar;
+

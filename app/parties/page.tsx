@@ -1,23 +1,18 @@
-"use client";
-import { useState, useEffect } from "react";
-import QRCode from "qrcode";
-import { useUser } from "@clerk/nextjs";
-import "../globals.css";
-import { Tooltip } from "react-tooltip";
-import "react-tooltip/dist/react-tooltip.css";
+"use client"
+import { useState, useEffect } from "react"
+import type React from "react"
+import { useUser } from "@clerk/nextjs"
+import "../globals.css"
+import "react-tooltip/dist/react-tooltip.css"
+// Add these imports at the top of the file
+import CategoryModal from "@/components/category-modal"
 
 interface CaretIconProps {
-  isOpen: boolean;
+  isOpen: boolean
 }
 
 const AllItemsIcon = () => (
-  <svg
-    width="56"
-    height="56"
-    viewBox="0 0 56 56"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="28" cy="28" r="28" fill="#DDEBFF" />
     <path
       d="M18.674 26.9208V28L28.0038 33.389L37.3337 28V26.9208M18.667 33.5318V34.611L27.9968 40L37.3267 34.611V33.5318M28.0038 16L18.674 21.389L28.0038 26.778L37.3337 21.389L28.0038 16Z"
@@ -27,16 +22,10 @@ const AllItemsIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const InStockIcon = () => (
-  <svg
-    width="57"
-    height="56"
-    viewBox="0 0 57 56"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="57" height="56" viewBox="0 0 57 56" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="28.5" cy="28" r="28" fill="#D3FFE2" />
     <path
       d="M19.5 27.8893L25.7987 34L38.1667 22"
@@ -46,16 +35,10 @@ const InStockIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const LowStockIcon = () => (
-  <svg
-    width="56"
-    height="56"
-    viewBox="0 0 56 56"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="28" cy="28" r="28" fill="#FFEFCD" />
     <rect width="32" height="32" transform="translate(12 12)" fill="#FFEFCD" />
     <path
@@ -66,16 +49,10 @@ const LowStockIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const OutOfStockIcon = () => (
-  <svg
-    width="57"
-    height="56"
-    viewBox="0 0 57 56"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="57" height="56" viewBox="0 0 57 56" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="28.5" cy="28" r="28" fill="#FEE0E0" />
     <path
       fillRule="evenodd"
@@ -87,16 +64,10 @@ const OutOfStockIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 const SearchIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M21 21L17.5 17.5M17 10C17 10.9193 16.8189 11.8295 16.4672 12.6788C16.1154 13.5281 15.5998 14.2997 14.9497 14.9497C14.2997 15.5998 13.5281 16.1154 12.6788 16.4672C11.8295 16.8189 10.9193 17 10 17C9.08075 17 8.1705 16.8189 7.32122 16.4672C6.47194 16.1154 5.70026 15.5998 5.05025 14.9497C4.40024 14.2997 3.88463 13.5281 3.53284 12.6788C3.18106 11.8295 3 10.9193 3 10C3 8.14348 3.7375 6.36301 5.05025 5.05025C6.36301 3.7375 8.14348 3 10 3C11.8565 3 13.637 3.7375 14.9497 5.05025C16.2625 6.36301 17 8.14348 17 10Z"
       stroke="black"
@@ -104,35 +75,28 @@ const SearchIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-);
+)
 
 const CaretIcon: React.FC<CaretIconProps> = ({ isOpen }) => (
   <svg
-    className={`w-4 h-4 ml-2 transition-transform ${
-      isOpen ? "rotate-180" : ""
-    }`}
+    className={`w-4 h-4 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M19 9l-7 7-7-7"
-    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
   </svg>
-);
+)
 
 type CustomTooltipProps = {
-  anchorId: string;
-  content: React.ReactNode;
-};
+  anchorId: string
+  content: React.ReactNode
+}
 
 interface PartiesProp {
-  _id?: string;
-  userEmail: string;
+  _id?: string
+  userEmail: string
   // itemName: string;
   // itemType: string;
   // itemCode: string;
@@ -145,21 +109,21 @@ interface PartiesProp {
   // taxAmount?: number;
   // qrCode?: string;
 
-  partyName: string;
-  partyType: string;
-  partyContactDetails: string;
-  billingAddress: string;
-  shippingAddress: string;
-  creditPeriod: number;
-  creditLimit: number;
+  partyName: string
+  partyType: string
+  partyContactDetails: string
+  billingAddress: string
+  shippingAddress: string
+  creditPeriod: number
+  creditLimit: number
 }
 
 const Modal: React.FC = () => {
-  const { user } = useUser();
-  const [showModal, setShowModal] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [partiesList, setPartiesList] = useState<PartiesProp[]>([]);
+  const { user } = useUser()
+  const [showModal, setShowModal] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [hoveredProduct, setHoveredProduct] = useState(null)
+  const [partiesList, setPartiesList] = useState<PartiesProp[]>([])
   const [parties, setParties] = useState<PartiesProp>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
     partyName: "",
@@ -169,19 +133,21 @@ const Modal: React.FC = () => {
     shippingAddress: "",
     creditPeriod: 0,
     creditLimit: 0,
-    
-  });
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [errors, setErrors] = useState<{ [K in keyof PartiesProp]?: string }>({});
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  })
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [errors, setErrors] = useState<{ [K in keyof PartiesProp]?: string }>({})
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   // const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Select Categories");
-  const [outOfStockCount, setOutOfStockCount] = useState(0);
-  const [lowStockCount, setLowStockCount] = useState(0);
-  const [inStockCount, setInStockCount] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState("Select Categories")
+  const [outOfStockCount, setOutOfStockCount] = useState(0)
+  const [lowStockCount, setLowStockCount] = useState(0)
+  const [inStockCount, setInStockCount] = useState(0)
+  // Add these state variables inside the Modal component, near the other state declarations
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [categories, setCategories] = useState<string[]>(["Customer", "Supplier"])
 
-  const categories = ["Product", "Services"];
+  const categoriesList = ["Product", "Services"]
 
   // const handleDeleteClick = (product: Product) => {
   //   setProductToDelete(product);
@@ -209,16 +175,16 @@ const Modal: React.FC = () => {
   // };
 
   const handleDeleteCancel = () => {
-    setShowDeleteConfirmation(false);
+    setShowDeleteConfirmation(false)
     // setProductToDelete(null);
-  };
+  }
 
   const handleOpenModal = () => {
-    setShowModal(true);
-  };
+    setShowModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
+    setShowModal(false)
     setParties({
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
       partyName: "",
@@ -228,9 +194,9 @@ const Modal: React.FC = () => {
       shippingAddress: "",
       creditPeriod: 0,
       creditLimit: 0,
-    });
-    setErrors({});
-  };
+    })
+    setErrors({})
+  }
 
   // const generateServiceCode = () => {
   //   const code = Math.floor(1000 + Math.random() * 9000).toString();
@@ -238,53 +204,54 @@ const Modal: React.FC = () => {
   //   setErrors((prevErrors) => ({ ...prevErrors, itemCode: undefined }));
   // };
 
-  const handleInputChange = (
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = event.target;
-    setParties((prevParties) => ({ ...prevParties, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
-  };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target
+
+    // If the select field for category is changed, update the selectedCategory state
+    if (name === "category") {
+      setSelectedCategory(value)
+      setParties((prevParties) => ({ ...prevParties, partyType: value }))
+    } else {
+      setParties((prevParties) => ({ ...prevParties, [name]: value }))
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }))
+  }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    setParties((prevParties) => ({ ...prevParties, [name]: checked }));
-  };
+    const { name, checked } = event.target
+    setParties((prevParties) => ({ ...prevParties, [name]: checked }))
+  }
 
   const validateForm = (): boolean => {
-    const newErrors: { [K in keyof PartiesProp]?: string } = {};
+    const newErrors: { [K in keyof PartiesProp]?: string } = {}
 
     if (!parties.partyName.trim()) {
-
-
-      
-      newErrors.partyName = "Name is required";
+      newErrors.partyName = "Name is required"
     }
 
     if (isNaN(parties.creditLimit) || parties.creditLimit <= 0) {
-      newErrors.creditLimit = "Price must be a positive number";
+      newErrors.creditLimit = "Price must be a positive number"
     }
 
     if (!parties.partyContactDetails.trim()) {
-      newErrors.partyContactDetails = "Contact Number is required";
+      newErrors.partyContactDetails = "Contact Number is required"
     }
 
-    setErrors(newErrors);
-    console.log("Validation errors:", newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    console.log("Validation errors:", newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
     if (validateForm()) {
-      console.log("Form is valid, showing confirmation dialog");
-      setShowConfirmation(true);
+      console.log("Form is valid, showing confirmation dialog")
+      setShowConfirmation(true)
     } else {
-      console.log("Form is invalid, not showing confirmation dialog");
+      console.log("Form is invalid, not showing confirmation dialog")
     }
-  };
+  }
 
   // const handleDownloadQr = (product: Product) => {
   //   if (product.qrCode) {
@@ -315,7 +282,7 @@ const Modal: React.FC = () => {
     const partiesToSave = {
       ...parties,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
-    };
+    }
 
     try {
       const response = await fetch("/api/parties", {
@@ -324,33 +291,73 @@ const Modal: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(partiesToSave),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to save product");
+        throw new Error("Failed to save product")
       }
 
-      const savedParties = await response.json();
+      const savedParties = await response.json()
 
-      setShowConfirmation(false);
-      handleCloseModal();
-      fetchPartiesList();
+      setShowConfirmation(false)
+      handleCloseModal()
+      fetchPartiesList()
     } catch (error) {
-      console.error("Error saving parties:", error);
+      console.error("Error saving parties:", error)
     }
-  };
+  }
+
+  // Add this function inside the Modal component
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories")
+      if (response.ok) {
+        const data = await response.json()
+        // Combine default categories with custom ones
+        const categoryNames = data.map((cat: any) => cat.name)
+        setCategories(["Customer", "Supplier", ...categoryNames])
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+    }
+  }
+
+  // Add this function inside the Modal component
+  const handleCreateCategory = async (categoryName: string) => {
+    try {
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: categoryName }),
+      })
+
+      if (response.ok) {
+        const newCategory = await response.json()
+        setCategories([...categories, newCategory.name])
+        // Set the newly created category as selected
+        setSelectedCategory(newCategory.name)
+        // Also update the parties state with the new category
+        setParties((prev) => ({ ...prev, partyType: newCategory.name }))
+      } else {
+        const error = await response.json()
+        console.error("Error creating category:", error)
+      }
+    } catch (error) {
+      console.error("Error creating category:", error)
+    }
+  }
 
   const fetchPartiesList = async () => {
     try {
-      const response = await fetch("/api/parties");
+      const response = await fetch("/api/parties")
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
-      const parties = await response.json();
-      setPartiesList(parties);
+      const parties = await response.json()
+      setPartiesList(parties)
       // const outOfStock = parties.filter((parties: Parties) => parties.inventory <= 0).length;
       // const lowStock = parties.filter((parties: Parties) => parties.inventory <= 10).length;
       // const inStock = parties.length - outOfStock;
@@ -358,30 +365,27 @@ const Modal: React.FC = () => {
       // setLowStockCount(lowStock);
       // setOutOfStockCount(outOfStock);
     } catch (error) {
-      setPartiesList([]);
-      setOutOfStockCount(0);
-      setLowStockCount(0);
-      setInStockCount(0);
+      setPartiesList([])
+      setOutOfStockCount(0)
+      setLowStockCount(0)
+      setInStockCount(0)
     }
-  };
+  }
 
+  // Add this useEffect to fetch categories when the component mounts
   useEffect(() => {
-    fetchPartiesList();
-  }, []);
+    fetchCategories()
+  }, [])
 
   const handleCancel = () => {
-    setShowConfirmation(false);
-  };
+    setShowConfirmation(false)
+  }
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
       <div className="flex flex-col items-start">
-        <div className="text-[28px] font-semibold text-business_settings_black_text">
-          Parties List
-        </div>
-        <div className="text-business_settings_gray_text">
-          An Overview of all your transaction over the year.
-        </div>
+        <div className="text-[28px] font-semibold text-business_settings_black_text">Parties List</div>
+        <div className="text-business_settings_gray_text">An Overview of all your transaction over the year.</div>
       </div>
       <div className="flex gap-6">
         <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
@@ -390,13 +394,9 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              {partiesList.length < 10
-                ? `0${partiesList.length}`
-                : partiesList.length}
+              {partiesList.length < 10 ? `0${partiesList.length}` : partiesList.length}
             </div>
-            <div className="text-xl font-bold text-business_settings_gray_text">
-              All Customers
-            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">All Customers</div>
           </div>
         </div>
         <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
@@ -405,11 +405,9 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-              {inStockCount < 10 ? `0${inStockCount}`: inStockCount}
+              {inStockCount < 10 ? `0${inStockCount}` : inStockCount}
             </div>
-            <div className="text-xl font-bold text-business_settings_gray_text">
-              All Suppliers
-            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">All Suppliers</div>
           </div>
         </div>
         <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
@@ -418,11 +416,9 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-            ₹{lowStockCount < 10 ? `0${lowStockCount}`: lowStockCount}
+              ₹{lowStockCount < 10 ? `0${lowStockCount}` : lowStockCount}
             </div>
-            <div className="text-xl font-bold text-business_settings_gray_text">
-              To Collect
-            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">To Collect</div>
           </div>
         </div>
         <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
@@ -431,20 +427,16 @@ const Modal: React.FC = () => {
           </div>
           <div className="gap-2">
             <div className="text-4xl font-bold text-business_settings_black_text">
-            ₹{outOfStockCount < 10 ? `0${outOfStockCount}`: outOfStockCount}
+              ₹{outOfStockCount < 10 ? `0${outOfStockCount}` : outOfStockCount}
             </div>
-            <div className="text-xl font-bold text-business_settings_gray_text">
-              To Pay
-            </div>
+            <div className="text-xl font-bold text-business_settings_gray_text">To Pay</div>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-between gap-3">
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
-            <span
-              className=""
-            >
+            <span className="">
               <SearchIcon />
             </span>
             <input
@@ -471,8 +463,8 @@ const Modal: React.FC = () => {
                   key={index}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-                    setSelectedCategory(category);
-                    setIsDropdownOpen(false);
+                    setSelectedCategory(category)
+                    setIsDropdownOpen(false)
                   }}
                 >
                   {category}
@@ -509,9 +501,7 @@ const Modal: React.FC = () => {
                   <td className="py-2 px-4 border-b">{product.partyType}</td>
                   <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
                   <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
-                  <td className="py-2 px-4 border-b">
-                    {Number(product.creditLimit).toFixed(2)}
-                  </td>
+                  <td className="py-2 px-4 border-b">{Number(product.creditLimit).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -521,17 +511,11 @@ const Modal: React.FC = () => {
       {showDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
               &#8203;
             </span>
 
@@ -539,13 +523,9 @@ const Modal: React.FC = () => {
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Confirm Product Deletion
-                    </h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Confirm Product Deletion</h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to delete the following product?
-                      </p>
+                      <p className="text-sm text-gray-500">Are you sure you want to delete the following product?</p>
                       {/* {productToDelete && (
                         <ul className="mt-2 list-disc">
                           <li>Name: {productToDelete.itemName}</li>
@@ -581,10 +561,7 @@ const Modal: React.FC = () => {
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
             <form onSubmit={handleSubmit}>
-              <div
-                className="fixed inset-0 transition-opacity"
-                aria-hidden="true"
-              >
+              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
@@ -592,13 +569,7 @@ const Modal: React.FC = () => {
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add New Item</div>
                   <button className="" onClick={() => setShowModal(false)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                       <path
                         fillRule="evenodd"
                         clipRule="evenodd"
@@ -611,59 +582,66 @@ const Modal: React.FC = () => {
                 <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
                   <div className="flex gap-3">
                     <div className="p-5 bg-universal_gray_background rounded-lg text-start">
-                      <div className="text-sidebar_black_text text-xs">
-                        Type
-                      </div>
+                      <div className="text-sidebar_black_text text-xs">Type</div>
                       <div className="flex gap-10">
                         <label className="flex items-center gap-3">
-                          <span className="text-sm py-3 text-semibold">
-                            Customer
-                          </span>
+                          <span className="text-sm py-3 text-semibold">Customer</span>
                           <input
                             type="radio"
                             name="partyType"
                             value="Customer"
                             checked={parties.partyType === "Customer"}
-                            onChange={handleInputChange}
+                            onChange={(e) => {
+                              handleInputChange(e)
+                              setSelectedCategory("Customer")
+                            }}
                             className="custom-radio h-4 w-4"
                           />
                         </label>
                         <label className="flex items-center gap-3">
-                          <span className="py-3 text-sm text-semibold">
-                            Supplier
-                          </span>
+                          <span className="py-3 text-sm text-semibold">Supplier</span>
                           <input
                             type="radio"
                             name="partyType"
                             value="Supplier"
                             checked={parties.partyType === "Supplier"}
-                            onChange={handleInputChange}
+                            onChange={(e) => {
+                              handleInputChange(e)
+                              setSelectedCategory("Supplier")
+                            }}
                             className="custom-radio h-4 w-4 "
                           />
                         </label>
                       </div>
                     </div>
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Category
-                      </div>
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Category</div>
                       <div className="flex gap-2">
                         <div className="relative w-full">
                           <select
                             name="category"
-                            value={parties.partyType}
+                            value={selectedCategory}
                             onChange={handleInputChange}
                             className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                           >
                             <option value="">Select a category</option>
-                            <option value="customer">Customer</option>
-                            <option value="supplier">Supplier</option>
+                            {categories.map((category, index) => (
+                              <option key={index} value={category}>
+                                {category}
+                              </option>
+                            ))}
                           </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                             <CaretIcon isOpen={isDropdownOpen} />
                           </div>
                         </div>
-                        <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
+                        <button
+                          className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setShowCategoryModal(true)
+                          }}
+                        >
                           Create New Category
                         </button>
                       </div>
@@ -671,15 +649,11 @@ const Modal: React.FC = () => {
                   </div>
                   <div className="flex gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
-                        Party Name
-                      </div>
+                      <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Party Name</div>
                       <input
                         type="text"
                         className={`bg-transparent border ${
-                          errors.partyName
-                            ? "border-red-500"
-                            : "border-business_settings_gray_border"
+                          errors.partyName ? "border-red-500" : "border-business_settings_gray_border"
                         } border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
                         name="partyName"
                         value={parties.partyName}
@@ -737,10 +711,9 @@ const Modal: React.FC = () => {
                         />
                       </div>
                     </div>
-                    
                   </div>
                   <div className="flex gap-3">
-                  <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                    <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Credit Period
                       </div>
@@ -789,7 +762,8 @@ const Modal: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none">
+                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                    >
                       Save
                     </button>
                   </div>
@@ -803,17 +777,11 @@ const Modal: React.FC = () => {
       {showConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
               &#8203;
             </span>
 
@@ -821,13 +789,9 @@ const Modal: React.FC = () => {
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Confirm Product Creation
-                    </h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Confirm Product Creation</h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to create the following product?
-                      </p>
+                      <p className="text-sm text-gray-500">Are you sure you want to create the following product?</p>
                       <ul className="mt-2 list-disc">
                         <li>Name: {parties.partyName}</li>
                         <li>Price: {parties.creditLimit}</li>
@@ -858,8 +822,16 @@ const Modal: React.FC = () => {
           </div>
         </div>
       )}
+      {showCategoryModal && (
+        <CategoryModal
+          isOpen={showCategoryModal}
+          onClose={() => setShowCategoryModal(false)}
+          onSave={handleCreateCategory}
+        />
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal
+
