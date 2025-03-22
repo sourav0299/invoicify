@@ -299,17 +299,7 @@ const ExpensesManager: React.FC = () => {
             <div className="text-[28px] font-semibold text-gray-900">Expenses List</div>
             <div className="text-gray-500">An Overview of all your transaction over the year.</div>
           </div>
-          <div className="flex gap-3">
-            {selectedExpenses.length > 0 && (
-              <button
-                className="border rounded-lg py-2 px-3 w-full items-start max-w-[241px] font-semibold bg-red-50 text-red-600 border-red-200 flex items-center gap-2"
-                onClick={() => setShowBulkDeleteConfirmation(true)}
-              >
-                <Trash2 size={16} />
-                <div>Delete Selected ({selectedExpenses.length})</div>
-              </button>
-            )}
-          </div>
+          <div className="flex gap-3">{/* Delete button moved below search bar */}</div>
         </div>
       </div>
 
@@ -386,10 +376,28 @@ const ExpensesManager: React.FC = () => {
           )}
         </div>
         <button
-          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-green-600 text-white"
+          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-sidebar_green_button_background text-white"
           onClick={() => setShowModal(true)}
         >
           <div className="">+Add New Expenses</div>
+        </button>
+      </div>
+      <div className="mt-4 mb-2">
+        <button
+          className={`border rounded-lg py-2 px-3 flex items-center gap-2 ${
+            selectedExpenses.length > 0
+              ? "bg-red-50 text-red-600 border-red-200"
+              : "bg-gray-100 text-gray-400 border-gray-200"
+          }`}
+          onClick={() => {
+            if (selectedExpenses.length > 0) {
+              setShowBulkDeleteConfirmation(true)
+            }
+          }}
+          disabled={selectedExpenses.length === 0}
+        >
+          <Trash2 size={16} />
+          <div>Delete Selected ({selectedExpenses.length})</div>
         </button>
       </div>
       <div className="border-[0.5px] bg-white rounded-lg overflow-hidden">
@@ -623,7 +631,7 @@ const ExpensesManager: React.FC = () => {
                     <div className="bg-transparent w-full text-xs text-gray-900 text-start">Expense Amount</div>
                     <div className="flex gap-3 flex-col sm:flex-row">
                       <div className="relative w-full">
-                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2">$</span>
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2">₹</span>
                         <input
                           type="number"
                           name="expenseAmount"
