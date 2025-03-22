@@ -547,15 +547,16 @@ const Modal: React.FC = () => {
         </button>
       </div>
       <div className="flex items-center justify-between gap-3 mt-4">
-        {selectedProducts.length > 0 && (
-          <button
-            className="border rounded-lg py-2 px-4 bg-red-500 text-white flex items-center gap-2"
-            onClick={handleBulkDelete}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Selected ({selectedProducts.length})
-          </button>
-        )}
+        <button
+          className={`border rounded-lg py-2 px-4 flex items-center gap-2 ${
+            selectedProducts.length > 0 ? "bg-red-500 text-white" : "bg-gray-200 text-gray-500"
+          }`}
+          onClick={handleBulkDelete}
+          disabled={selectedProducts.length === 0}
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete Selected ({selectedProducts.length})
+        </button>
       </div>
       <div className="border-[0.5px]">
         <div className="overflow-x-auto">
