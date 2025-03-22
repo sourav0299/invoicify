@@ -1,17 +1,12 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Section,
-} from "lucide-react";
-import { Users, Layers, Receipt, FileBarChart } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Users, Layers, Receipt, FileBarChart } from 'lucide-react';
+
 const services = [
   {
     icon: Users,
@@ -37,6 +32,7 @@ const services = [
       "Our Dashboard provides Real-Time Analytics for you to maximize efficiency.",
   },
 ];
+
 const testimonials = [
   {
     id: 1,
@@ -66,17 +62,21 @@ const testimonials = [
     image: "/Invoice.png",
   },
 ];
+
 export default function landing() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Calculate the number of slides based on showing 2 testimonials at once
+  const totalSlides = Math.ceil(testimonials.length / 2);
+  
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length,
-    );
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
+  
   return (
     <>
       <section className="min-h-screen bg-white relative overflow-hidden">
@@ -88,12 +88,12 @@ export default function landing() {
             <span className="text-xl font-semibold">Invoicify</span>
           </div>
           <div className="flex items-center gap-3">
-          <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-white hover:text-gray-200 transition-colors text-sm sm:text-base">
-  <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">Log In</a>
-</button>
-<button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm sm:text-base">
-  <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">sign up</a>
-</button>
+            <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-white hover:text-gray-200 transition-colors text-sm sm:text-base">
+              <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">Log In</a>
+            </button>
+            <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm sm:text-base">
+              <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">sign up</a>
+            </button>
           </div>
         </header>
 
@@ -229,7 +229,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Invoice.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Create invoices.png" alt="sdch" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -267,7 +267,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Invoice.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Data Analytics.png" alt="sdch" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -305,63 +305,66 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Invoice.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Manage Invoices.png" alt="sdch" className=" w-full p-0" />
               </div>
             </div>
           </div>
         </div>
       </section>
-      <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 flex flex-row font-Inter">
-        <div className="space-y-4 mb-12">
-          <h2 className="text-sm font-medium tracking-wide text-gray-500 uppercase">
-            OUR SERVICES
-          </h2>
-          <h3 className="text-4xl font-semibold tracking-tight text-gray-900">
-            Simplify running your business with Invoicify
-          </h3>
-          <p className="text-xl text-gray-600">
-            Explore our other Features to streamline your Billing needs
-          </p>
-        </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
-          {services.map((feature, index) => (
-            <div key={index} className="flex gap-4 flex-col">
-              <div className="space-y-2 flex flex-row gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 rounded-lg bg-[#E5F5F0] flex items-center justify-center">
-                    <feature.icon className="w-6 h-6 text-[#09857e]" />
+      
+      <section className="py-16 md:py-24 font-Inter">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-[1fr,2fr] gap-12">
+          
+          <div className="space-y-4">
+            <h2 className="text-sm font-medium tracking-wide text-[#667085] uppercase">
+              OUR SERVICES
+            </h2>
+            <h3 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#212626]">
+              Simplify running your business with Invoicify
+            </h3>
+            <p className="text-lg md:text-xl text-[#667085]">
+              Explore our other Features to streamline your Billing needs
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+            {services.map((service, index) => (
+              <div key={index} className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[#d8f6e5] flex items-center justify-center">
+                    <service.icon className="w-6 h-6 text-[#09857e]" />
                   </div>
+                  <h4 className="text-xl font-semibold text-[#212626]">
+                    {service.title}
+                  </h4>
                 </div>
-                <h4 className="text-xl font-semibold text-gray-900">
-                  {feature.title}
-                </h4>
+                <p className="text-[#667085] pl-16">{service.description}</p>
+                <div className="border-b border-dashed border-[#869e9d] pt-2 opacity-50"></div>
               </div>
-              <div>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="py-[100px] px-[100px] text-white flex items-center text-4xl text-center bg-[linear-gradient(92deg,#1BA078_10.35%,#0A3A2C_112.5%)] font-Inter">
         <div className="max-w-7xl">
           <p>
-            An
-            <span className="font-bold">ALL-in-ONE</span>
-            billing and business management
-            <span className="font-bold">solution,</span>
-            tailored to empower small and medium
+            An{" "}
+            <span className="font-bold">ALL-in-ONE</span>{" "}
+            billing and business management{" "}
+            <span className="font-bold">solution,</span>{" "}
+            tailored to empower small and medium{" "}
             <span className="font-bold">businesses.</span>
           </p>
         </div>
       </section>
+      
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center max-w-7xl">
           <div className="relative">
             <Image
-              src="/Invoice.png"
+              src="/MultipleBusiness.png"
               alt="Business management dashboard interface"
               width={600}
               height={500}
@@ -422,8 +425,10 @@ export default function landing() {
           </div>
         </div>
       </section>
+      
+      
       <section className="py-16 px-4 bg-gray-100">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-lg font-medium text-gray-600 mb-2">
             CLIENT TESTIMONIALS
           </h2>
@@ -437,39 +442,41 @@ export default function landing() {
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                {testimonials.map((testimonial) => (
-                  <div
-                    key={testimonial.id}
-                    className="w-full flex-shrink-0 px-4 "
-                  >
-                    <div className="bg-white rounded-lg p-8 shadow-sm border max-w-2xl mx-auto w-[475px]">
-                      <div className="flex items-center gap-3 mb-6">
-                        <Image
-                          src={testimonial.image || "/placeholder.svg"}
-                          alt={testimonial.name}
-                          width={48}
-                          height={48}
-                          className="rounded-full"
-                        />
-                        <div className="text-left">
-                          <h4 className="font-semibold text-gray-900">
-                            {testimonial.name}
-                          </h4>
-                          <p className="text-gray-600 text-sm">
-                            {testimonial.role}
-                          </p>
-                        </div>
-                        <div className="ml-auto">
-                          <p className="text-gray-500 text-sm">
-                            {testimonial.date}
-                          </p>
+              
+                {Array.from({ length: totalSlides }).map((_, slideIndex) => (
+                  <div key={slideIndex} className="w-full flex-shrink-0 flex gap-6 justify-center px-4">
+                    {testimonials.slice(slideIndex * 2, slideIndex * 2 + 2).map((testimonial) => (
+                      <div key={testimonial.id} className="w-full max-w-md">
+                        <div className="bg-white rounded-lg p-8 shadow-sm border h-full">
+                          <div className="flex items-center gap-3 mb-6">
+                            <Image
+                              src={testimonial.image || "/placeholder.svg"}
+                              alt={testimonial.name}
+                              width={48}
+                              height={48}
+                              className="rounded-full"
+                            />
+                            <div className="text-left">
+                              <h4 className="font-semibold text-gray-900">
+                                {testimonial.name}
+                              </h4>
+                              <p className="text-gray-600 text-sm">
+                                {testimonial.role}
+                              </p>
+                            </div>
+                            <div className="ml-auto">
+                              <p className="text-gray-500 text-sm">
+                                {testimonial.date}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="border-[1px] border-dashed mb-4"></div>
+                          <blockquote className="text-gray-700 text-lg text-left">
+                            "{testimonial.quote}"
+                          </blockquote>
                         </div>
                       </div>
-                      <div className="border-[1px] border-dashed "></div>
-                      <blockquote className="text-gray-700 text-lg text-left">
-                        "{testimonial.quote}"
-                      </blockquote>
-                    </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -495,7 +502,7 @@ export default function landing() {
           </div>
 
           <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, index) => (
+            {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-colors ${
@@ -507,6 +514,7 @@ export default function landing() {
           </div>
         </div>
       </section>
+      
       <footer className="bg-emerald-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="py-16 lg:py-24">
