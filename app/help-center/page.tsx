@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
-// FAQ data organized by categories
+
 const faqData = {
   general: [
     {
@@ -115,10 +115,10 @@ const faqData = {
   ],
 }
 
-// All questions flattened for search
+
 const allQuestions = Object.values(faqData).flat()
 
-// Categories with friendly names
+
 const categories = [
   { id: "general", name: "General" },
   { id: "billing", name: "Billing & Invoicing" },
@@ -144,12 +144,12 @@ export default function HelpCenter() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-scroll to bottom of chat
+ 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Focus input when tab changes to chat
+  
   useEffect(() => {
     if (activeTab === "chat") {
       setTimeout(() => inputRef.current?.focus(), 100)
@@ -159,10 +159,10 @@ export default function HelpCenter() {
   const handleSend = () => {
     if (!input.trim()) return
 
-    // Add user message
+    
     setMessages((prev) => [...prev, { role: "user", content: input }])
 
-    // Find matching question
+   
     const userQuestion = input.toLowerCase()
     const matchingQuestion = allQuestions.find(
       (q) =>
@@ -170,7 +170,7 @@ export default function HelpCenter() {
         userQuestion.includes(q.question.toLowerCase().substring(0, 10)),
     )
 
-    // Prepare bot response
+   
     setTimeout(() => {
       if (matchingQuestion) {
         setMessages((prev) => [...prev, { role: "bot", content: matchingQuestion.answer }])
@@ -203,8 +203,8 @@ export default function HelpCenter() {
     : []
 
   return (
-    <main className="flex-1 h-screen overflow-hidden">
-      <Card className="w-full h-full rounded-none border-0 shadow-none">
+    <main className=" flex -1 h-full overflow-hidden">
+      <Card className="w-full  rounded-none border-0 shadow-none">
         <div className="flex flex-col h-full">
           <CardHeader className="px-4 py-3 border-b">
             <div className="flex items-center justify-between">

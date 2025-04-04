@@ -1,15 +1,28 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Plus, X } from "lucide-react"
+
+interface Invoice {
+  id: string
+  date: string
+  customer: string
+  amount: string
+}
 
 export default function InvoicePage() {
   const [billDateOpen, setBillDateOpen] = useState(false)
   const [paymentDateOpen, setPaymentDateOpen] = useState(false)
   const [billDate, setBillDate] = useState("14/12/2024")
   const [paymentDate, setPaymentDate] = useState("14/12/2024")
+  const [showPreviousInvoices, setShowPreviousInvoices] = useState(false)
+  const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([
+    { id: "INV-001", date: "01/04/2025", customer: "ABC Corp", amount: "₹8,500" },
+    { id: "INV-002", date: "15/03/2025", customer: "XYZ Ltd", amount: "₹12,300" },
+    { id: "INV-003", date: "28/02/2025", customer: "123 Industries", amount: "₹5,750" },
+    { id: "INV-004", date: "10/02/2025", customer: "Tech Solutions", amount: "₹9,200" },
+  ])
 
- 
   const months = [
     "January",
     "February",
@@ -28,13 +41,11 @@ export default function InvoicePage() {
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
 
-
-  const getDaysInMonth = (month: number, year: number) => {
+  const getDaysInMonth = (month: number, year: number): number => {
     return new Date(year, month + 1, 0).getDate()
   }
 
-
-  const getFirstDayOfMonth = (month: number, year: number) => {
+  const getFirstDayOfMonth = (month: number, year: number): number => {
     return new Date(year, month, 1).getDay()
   }
 
@@ -42,14 +53,12 @@ export default function InvoicePage() {
   const generateCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth, currentYear)
     const firstDay = getFirstDayOfMonth(currentMonth, currentYear)
-    const days = []
-
+    const days: JSX.Element[] = []
 
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="h-8 w-8"></div>)
     }
 
-   
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(
         <button
@@ -65,10 +74,9 @@ export default function InvoicePage() {
     return days
   }
 
-  
-  const handleDateSelect = (day: number) => {
-    const formattedDay = day < 10 ? `0${day}` : day
-    const formattedMonth = currentMonth + 1 < 10 ? `0${currentMonth + 1}` : currentMonth + 1
+  const handleDateSelect = (day: number): void => {
+    const formattedDay = day < 10 ? `0${day}` : day.toString()
+    const formattedMonth = currentMonth + 1 < 10 ? `0${currentMonth + 1}` : (currentMonth + 1).toString()
     const formattedDate = `${formattedDay}/${formattedMonth}/${currentYear}`
 
     if (billDateOpen) {
@@ -80,8 +88,7 @@ export default function InvoicePage() {
     }
   }
 
-  
-  const prevMonth = () => {
+  const prevMonth = (): void => {
     if (currentMonth === 0) {
       setCurrentMonth(11)
       setCurrentYear(currentYear - 1)
@@ -90,8 +97,7 @@ export default function InvoicePage() {
     }
   }
 
-  
-  const nextMonth = () => {
+  const nextMonth = (): void => {
     if (currentMonth === 11) {
       setCurrentMonth(0)
       setCurrentYear(currentYear + 1)
@@ -428,11 +434,11 @@ export default function InvoicePage() {
                   <input
                     type="checkbox"
                     id="autoRound"
-                    className="w-4 h-4 appearance-none border border-[#e0e2e7] rounded checked:bg-[#1eb386] checked:border-[#1eb386] relative"
+                    className="w-4 h-4 appearance-none border border-[#e0e2e7] rounded relative"
                   />
                   <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center pointer-events-none">
                     <svg
-                      className="w-3 h-3 text-white opacity-0 checked:opacity-100"
+                      className="w-3 h-3 text-white opacity-0"
                       viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -474,6 +480,51 @@ export default function InvoicePage() {
             <button className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
               Generate Invoice
             </button>
+
+            <button
+              onClick={() => setShowPreviousInvoices(!showPreviousInvoices)}
+              className="w-full flex items-center justify-center text-[#1eb386] border border-[#e0e2e7] py-3.5 rounded-md hover:bg-[#f9f9f9] transition-colors mt-4 text-[14px]"
+            >
+              <Eye size={16} className="mr-1.5" />
+              {showPreviousInvoices ? "Hide Previous Invoices" : "Preview Previous Invoices"}
+            </button>
+
+            {showPreviousInvoices && (
+              <div className="border border-[#e0e2e7] rounded-md p-4 mt-4 w-full">
+                <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
+                  <FileText size={16} className="mr-2 text-[#1eb386]" />
+                  Previous Invoices
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
+                        <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
+                        <th className="py-2 px-3 text-left font-medium">DATE</th>
+                        <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
+                        <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
+                        <th className="py-2 px-3 text-center font-medium">ACTION</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {previousInvoices.map((invoice) => (
+                        <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
+                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
+                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
+                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
+                          <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
+                          <td className="py-3 px-3 text-center">
+                            <button className="text-[#1eb386] hover:text-[#40c79a]">
+                              <Eye size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
