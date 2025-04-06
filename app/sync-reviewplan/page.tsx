@@ -8,7 +8,7 @@ export default function SubscriptionReview() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#fafafa] p-2 sm:p-4">
-            <div className="w-full max-w-5xl rounded-xl bg-white p-4 shadow-sm sm:p-6 md:p-8">
+            <div className="w-full max-w-[1200px] rounded-xl p-4 sm:p-6 md:p-8">
                 <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="flex items-center gap-2">
                         <div className="h-6 w-6 sm:h-8 sm:w-8">

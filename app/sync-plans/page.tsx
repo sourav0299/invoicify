@@ -4,7 +4,7 @@ import { Check, X } from "lucide-react"
 export default function PricingPage() {
     return (
         <div className="min-h-screen bg-[#fafafa] flex items-center justify-center py-8 sm:py-12 md:py-16 px-4">
-            <div className="max-w-7xl w-[95%] bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12">
+            <div className="max-w-7xl w-[95%] rounded-xl sm:rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12">
                 <div className="flex flex-col items-center mb-8 md:mb-12">
                     <div className="flex items-center gap-2 mb-3 md:mb-4">
                         <svg width="36" height="41" viewBox="0 0 36 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -94,7 +94,7 @@ export default function PricingPage() {
                             </div>
 
                             <div className="flex items-start gap-2 md:gap-3">
-                                <X className="h-4 w-4 md:h-5 md:w-5 text-[#667085] mt-0.5 flex-shrink-0" />
+                                <X className="h-4 w-4 md:h-5 md:w-5 text-red-500 mt-0.5 flex-shrink-0" />
                                 <div className="text-sm md:text-base">
                                     <span className="text-[#667085]">Custom Templates</span>
                                 </div>

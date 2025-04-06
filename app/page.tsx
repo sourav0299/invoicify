@@ -111,7 +111,7 @@ export default function landing() {
               </p>
               <div className="mt-8">
                 <button className="flex gap-2 items-center px-12 py-3 bg-emerald-500 text-white text-lg rounded-lg hover:bg-emerald-600 transition-colors">
-                  <span>Get Started Now</span>
+                  <span><a href="/dashboard">Get Started Now</a></span>
                   <ArrowRight />
                 </button>
               </div>
