@@ -7,6 +7,10 @@ export async function GET() {
     // Connect to the database
     const { db } = await connectToDatabase()
 
+    if (!db) {
+      return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
+    }
+
     // Get all categories
     const categories = await db.collection("categories").find({}).toArray()
 
@@ -31,6 +35,10 @@ export async function POST(request: Request) {
 
     // Connect to the database
     const { db } = await connectToDatabase()
+
+    if (!db) {
+      return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
+    }
 
     // Create a new category
     const result = await db.collection("categories").insertOne({

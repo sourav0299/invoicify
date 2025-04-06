@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
@@ -121,19 +121,19 @@ const UserDetails = () => {
     }
   }
 
-  useEffect(() => {
-    // Close country dropdown when clicking outside
-    const handleClickOutside = (event) => {
-      if (showCountryDropdown && !event.target.closest(".country-dropdown-container")) {
-        setShowCountryDropdown(false)
-      }
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (showCountryDropdown && !target.closest(".country-dropdown-container")) {
+      setShowCountryDropdown(false)
     }
+  }, [showCountryDropdown])
 
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [showCountryDropdown])
+  }, [handleClickOutside])
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

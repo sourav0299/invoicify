@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
-  const fullScreenPaths = ["/landing", "/sync-user", "/sync-business", "/sync-plans", "/sync-reviewplan"]
+  const fullScreenPaths = ["/", "/sync-user", "/sync-business", "/sync-plans", "/sync-reviewplan"]
   const isFullScreenLayout = fullScreenPaths.includes(pathname)
   const [navCollapsed, setNavCollapsed] = useState(false)
 
