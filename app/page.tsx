@@ -89,10 +89,10 @@ export default function landing() {
           </div>
           <div className="flex items-center gap-3">
             <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-white hover:text-gray-200 transition-colors text-sm sm:text-base">
-              <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">Log In</a>
+              <a href="/dashboard">Log In</a>
             </button>
             <button className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm sm:text-base">
-              <a href="https://easy-ghost-86.accounts.dev/sign-in?redirect_url=https%3A%2F%2Finvoicify.in%2Fdashboard">sign up</a>
+              <a href="/dashboard">sign up</a>
             </button>
           </div>
         </header>
