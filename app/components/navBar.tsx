@@ -216,11 +216,11 @@ const navItems = [
     href: "/reports",
     icon: ReportsIcon,
   },
-  {
-    name: "Bank Accounts",
-    href: "/bank-accounts",
-    icon: BankAccountsIcon,
-  },
+  // {
+  //   name: "Bank Accounts",
+  //   href: "/bank-accounts",
+  //   icon: BankAccountsIcon,
+  // },
   {
     name: "Invoice Settings",
     href: "/invoice-settings",

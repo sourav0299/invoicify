@@ -100,7 +100,7 @@ const ExpensesManager: React.FC = () => {
   }
 
   const handleConfirm = async () => {
-    // Convert expenseAmount to a number to ensure calculations work correctly
+    
     const expenseAmountNum = Number(expense.expenseAmount)
     const taxRate = expense.taxRate / 100
     let totalPrice: number
@@ -116,7 +116,7 @@ const ExpensesManager: React.FC = () => {
 
     const expenseToSave = {
       ...expense,
-      expenseAmount: expenseAmountNum, // Ensure we're saving a number
+      expenseAmount: expenseAmountNum, 
       totalPrice,
       taxAmount,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -160,11 +160,11 @@ const ExpensesManager: React.FC = () => {
     }
   }
 
-  // Search and filter functionality
+  
   useEffect(() => {
     let result = [...expenseList]
 
-    // Apply search filter
+    
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       result = result.filter(
@@ -175,12 +175,12 @@ const ExpensesManager: React.FC = () => {
       )
     }
 
-    // Apply category filter
+   
     if (selectedCategory !== "All Categories") {
       result = result.filter((expense) => expense.itemType === selectedCategory)
     }
 
-    // Apply duration filter
+    
     if (selectedDuration !== "Select Duration") {
       const now = new Date()
       let monthsAgo = 0
@@ -196,10 +196,10 @@ const ExpensesManager: React.FC = () => {
       }
     }
 
-    // Apply sorting
+    
     if (sortConfig) {
       result.sort((a, b) => {
-        // Get values with fallbacks for undefined
+        
         const aValue = a[sortConfig.key] ?? ""
         const bValue = b[sortConfig.key] ?? ""
 
@@ -216,7 +216,7 @@ const ExpensesManager: React.FC = () => {
     setFilteredExpenses(result)
   }, [expenseList, searchQuery, selectedCategory, selectedDuration, sortConfig])
 
-  // Handle sorting
+ 
   const requestSort = (key: keyof Expense) => {
     let direction: "ascending" | "descending" = "ascending"
     if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
@@ -225,7 +225,7 @@ const ExpensesManager: React.FC = () => {
     setSortConfig({ key, direction })
   }
 
-  // Handle selection for bulk delete
+  
   const handleSelectExpense = (id: string | undefined) => {
     if (!id) return
 
@@ -270,8 +270,7 @@ const ExpensesManager: React.FC = () => {
 
   const handleBulkDelete = async () => {
     try {
-      // In a real app, you might want to use a batch delete endpoint
-      // For now, we'll delete one by one
+     
       for (const id of selectedExpenses) {
         await fetch(`/api/expenses/${id}`, {
           method: "DELETE",
@@ -299,7 +298,7 @@ const ExpensesManager: React.FC = () => {
             <div className="text-[28px] font-semibold text-gray-900">Expenses List</div>
             <div className="text-gray-500">An Overview of all your transaction over the year.</div>
           </div>
-          <div className="flex gap-3">{/* Delete button moved below search bar */}</div>
+          <div className="flex gap-3">{}</div>
         </div>
       </div>
 
@@ -530,7 +529,7 @@ const ExpensesManager: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Expense Modal */}
+     
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
@@ -695,7 +694,7 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      
       {showDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
@@ -751,7 +750,7 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
-      {/* Bulk Delete Confirmation Modal */}
+      
       {showBulkDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
