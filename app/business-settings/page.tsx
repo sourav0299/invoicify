@@ -1,6 +1,6 @@
 "use client"
 import type React from "react"
-import { useState, useEffect, useRef, ChangeEvent } from "react"
+import { useState, useEffect, useRef } from "react"
 import "../globals.css"
 import Image from "next/image"
 import { toast } from "react-hot-toast"
@@ -117,105 +117,20 @@ const BusinessSettings = () => {
     }
   }
 
-  // const validateGSTNumber = (gstNumber: string): { isValid: boolean; error: string | null } => {
-  //   return { isValid: true, error: null }
-  // }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
-  // PAN validation function
-  // const validatePANNumber = (panNumber: string): { isValid: boolean; error: string | null } => {
-  //   return { isValid: true, error: null }
-  // }
+    if (name === "gstNumber" && !value) {
+      setGstError(null)
+      setGstInfo(null)
+    }
 
-  // const getPANEntityType = (panFirstChar: string): string => {
-  //   const entityTypes: Record<string, string> = {
-  //     P: "Individual",
-  //     C: "Company",
-  //     H: "HUF (Hindu Undivided Family)",
-  //     A: "Association of Persons (AOP)",
-  //     B: "Body of Individuals (BOI)",
-  //     G: "Government Agency",
-  //     J: "Artificial Juridical Person",
-  //     L: "Local Authority",
-  //     F: "Firm/Limited Liability Partnership",
-  //     T: "Trust",
-  //   }
-
-  //   return entityTypes[panFirstChar] || "Unknown Entity Type"
-  // }
-
-  // const getGSTStateName = (stateCode: string): string => {
-  //   const states: Record<string, string> = {
-  //     "01": "Jammu & Kashmir",
-  //     "02": "Himachal Pradesh",
-  //     "03": "Punjab",
-  //     "04": "Chandigarh",
-  //     "05": "Uttarakhand",
-  //     "06": "Haryana",
-  //     "07": "Delhi",
-  //     "08": "Rajasthan",
-  //     "09": "Uttar Pradesh",
-  //     "10": "Bihar",
-  //     "11": "Sikkim",
-  //     "12": "Arunachal Pradesh",
-  //     "13": "Nagaland",
-  //     "14": "Manipur",
-  //     "15": "Mizoram",
-  //     "16": "Tripura",
-  //     "17": "Meghalaya",
-  //     "18": "Assam",
-  //     "19": "West Bengal",
-  //     "20": "Jharkhand",
-  //     "21": "Odisha",
-  //     "22": "Chhattisgarh",
-  //     "23": "Madhya Pradesh",
-  //     "24": "Gujarat",
-  //     "26": "Dadra & Nagar Haveli and Daman & Diu",
-  //     "27": "Maharashtra",
-  //     "28": "Andhra Pradesh",
-  //     "29": "Karnataka",
-  //     "30": "Goa",
-  //     "31": "Lakshadweep",
-  //     "32": "Kerala",
-  //     "33": "Tamil Nadu",
-  //     "34": "Puducherry",
-  //     "35": "Andaman & Nicobar Islands",
-  //     "36": "Telangana",
-  //     "37": "Andhra Pradesh (New)",
-  //     "38": "Ladakh",
-  //   }
-
-  //   return states[stateCode] || "Unknown State"
-  // }
-
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-  //   const { name, value } = e.target
-  //   setFormData((prev) => ({ ...prev, [name]: value }))
-
-  //   if (name === "gstNumber" && value) {
-  //     setGstError(null)
-  //     if (value.length >= 2) {
-  //       const stateCode = value.substring(0, 2)
-  //       setGstInfo({
-  //         stateName: getGSTStateName(stateCode),
-  //       })
-  //     }
-  //   } else if (name === "gstNumber" && !value) {
-  //     setGstError(null)
-  //     setGstInfo(null)
-  //   }
-
-  //   if (name === "panNumber" && value) {
-  //     setPanError(null)
-  //     if (value.length > 0) {
-  //       setPanInfo({
-  //         entityType: getPANEntityType(value.charAt(0)),
-  //       })
-  //     }
-  //   } else if (name === "panNumber" && !value) {
-  //     setPanError(null)
-  //     setPanInfo(null)
-  //   }
-  // }
+    if (name === "panNumber" && !value) {
+      setPanError(null)
+      setPanInfo(null)
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "businessLogo" | "signature") => {
     console.log(`File change event triggered for ${type}`)
@@ -247,45 +162,41 @@ const BusinessSettings = () => {
     }
   }
 
-  function handleInputChange(event: ChangeEvent<HTMLSelectElement>): void {
-    throw new Error("Function not implemented.")
+  const handleSave = async () => {
+    try {
+      const formDataToSend = new FormData()
+
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value)
+      })
+
+      formDataToSend.append("isGstRegistered", isGstRegistered.toString())
+
+      if (businessLogo) {
+        formDataToSend.append("businessLogo", businessLogo)
+      }
+      if (signature) {
+        formDataToSend.append("signature", signature)
+      }
+
+      const method = formData.businessName ? "PUT" : "POST"
+      const response = await fetch("/api/business-details", {
+        method,
+        body: formDataToSend,
+      })
+
+      if (response.ok) {
+        toast.success("form Submitted succesfully")
+
+        await fetchBusinessDetails()
+      } else {
+        const errorData = await response.json()
+        console.log("Failed to save business details:", errorData.error)
+      }
+    } catch (error) {
+      console.log("Error saving business details:", error)
+    }
   }
-
-  // const handleSave = async () => {
-  //   try {
-  //     const formDataToSend = new FormData()
-
-  //     Object.entries(formData).forEach(([key, value]) => {
-  //       formDataToSend.append(key, value)
-  //     })
-
-  //     formDataToSend.append("isGstRegistered", isGstRegistered.toString())
-
-  //     if (businessLogo) {
-  //       formDataToSend.append("businessLogo", businessLogo)
-  //     }
-  //     if (signature) {
-  //       formDataToSend.append("signature", signature)
-  //     }
-
-  //     const method = formData.businessName ? "PUT" : "POST"
-  //     const response = await fetch("/api/business-details", {
-  //       method,
-  //       body: formDataToSend,
-  //     })
-
-  //     if (response.ok) {
-  //       toast.success("form Submitted succesfully")
-
-  //       await fetchBusinessDetails()
-  //     } else {
-  //       const errorData = await response.json()
-  //       console.log("Failed to save business details:", errorData.error)
-  //     }
-  //   } catch (error) {
-  //     console.log("Error saving business details:", error)
-  //   }
-  // }
 
   return (
     <div className=" bg-universal_gray_background pb-10">

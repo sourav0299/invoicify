@@ -3,12 +3,10 @@
 import { useState, useEffect, useCallback } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-hot-toast"
-
-
 
 const countries = [
   { code: "+1", name: "United States", flag: "🇺🇸", iso: "us" },
@@ -106,21 +104,18 @@ const UserDetails = () => {
           setEmail(userData.email || "")
           setUserId(userData.id || null)
 
-          
           if (userData.contactnumber) {
             console.log("Fetched contact number:", userData.contactnumber)
 
-            
             const foundCountry = countries.find((country) => userData.contactnumber.startsWith(country.code))
 
             if (foundCountry) {
               setCountryCode(foundCountry.code)
-             
+
               setContactNumber(userData.contactnumber.substring(foundCountry.code.length))
               console.log("Set country code:", foundCountry.code)
               console.log("Set contact number:", userData.contactnumber.substring(foundCountry.code.length))
             } else {
-             
               setCountryCode("+1")
               setContactNumber(userData.contactnumber)
               console.log("No matching country code found, using default")
@@ -189,7 +184,6 @@ const UserDetails = () => {
   }
 
   const handleSave = async () => {
-   
     const isEmailValid = validateEmail(email)
     const isPhoneValid = validatePhone(contactNumber)
 
@@ -206,13 +200,11 @@ const UserDetails = () => {
       contactnumber: fullContactNumber,
     }
 
-    
     const loadingToast = toast.loading("Saving user details...")
 
     try {
       console.log("Saving user data:", userData)
 
-    
       const endpoint = email ? `/api/user-details/${encodeURIComponent(email)}` : "/api/user-details"
       const method = userId ? "PUT" : "POST"
 
@@ -240,7 +232,6 @@ const UserDetails = () => {
           setUserId(responseData.id)
         }
 
-        
         await fetchUserDetails()
       } else {
         throw new Error(responseData.message || `Error: ${response.status} ${response.statusText}`)
@@ -345,7 +336,10 @@ const UserDetails = () => {
                           />
                           <span>{selectedCountry?.code}</span>
                         </span>
-                        <span className="ml-0.5 text-sidebar_green_button_background">▼</span>
+                        <ChevronDown
+                          size={14}
+                          className={`ml-0.5 text-sidebar_green_button_background transition-transform duration-300 ease-in-out ${showCountryDropdown ? "transform rotate-180" : ""}`}
+                        />
                       </button>
 
                       {showCountryDropdown && (
