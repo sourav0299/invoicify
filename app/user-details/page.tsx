@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { toast } from "react-hot-toast"
 
-// Country data with codes and flags
 const countries = [
   { code: "+1", name: "United States", flag: "🇺🇸", iso: "us" },
   { code: "+44", name: "United Kingdom", flag: "🇬🇧", iso: "gb" },
@@ -85,48 +85,70 @@ const UserDetails = () => {
   const fetchUserDetails = async () => {
     if (user?.id) {
       try {
-        const response = await fetch(`/api/user-details/${user.primaryEmailAddress?.emailAddress}`)
+        const email = user.primaryEmailAddress?.emailAddress
+        if (!email) {
+          console.error("No email address found for user")
+          return
+        }
+
+        console.log(`Fetching user details for email: ${email}`)
+        const response = await fetch(`/api/user-details/${encodeURIComponent(email)}`)
+        console.log("Fetch response status:", response.status)
+
         if (response.ok) {
           const userData = await response.json()
-          setFirstName(userData.firstname)
-          setLastName(userData.lastname)
-          setEmail(userData.email)
+          console.log("Fetched user data:", userData)
 
-          // Handle phone number with country code
+          setFirstName(userData.firstname || "")
+          setLastName(userData.lastname || "")
+          setEmail(userData.email || "")
+          setUserId(userData.id || null)
+
           if (userData.contactnumber) {
-            // Find the country code that matches the beginning of the phone number
+            console.log("Fetched contact number:", userData.contactnumber)
+
             const foundCountry = countries.find((country) => userData.contactnumber.startsWith(country.code))
 
             if (foundCountry) {
               setCountryCode(foundCountry.code)
-              // Remove the country code from the phone number
+
               setContactNumber(userData.contactnumber.substring(foundCountry.code.length))
+              console.log("Set country code:", foundCountry.code)
+              console.log("Set contact number:", userData.contactnumber.substring(foundCountry.code.length))
             } else {
-              // If no matching country code is found, use default
               setCountryCode("+1")
               setContactNumber(userData.contactnumber)
+              console.log("No matching country code found, using default")
             }
+          } else {
+            console.log("No contact number found in user data")
+            setContactNumber("")
           }
-
-          setUserId(userData.id)
         } else {
+          console.log("User not found in database, using Clerk data")
           setFirstName(user?.firstName ?? "")
           setLastName(user?.lastName ?? "")
-          setEmail(user?.primaryEmailAddress?.emailAddress ?? "")
+          setEmail(email)
+          setContactNumber("")
         }
+
         setImageUrl(user?.imageUrl ?? "")
       } catch (error) {
         console.error("Error fetching user details:", error)
+        toast.error("Failed to load user details. Please refresh the page.")
       }
     }
   }
 
-  const handleClickOutside = useCallback((event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (showCountryDropdown && !target.closest(".country-dropdown-container")) {
-      setShowCountryDropdown(false)
-    }
-  }, [showCountryDropdown])
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showCountryDropdown && !target.closest(".country-dropdown-container")) {
+        setShowCountryDropdown(false)
+      }
+    },
+    [showCountryDropdown],
+  )
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside)
@@ -162,7 +184,6 @@ const UserDetails = () => {
   }
 
   const handleSave = async () => {
-    // Validate inputs before saving
     const isEmailValid = validateEmail(email)
     const isPhoneValid = validatePhone(contactNumber)
 
@@ -170,39 +191,55 @@ const UserDetails = () => {
       return
     }
 
+    const fullContactNumber = `${countryCode}${contactNumber}`
+
     const userData = {
       firstname: firstName,
       lastname: lastName,
       email: email,
-      contactnumber: `${countryCode}${contactNumber}`,
+      contactnumber: fullContactNumber,
     }
 
+    const loadingToast = toast.loading("Saving user details...")
+
     try {
-      let response
-      if (userId) {
-        response = await fetch(`/api/user-details/${email}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        })
-      } else {
-        response = await fetch("/api/user-details", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        })
-      }
+      console.log("Saving user data:", userData)
+
+      const endpoint = email ? `/api/user-details/${encodeURIComponent(email)}` : "/api/user-details"
+      const method = userId ? "PUT" : "POST"
+
+      console.log(`Making ${method} request to ${endpoint}`)
+
+      const response = await fetch(endpoint, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+
+      console.log("Response status:", response.status)
+
+      const responseData = await response.json()
+      console.log("Response data:", responseData)
 
       if (response.ok) {
-        const updatedUser = await response.json()
-        setUserId(updatedUser.id)
-        alert("User details saved successfully!")
+        toast.dismiss(loadingToast)
+        toast.success("User details saved successfully!")
+
+        if (responseData.id) {
+          setUserId(responseData.id)
+        }
+
+        await fetchUserDetails()
       } else {
-        throw new Error("Failed to save user details")
+        throw new Error(responseData.message || `Error: ${response.status} ${response.statusText}`)
       }
     } catch (error) {
       console.error("Error saving user details:", error)
-      alert("Failed to save user details. Please try again.")
+      toast.dismiss(loadingToast)
+      toast.error(`Failed to save user details: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
   }
 
@@ -289,17 +326,20 @@ const UserDetails = () => {
                       <button
                         type="button"
                         onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                        className="bg-transparent border border-business_settings_gray_border border-dashed min-w-[120px] h-8 rounded-[4px] focus:outline-none px-2 flex items-center justify-between"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed min-w-[100px] h-8 rounded-[4px] focus:outline-none px-2.5 flex items-center justify-between"
                       >
                         <span className="flex items-center">
                           <img
                             src={`https://flagcdn.com/w20/${selectedCountry?.iso}.png`}
                             alt={selectedCountry?.name}
-                            className="mr-2 h-4 w-auto object-contain"
+                            className="mr-2 h-3 w-auto object-contain"
                           />
                           <span>{selectedCountry?.code}</span>
                         </span>
-                        <span className="ml-1">▼</span>
+                        <ChevronDown
+                          size={14}
+                          className={`ml-0.5 text-sidebar_green_button_background transition-transform duration-300 ease-in-out ${showCountryDropdown ? "transform rotate-180" : ""}`}
+                        />
                       </button>
 
                       {showCountryDropdown && (
@@ -328,7 +368,7 @@ const UserDetails = () => {
                                 <img
                                   src={`https://flagcdn.com/w20/${country.iso}.png`}
                                   alt={country.name}
-                                  className="mr-2 h-4 w-auto object-contain"
+                                  className="mr-2 h-3 w-auto object-contain"
                                 />
                                 <span>{country.name}</span>
                                 <span className="ml-2 text-gray-500">{country.code}</span>

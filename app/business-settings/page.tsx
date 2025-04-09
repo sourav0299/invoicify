@@ -6,8 +6,6 @@ import Image from "next/image"
 import { toast } from "react-hot-toast"
 import axios from "axios"
 import { FaLocationCrosshairs } from "react-icons/fa6"
-// Add this import at the top of the file
-// import { validateGSTNumber, validatePANNumber, getPANEntityType, getGSTStateName } from "./validation-helper"
 
 const PhotoIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -45,7 +43,6 @@ const BusinessSettings = () => {
     termsAndConditions: "",
   })
 
-  // Replace the existing state variables for errors with these enhanced ones
   const [gstError, setGstError] = useState<string | null>(null)
   const [panError, setPanError] = useState<string | null>(null)
   const [gstInfo, setGstInfo] = useState<{ stateName: string } | null>(null)
@@ -120,205 +117,16 @@ const BusinessSettings = () => {
     }
   }
 
-  // Add these validation functions directly in the file, after the getlocation function and before handleInputChange
-
-  // GST validation function
-  const validateGSTNumber = (gstNumber: string): { isValid: boolean; error: string | null } => {
-    // Empty check
-    if (!gstNumber) {
-      return { isValid: false, error: "GST Number is required" }
-    }
-
-    // Basic format check
-    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
-    if (!gstRegex.test(gstNumber)) {
-      return {
-        isValid: false,
-        error: "Invalid GST format.",
-      }
-    }
-
-    // State code validation (01 to 38)
-    const stateCode = Number.parseInt(gstNumber.substring(0, 2), 10)
-    if (stateCode < 1 || stateCode > 38) {
-      return {
-        isValid: false,
-        error: `Invalid state code: ${stateCode}. Must be between 01 and 38.`,
-      }
-    }
-
-    // PAN portion validation
-    const panPortion = gstNumber.substring(2, 12)
-    const panValidation = validatePANNumber(panPortion)
-    if (!panValidation.isValid) {
-      return {
-        isValid: false,
-        error: `Invalid PAN portion in GST: ${panValidation.error}`,
-      }
-    }
-
-    // Entity number validation (13th character)
-    const entityNumber = gstNumber.charAt(12)
-    if (!/^[1-9A-Z]$/.test(entityNumber)) {
-      return {
-        isValid: false,
-        error: "Invalid entity number (13th character)",
-      }
-    }
-
-    // Z character validation (14th character)
-    if (gstNumber.charAt(13) !== "Z") {
-      return {
-        isValid: false,
-        error: "14th character must be 'Z'",
-      }
-    }
-
-    return { isValid: true, error: null }
-  }
-
-  // PAN validation function
-  const validatePANNumber = (panNumber: string): { isValid: boolean; error: string | null } => {
-    // Empty check
-    if (!panNumber) {
-      return { isValid: false, error: "PAN Number is required" }
-    }
-
-    // Basic format check
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-    if (!panRegex.test(panNumber)) {
-      return {
-        isValid: false,
-        error: "Invalid PAN format.",
-      }
-    }
-
-    // First character validation based on entity type
-    const firstChar = panNumber.charAt(0)
-    const entityTypes: Record<string, string> = {
-      P: "Individual",
-      C: "Company",
-      H: "HUF (Hindu Undivided Family)",
-      A: "Association of Persons (AOP)",
-      B: "Body of Individuals (BOI)",
-      G: "Government Agency",
-      J: "Artificial Juridical Person",
-      L: "Local Authority",
-      F: "Firm/Limited Liability Partnership",
-      T: "Trust",
-    }
-
-    if (!Object.keys(entityTypes).includes(firstChar)) {
-      return {
-        isValid: false,
-        error: `Invalid first character: ${firstChar}. Must be one of: ${Object.keys(entityTypes).join(", ")}`,
-      }
-    }
-
-    return { isValid: true, error: null }
-  }
-
-  // Helper function to get entity type from PAN
-  const getPANEntityType = (panFirstChar: string): string => {
-    const entityTypes: Record<string, string> = {
-      P: "Individual",
-      C: "Company",
-      H: "HUF (Hindu Undivided Family)",
-      A: "Association of Persons (AOP)",
-      B: "Body of Individuals (BOI)",
-      G: "Government Agency",
-      J: "Artificial Juridical Person",
-      L: "Local Authority",
-      F: "Firm/Limited Liability Partnership",
-      T: "Trust",
-    }
-
-    return entityTypes[panFirstChar] || "Unknown Entity Type"
-  }
-
-  // Helper function to get state name from GST state code
-  const getGSTStateName = (stateCode: string): string => {
-    const states: Record<string, string> = {
-      "01": "Jammu & Kashmir",
-      "02": "Himachal Pradesh",
-      "03": "Punjab",
-      "04": "Chandigarh",
-      "05": "Uttarakhand",
-      "06": "Haryana",
-      "07": "Delhi",
-      "08": "Rajasthan",
-      "09": "Uttar Pradesh",
-      "10": "Bihar",
-      "11": "Sikkim",
-      "12": "Arunachal Pradesh",
-      "13": "Nagaland",
-      "14": "Manipur",
-      "15": "Mizoram",
-      "16": "Tripura",
-      "17": "Meghalaya",
-      "18": "Assam",
-      "19": "West Bengal",
-      "20": "Jharkhand",
-      "21": "Odisha",
-      "22": "Chhattisgarh",
-      "23": "Madhya Pradesh",
-      "24": "Gujarat",
-      "26": "Dadra & Nagar Haveli and Daman & Diu",
-      "27": "Maharashtra",
-      "28": "Andhra Pradesh",
-      "29": "Karnataka",
-      "30": "Goa",
-      "31": "Lakshadweep",
-      "32": "Kerala",
-      "33": "Tamil Nadu",
-      "34": "Puducherry",
-      "35": "Andaman & Nicobar Islands",
-      "36": "Telangana",
-      "37": "Andhra Pradesh (New)",
-      "38": "Ladakh",
-    }
-
-    return states[stateCode] || "Unknown State"
-  }
-
-  // Modify the handleInputChange function to use the imported validation functions
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
 
-    // Validate GST number
-    if (name === "gstNumber" && value) {
-      const gstValidation = validateGSTNumber(value)
-      setGstError(gstValidation.error)
-
-      // If valid, set additional info
-      if (gstValidation.isValid) {
-        const stateCode = value.substring(0, 2)
-        setGstInfo({
-          stateName: getGSTStateName(stateCode),
-        })
-      } else {
-        setGstInfo(null)
-      }
-    } else if (name === "gstNumber" && !value) {
+    if (name === "gstNumber" && !value) {
       setGstError(null)
       setGstInfo(null)
     }
 
-    // Validate PAN number
-    if (name === "panNumber" && value) {
-      const panValidation = validatePANNumber(value)
-      setPanError(panValidation.error)
-
-      // If valid, set additional info
-      if (panValidation.isValid) {
-        setPanInfo({
-          entityType: getPANEntityType(value.charAt(0)),
-        })
-      } else {
-        setPanInfo(null)
-      }
-    } else if (name === "panNumber" && !value) {
+    if (name === "panNumber" && !value) {
       setPanError(null)
       setPanInfo(null)
     }
@@ -354,48 +162,16 @@ const BusinessSettings = () => {
     }
   }
 
-  // Modify the handleSave function to use the imported validation functions
   const handleSave = async () => {
-    // Reset errors
-    setGstError(null)
-    setPanError(null)
-
-    // Validation
-    let isValid = true
-
-    // GST validation if registered
-    if (isGstRegistered) {
-      const gstValidation = validateGSTNumber(formData.gstNumber)
-      if (!gstValidation.isValid) {
-        setGstError(gstValidation.error)
-        isValid = false
-      }
-    }
-
-    // PAN validation
-    const panValidation = validatePANNumber(formData.panNumber)
-    if (!panValidation.isValid) {
-      setPanError(panValidation.error)
-      isValid = false
-    }
-
-    if (!isValid) {
-      toast.error("Please fix the validation errors before saving")
-      return
-    }
-
     try {
       const formDataToSend = new FormData()
 
-      // Append all form fields
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value)
       })
 
-      // Append isGstRegistered
       formDataToSend.append("isGstRegistered", isGstRegistered.toString())
 
-      // Append files if they exist
       if (businessLogo) {
         formDataToSend.append("businessLogo", businessLogo)
       }
@@ -412,7 +188,6 @@ const BusinessSettings = () => {
       if (response.ok) {
         toast.success("form Submitted succesfully")
 
-        // Optionally, you can refresh the data here
         await fetchBusinessDetails()
       } else {
         const errorData = await response.json()
@@ -544,14 +319,12 @@ const BusinessSettings = () => {
                 name="gstNumber"
                 value={formData.gstNumber}
                 onChange={handleInputChange}
-                className={`bg-transparent border ${gstError ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
+                className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
                   !isGstRegistered ? "cursor-not-allowed" : ""
                 }`}
                 disabled={!isGstRegistered}
                 placeholder="22AAAAA0000A1Z5"
               />
-              {gstError && <p className="text-xs text-red-500 mt-1">{gstError}</p>}
-              {gstInfo && <div className="text-xs text-green-600 mt-1">State: {gstInfo.stateName}</div>}
             </div>
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">PAN Number</div>
@@ -560,11 +333,9 @@ const BusinessSettings = () => {
                 name="panNumber"
                 value={formData.panNumber}
                 onChange={handleInputChange}
-                className={`bg-transparent border ${panError ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 placeholder="AAAAA0000A"
               />
-              {panError && <p className="text-xs text-red-500 mt-1">{panError}</p>}
-              {panInfo && <div className="text-xs text-green-600 mt-1">Entity Type: {panInfo.entityType}</div>}
             </div>
           </div>
           <div className="flex gap-3">
