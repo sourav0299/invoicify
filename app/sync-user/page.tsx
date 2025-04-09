@@ -2,10 +2,93 @@
 
 import { useState } from "react"
 import { Eye, EyeOff, Upload } from "lucide-react"
+import { useUser, useClerk } from "@clerk/nextjs"
 
 export default function SyncUser() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { user } = useUser()
+  const { openUserProfile } = useClerk()
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [email, setEmail] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const [contactNumber, setContactNumber] = useState("")
+  const [userId, setUserId] = useState<number | null>(null)
+  const [emailError, setEmailError] = useState("")
+  const [phoneError, setPhoneError] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email) {
+      setEmailError("Email is required")
+      return false
+    } else if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address")
+      return false
+    }
+    setEmailError("")
+    return true
+  }
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^\d{6,15}$/
+    if (!phone) {
+      setPhoneError("Phone number is required")
+      return false
+    } else if (!phoneRegex.test(phone)) {
+      setPhoneError("Please enter a valid phone number (6-15 digits)")
+      return false
+    }
+    setPhoneError("")
+    return true
+  }
+
+  const handleSave = async () => {
+    // Validate inputs before saving
+    const isEmailValid = validateEmail(email)
+    const isPhoneValid = validatePhone(contactNumber)
+
+    if (!isEmailValid || !isPhoneValid) {
+      return
+    }
+
+    const userData = {
+      firstname: firstName,
+      lastname: lastName,
+      email: email,
+      contactnumber: `${contactNumber}`,
+    }
+
+    try {
+      let response
+      if (userId) {
+        response = await fetch(`/api/user-details/${email}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        })
+      } else {
+        response = await fetch("/api/user-details", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        })
+      }
+
+      if (response.ok) {
+        const updatedUser = await response.json()
+        setUserId(updatedUser.id)
+        alert("User details saved successfully!")
+      } else {
+        throw new Error("Failed to save user details")
+      }
+    } catch (error) {
+      console.error("Error saving user details:", error)
+      alert("Failed to save user details. Please try again.")
+    }
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#fafafa] p-4">

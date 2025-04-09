@@ -1,3 +1,4 @@
+"use client"
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -5,8 +6,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
 import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
+import {useRouter} from 'next/navigation'
+import { useEffect } from "react"
+
+async function checkUser(){
+  try{
+    const response = await fetch("/api/middleware/check-user", {
+      method: "GET",
+      headers: {
+        'Content-Type' : 'application/json',
+      },
+    })
+    if(!response.ok){
+      console.log("something is wrong")
+    }
+    return response.json();
+  }catch(error){
+    return null;
+  }
+}
 
 export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const verifyUser = async () => {
+      try {
+        const userVerification = await checkUser();
+        if(!userVerification || userVerification.error) {
+          router.push("/sync-user");
+        }
+      } catch (error) {
+        router.push("/sync-user");
+      }
+    };
+    
+    verifyUser();
+  }, [router]);
+
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
       {/* Header */}
