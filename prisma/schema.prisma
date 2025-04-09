@@ -15,6 +15,38 @@ model User {
   contactnumber String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  subscription Subscription[]
+}
+
+model Plan{
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  price       Int
+  currency    String         @default("INR")
+  features    Json
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  subscriptions Subscription[] 
+}
+
+model Subscription {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  planId          Int
+  pluralOrderId   String   @unique
+  status          String   @default("active")
+  nextBillingDate DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  plan Plan   @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([planId])
 }
 
 model BusinessSetting {
