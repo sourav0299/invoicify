@@ -490,47 +490,46 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <Eye size={16} className="mr-1.5" />
               {showPreviousInvoices ? "Hide Previous Invoices" : "Preview Previous Invoices"}
             </button>
-
-            {showPreviousInvoices && (
-              <div className="border border-[#e0e2e7] rounded-md p-4 mt-4 w-full">
-                <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
-                  <FileText size={16} className="mr-2 text-[#1eb386]" />
-                  Previous Invoices
-                </h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
-                        <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
-                        <th className="py-2 px-3 text-left font-medium">DATE</th>
-                        <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
-                        <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
-                        <th className="py-2 px-3 text-center font-medium">ACTION</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {previousInvoices.map((invoice) => (
-                        <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
-                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
-                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
-                          <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
-                          <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
-                          <td className="py-3 px-3 text-center">
-                            <button className="text-[#1eb386] hover:text-[#40c79a]">
-                              <Eye size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
           </div>
         </div>
+
+        {showPreviousInvoices && (
+          <div className="border border-[#e0e2e7] rounded-md p-4 mt-6 w-full transition-all duration-300">
+            <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
+              <FileText size={16} className="mr-2 text-[#1eb386]" />
+              Previous Invoices
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
+                    <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
+                    <th className="py-2 px-3 text-left font-medium">DATE</th>
+                    <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
+                    <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
+                    <th className="py-2 px-3 text-center font-medium">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {previousInvoices.map((invoice) => (
+                    <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
+                      <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
+                      <td className="py-3 px-3 text-center">
+                        <button className="text-[#1eb386] hover:text-[#40c79a]">
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
-
