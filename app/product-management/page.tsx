@@ -7,7 +7,7 @@ import { useUser } from "@clerk/nextjs"
 import "../globals.css"
 import { Tooltip } from "react-tooltip"
 import "react-tooltip/dist/react-tooltip.css"
-import { ArrowUpDown, Trash2, CheckSquare, Square } from "lucide-react"
+import { ArrowUpDown, Trash2, CheckSquare, Square } from 'lucide-react'
 
 interface CaretIconProps {
   isOpen: boolean
@@ -96,11 +96,13 @@ type CustomTooltipProps = {
   content: React.ReactNode
 }
 
+// First, update the Product interface to include a separate category field
 interface Product {
   _id?: string
   userEmail: string
   itemName: string
   itemType: string
+  category: string // Add this new field
   itemCode: string
   inventory: number
   measuringUnit: string
@@ -118,10 +120,12 @@ const Modal: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false)
   const [hoveredProduct, setHoveredProduct] = useState(null)
   const [productList, setProductList] = useState<Product[]>([])
+  // Update the initial product state to include category
   const [product, setProduct] = useState<Product>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
     itemName: "",
     itemType: "Product",
+    category: "", // Add default category
     itemCode: "",
     inventory: 0,
     measuringUnit: "Pcs",
@@ -144,8 +148,10 @@ const Modal: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
 
-  const categories = ["Product", "Service"]
+  const [categories, setCategories] = useState(["Product", "Service"])
 
   const handleDeleteClick = (product: Product) => {
     setProductToDelete(product)
@@ -181,12 +187,14 @@ const Modal: React.FC = () => {
     setShowModal(true)
   }
 
+  // Update the handleCloseModal function to reset category as well
   const handleCloseModal = () => {
     setShowModal(false)
     setProduct({
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
       itemName: "",
       itemType: "Product",
+      category: "",
       itemCode: "",
       inventory: 0,
       measuringUnit: "Pcs",
@@ -278,6 +286,13 @@ const Modal: React.FC = () => {
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
     }
 
+    // If the product's itemType is not in the default categories, ensure it's saved
+    if (!["Product", "Service"].includes(product.itemType)) {
+      // The category is already in the local state, but we need to ensure it's saved
+      const updatedCategories = [...categories]
+      localStorage.setItem("productCategories", JSON.stringify(updatedCategories))
+    }
+
     try {
       const response = await fetch("/api/products", {
         method: "POST",
@@ -326,6 +341,14 @@ const Modal: React.FC = () => {
 
   useEffect(() => {
     fetchProductList()
+  }, [])
+
+  useEffect(() => {
+    // Load categories from localStorage when component mounts
+    const savedCategories = localStorage.getItem("productCategories")
+    if (savedCategories) {
+      setCategories(JSON.parse(savedCategories))
+    }
   }, [])
 
   const handleCancel = () => {
@@ -390,6 +413,28 @@ const Modal: React.FC = () => {
     setShowBulkDeleteConfirmation(false)
   }
 
+  // Update the handleCreateCategory function to set category, not itemType
+  const handleCreateCategory = () => {
+    if (newCategoryName.trim()) {
+      // Add the new category to the categories array
+      const updatedCategories = [...categories, newCategoryName]
+      setCategories(updatedCategories)
+
+      // Save to localStorage for persistence
+      localStorage.setItem("productCategories", JSON.stringify(updatedCategories))
+
+      // Set the selected category to the new category in the form
+      setProduct((prevProduct) => ({ ...prevProduct, category: newCategoryName }))
+
+      // Also update the main page filter dropdown
+      setSelectedCategory(newCategoryName)
+
+      // Reset the form
+      setNewCategoryName("")
+      setShowCategoryForm(false)
+    }
+  }
+
   const filteredProducts = useMemo(() => {
     let filtered = [...productList]
 
@@ -400,13 +445,13 @@ const Modal: React.FC = () => {
         (product) =>
           product.itemName.toLowerCase().includes(query) ||
           product.itemCode.toLowerCase().includes(query) ||
-          product.itemType.toLowerCase().includes(query),
+          (product.category && product.category.toLowerCase().includes(query)),
       )
     }
 
     // Apply category filter
     if (selectedCategory !== "Select Categories") {
-      filtered = filtered.filter((product) => product.itemType === selectedCategory)
+      filtered = filtered.filter((product) => product.category === selectedCategory)
     }
 
     // Apply sorting
@@ -420,8 +465,8 @@ const Modal: React.FC = () => {
       }
 
       // Handle string values
-      valueA = String(valueA).toLowerCase()
-      valueB = String(valueB).toLowerCase()
+      valueA = String(valueA || "").toLowerCase()
+      valueB = String(valueB || "").toLowerCase()
 
       if (valueA < valueB) return sortDirection === "asc" ? -1 : 1
       if (valueA > valueB) return sortDirection === "asc" ? 1 : -1
@@ -589,6 +634,12 @@ const Modal: React.FC = () => {
                   </button>
                 </th>
                 <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("category")}>
+                    Category
+                    {sortField === "category" && <ArrowUpDown className="ml-1 h-4 w-4" />}
+                  </button>
+                </th>
+                <th className="py-6 px-4 border-b text-center">
                   <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("inventory")}>
                     Inventory
                     {sortField === "inventory" && <ArrowUpDown className="ml-1 h-4 w-4" />}
@@ -628,6 +679,7 @@ const Modal: React.FC = () => {
                   <td className="py-2 px-4 border-b text-center">{product.itemCode}</td>
                   <td className="py-2 px-4 border-b text-center">{product.itemName}</td>
                   <td className="py-2 px-4 border-b text-center">{product.itemType}</td>
+                  <td className="py-2 px-4 border-b text-center">{product.category || "-"}</td>
                   <td className="py-2 px-4 border-b text-center">{product.inventory}</td>
                   <td className="py-2 px-4 border-b text-center">{product.measuringUnit}</td>
                   <td className="py-2 px-4 border-b text-center">{product.salesPrice}</td>
@@ -816,27 +868,68 @@ const Modal: React.FC = () => {
                         </label>
                       </div>
                     </div>
+
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Category</div>
-                      <div className="flex gap-2">
-                        <div className="relative w-full">
-                          <select
-                            name="category"
-                            value={product.itemType}
-                            onChange={handleInputChange}
-                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
-                          >
-                            <option value="">Select a category</option>
-                            <option value="category1">Product</option>
-                            <option value="category2">Service</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                            <CaretIcon isOpen={isDropdownOpen} />
+                      <div className="flex flex-col w-full gap-2">
+                        <div className="flex gap-2">
+                          <div className="relative w-full">
+                            <select
+                              name="category"
+                              value={product.category}
+                              onChange={handleInputChange}
+                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                            >
+                              <option value="">Select a category</option>
+                              {categories.map((category, index) => (
+                                <option key={index} value={category}>
+                                  {category}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                              <CaretIcon isOpen={isDropdownOpen} />
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowCategoryForm(!showCategoryForm)}
+                            className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                          >
+                            Create New Category
+                          </button>
                         </div>
-                        <button className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold">
-                          Create New Category
-                        </button>
+
+                        {showCategoryForm && (
+                          <div className="flex flex-wrap gap-2 mt-2 items-center">
+                            <input
+                              type="text"
+                              value={newCategoryName}
+                              onChange={(e) => setNewCategoryName(e.target.value)}
+                              placeholder="Enter category name"
+                              className="bg-transparent border border-business_settings_gray_border border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={handleCreateCategory}
+                                className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
+                              >
+                                Add
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowCategoryForm(false)
+                                  setNewCategoryName("")
+                                }}
+                                className="border border-gray-300 bg-white text-gray-700 rounded text-sm font-semibold h-8 px-4"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1049,4 +1142,3 @@ const Modal: React.FC = () => {
 }
 
 export default Modal
-
