@@ -3,10 +3,10 @@ import prisma from '../../../utils/prisma';
 
 export async function GET(
     request: Request,
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
-        const userId = parseInt(params.userId);
+        const userId = parseInt((await params).userId);
 
         const subscription = await prisma.subscription.findFirst({
             where: {

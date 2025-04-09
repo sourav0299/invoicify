@@ -3,18 +3,18 @@ import prisma from '../../../../../utils/prisma';
 
 export async function GET(
     request: Request,
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
         // Await params and validate userId
-        if (!params?.userId) {
+        if (!(await params)?.userId) {
             return NextResponse.json(
                 { error: 'User ID is required' },
                 { status: 400 }
             );
         }
 
-        const userId = parseInt(await params.userId);
+        const userId = parseInt((await params).userId);
 
         if (isNaN(userId)) {
             return NextResponse.json(
