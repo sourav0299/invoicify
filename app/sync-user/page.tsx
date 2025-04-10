@@ -1,11 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
 import { Eye, EyeOff, Upload } from "lucide-react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
+import toast from "react-hot-toast"
 
 export default function SyncUser() {
   const [showPassword, setShowPassword] = useState(false)
@@ -98,7 +98,6 @@ export default function SyncUser() {
       email: email,
       contactnumber: contactNumber,
       imageUrl: imageUrl,
-      
       password: password,
     }
 
@@ -128,11 +127,13 @@ export default function SyncUser() {
       }
     } catch (error) {
       console.error("Error saving user details:", error)
-      alert("Failed to save user details. Please try again.")
+      toast.error("Failed to save user details. Please try again.")
     } finally {
       setIsLoading(false)
     }
   }
+
+  
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#fafafa] p-4">

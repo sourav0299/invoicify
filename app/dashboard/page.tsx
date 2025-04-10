@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
-import { CashflowChart } from "@/components/ui/cashflow-char" // Fixed typo in import
+import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
-// Moved checkUser function outside of component
 async function checkUser() {
   try {
     const response = await fetch("/api/middleware/check-user", {
@@ -23,13 +22,27 @@ async function checkUser() {
       headers: {
         "Content-Type": "application/json",
       },
-    })
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
     if (!response.ok) {
-      console.log("something is wrong")
+      return { 
+        error: data.error,
+        status: response.status 
+      };
     }
-    return response.json()
+
+    return {
+      user: data.user,
+      message: data.message
+    };
   } catch (error) {
-    return null
+    return { 
+      error: 'Connection failed',
+      status: 500
+    };
   }
 }
 
@@ -48,17 +61,30 @@ export default function DashboardPage() {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const userVerification = await checkUser()
-        if (!userVerification || userVerification.error) {
-          router.push("/sync-user")
+        const result = await checkUser();
+
+        if (result.error) {
+          switch(result.status) {
+            case 401:
+              router.push("/login");
+              break;
+            case 404:
+              router.push("/sync-user");
+              break;
+            default:
+              router.push("/sync-user");
+              break;
+          }
+          return;
         }
       } catch (error) {
-        router.push("/sync-user")
+        console.error('Verification error:', error);
+        router.push("/error");
       }
-    }
+    };
 
-    verifyUser()
-  }, [router])
+    verifyUser();
+  }, [router]);
 
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">

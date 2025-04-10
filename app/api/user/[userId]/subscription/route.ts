@@ -6,7 +6,6 @@ export async function GET(
     { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
-        // Await params and validate userId
         if (!(await params)?.userId) {
             return NextResponse.json(
                 { error: 'User ID is required' },

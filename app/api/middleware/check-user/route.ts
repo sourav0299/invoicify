@@ -1,54 +1,46 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { NextRequest } from 'next/server';
-import prisma from '../../../../utils/prisma';
+import prisma from "../../../../utils/prisma";
 
-// Export the HTTP method handlers
-export async function GET(req: NextRequest) {
-  return await checkUserInfo(req);
-}
-
-export async function POST(req: NextRequest) {
-  return await checkUserInfo(req);
-}
-
-// Move the checkUserInfo function to be a helper function
-async function checkUserInfo(req: NextRequest) {
+export async function GET() {
   try {
-    // ...existing code...
     const { userId } = await auth();
+    
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized: No user found" },
+        { status: 401 }
+      );
     }
 
-    // ...existing code...
-    const clerkUser = await currentUser();
-    if (!clerkUser || !clerkUser.emailAddresses || clerkUser.emailAddresses.length === 0) {
-      return NextResponse.json({ error: 'Clerk user information not found' }, { status: 404 });
+    const user = await currentUser();
+    if (!user?.emailAddresses?.[0]?.emailAddress) {
+      return NextResponse.json(
+        { error: "Invalid user profile" },
+        { status: 401 }
+      );
     }
 
-    // ...existing code...
+    const clerkEmail = user.emailAddresses[0].emailAddress;
     const prismaUser = await prisma.user.findUnique({
-      where: {
-        email: clerkUser.emailAddresses[0].emailAddress,
-      }
+      where: { email: clerkEmail },
     });
 
     if (!prismaUser) {
-      return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
+      return NextResponse.json(
+        { error: "User not found in database" },
+        { status: 404 }
+      );
     }
 
-    const request = req as any;
-    request.user = {
-      ...prismaUser,
-      clerkUser
-    };
-
-    return NextResponse.next();
+    return NextResponse.json({
+      message: "User found",
+      user: prismaUser
+    }, { status: 200 });
+    
   } catch (error) {
-    console.error('Error checking user information:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
