@@ -72,7 +72,7 @@ const testimonials = [
 export default function landing() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  
+
   const totalSlides = Math.ceil(testimonials.length / 2)
 
   const nextSlide = () => {
@@ -114,7 +114,7 @@ export default function landing() {
                 platform for improved efficiency and growth.
               </p>
               <div className="mt-8">
-              <button className="mt-8 group inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                <button className="mt-8 group inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
                   <span>
                     <a href="/dashboard">Get Started Now</a>
                   </span>
@@ -203,7 +203,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Create invoices.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Create invoice.png" alt="img" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -285,8 +285,8 @@ export default function landing() {
         </div>
       </section>
 
-      <section className="py-[100px] px-[100px] text-white flex items-center text-4xl text-center bg-[linear-gradient(92deg,#1BA078_10.35%,#0A3A2C_112.5%)] font-Inter">
-        <div className="max-w-7xl">
+      <section className="py-8 sm:py-16 md:py-24 lg:py-[100px] px-4 sm:px-8 md:px-16 lg:px-[100px] text-white flex flex-col items-center justify-center text-2xl sm:text-3xl md:text-4xl text-center bg-[linear-gradient(92deg,#1BA078_10.35%,#0A3A2C_112.5%)] font-Inter">
+        <div className="w-full max-w-7xl mx-auto">
           <p>
             An <span className="font-bold">ALL-in-ONE</span> billing and business management{" "}
             <span className="font-bold">solution,</span> tailored to empower small and medium{" "}
@@ -304,7 +304,7 @@ export default function landing() {
               width={600}
               height={500}
               className="w-full h-auto"
-              
+
             />
           </div>
 
@@ -425,9 +425,8 @@ export default function landing() {
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentSlide ? "bg-emerald-500" : "bg-gray-300"
-                }`}
+                className={`w-2 h-2 rounded-full transition-colors ${index === currentSlide ? "bg-emerald-500" : "bg-gray-300"
+                  }`}
                 onClick={() => setCurrentSlide(index)}
               />
             ))}
@@ -465,7 +464,7 @@ export default function landing() {
               </div>
 
               {/* <nav> */}
-                {/* <ul className="flex items-center gap-8 text-gray-600">
+              {/* <ul className="flex items-center gap-8 text-gray-600">
                   <li>
                     <Link href="#" className="hover:text-gray-900 transition-colors">
                       Home
