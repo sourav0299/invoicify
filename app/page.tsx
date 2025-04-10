@@ -68,45 +68,52 @@ const testimonials = [
     image: "/Invoice.png",
   },
 ]
-
-function useCounter(end=100, duration = 2000, start = 0) {
-  const [count, setCount] = useState(start)
-  const countRef = useRef(start)
+// @ts-ignore
+function useCounter(end, duration = 3000, startValue = 0, shouldStart = false) {
+  const [count, setCount] = useState(startValue)
+  const countRef = useRef(startValue)
   const timeRef = useRef<number | null>(null)
+  const hasStarted = useRef(false)
 
   useEffect(() => {
-    countRef.current = start
-    const startTime = Date.now()
+    // Only start the counter if shouldStart is true and it hasn't already started
+    if (shouldStart && !hasStarted.current) {
+      hasStarted.current = true
+      countRef.current = startValue
+      const startTime = Date.now()
 
-    const updateCount = () => {
-      const now = Date.now()
-      const progress = Math.min((now - startTime) / duration, 1)
-      const currentCount = Math.floor(progress * (end - start) + start)
+      const updateCount = () => {
+        const now = Date.now()
+        const progress = Math.min((now - startTime) / duration, 1)
+        const currentCount = Math.floor(progress * (end - startValue) + startValue)
 
-      if (countRef.current !== currentCount) {
-        countRef.current = currentCount
-        setCount(currentCount)
+        if (countRef.current !== currentCount) {
+          countRef.current = currentCount
+          setCount(currentCount)
+        }
+
+        if (progress < 1) {
+          timeRef.current = requestAnimationFrame(updateCount)
+        }
       }
 
-      if (progress < 1) {
-        timeRef.current = requestAnimationFrame(updateCount)
-      }
+      timeRef.current = requestAnimationFrame(updateCount)
     }
-
-    timeRef.current = requestAnimationFrame(updateCount)
 
     return () => {
       if (timeRef.current) {
         cancelAnimationFrame(timeRef.current)
       }
     }
-  }, [end, duration, start])
+  }, [end, duration, startValue, shouldStart])
 
   return count
 }
 
 export default function landing() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isStatsVisible, setIsStatsVisible] = useState(false)
+  const statsRef = useRef<HTMLDivElement>(null)
 
   const totalSlides = Math.ceil(testimonials.length / 2)
 
@@ -117,6 +124,27 @@ export default function landing() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsStatsVisible(true)
+          // Once triggered, disconnect the observer
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2 }, // Trigger when at least 20% of the element is visible
+    )
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   return (
     <>
@@ -187,18 +215,24 @@ export default function landing() {
             Businesses thrive with smoother operations and faster growth using our solutions.
           </p>
 
-          <div className=" h-22">
-            <div className=" mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
+          <div className="h-22" ref={statsRef}>
+            <div className="mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(300)}+</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(300, 3500, 0, isStatsVisible)}+
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Businesses transformed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(4, 1500, 1)}x</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(4, 3000, 1, isStatsVisible)}x
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Growth witnessed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(95)}%</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(95, 3500, 0, isStatsVisible)}%
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Customer satisfaction</dd>
               </div>
             </div>
@@ -238,7 +272,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Create invoice.png" alt="img" className=" w-full p-0" />
+                <img src="/Create Invoice.png" alt="img" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -261,7 +295,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Data Analytics.png" alt="img" className=" w-full p-0" />
+                <img src="/Data Analytics.png" alt="sdch" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -284,7 +318,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Manage Invoices.png" alt="img" className=" w-full p-0" />
+                <img src="/Manage Invoices.png" alt="sdch" className=" w-full p-0" />
               </div>
             </div>
           </div>
