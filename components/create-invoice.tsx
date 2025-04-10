@@ -4,6 +4,8 @@ import type React from "react"
 
 import { useState } from "react"
 import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Plus, X } from "lucide-react"
+import { BrowserQRCodeReader } from '@zxing/browser';
+import { Dialog } from '@headlessui/react';
 
 interface CreateInvoiceProps {
   onClose: () => void
@@ -14,6 +16,18 @@ interface Invoice {
   date: string
   customer: string
   amount: string
+}
+
+interface ScanData {
+  userEmail: string;
+  itemName: string;
+  itemType: 'Product' | 'Service';
+  itemCode: string;
+  inventory: string;
+  measuringUnit: string;
+  salesPrice: string;
+  taxIncluded: boolean;
+  taxRate: string;
 }
 
 export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
@@ -46,6 +60,48 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const currentDate = new Date()
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [result, setResult] = useState<ScanData | null>(null);
+  
+      const startScanning = async () => {
+          setScanning(true);
+          const codeReader = new BrowserQRCodeReader();
+          
+          try {
+              const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
+              const selectedDeviceId = videoInputDevices[0].deviceId;
+              
+              const previewElem = document.getElementById('preview');
+              if (!previewElem) return;
+  
+              const result = await codeReader.decodeFromVideoDevice(
+                  selectedDeviceId,
+                  'preview',
+                  (result, _, controls) => {
+                      if (result) {
+                          try {
+                              const jsonData: ScanData = JSON.parse(result.getText());
+                              setResult(jsonData);
+                              setScanning(false);
+                              setIsModalOpen(false);
+                              controls.stop();
+                          } catch (error) {
+                              console.error('Invalid JSON data');
+                          }
+                      }
+                  }
+              );
+          } catch (error) {
+              setScanning(false);
+          }
+      };
+  
+      const stopScanning = () => {
+          setScanning(false);
+          setIsModalOpen(false);
+      };
 
   const getDaysInMonth = (month: number, year: number): number => {
     return new Date(year, month + 1, 0).getDate()
@@ -311,44 +367,31 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-[#f0f1f3]">
-                <td className="py-4 px-4 text-[14px] text-[#333843]">1</td>
-                <td className="py-4 px-4">
-                  <div>
-                    <p className="text-[14px] text-[#333843] font-medium">Product Name</p>
-                    <p className="text-[13px] text-[#667085]">Product Description</p>
-                  </div>
-                </td>
-                <td className="py-4 px-4 text-right">
-                  <div>
-                    <p className="text-[14px] text-[#333843]">150</p>
-                    <p className="text-[13px] text-[#667085]">Unit(s)</p>
-                  </div>
-                </td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹20</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">0%</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹3,000</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹3,000</td>
-              </tr>
-              <tr className="border-b border-[#f0f1f3]">
-                <td className="py-4 px-4 text-[14px] text-[#333843]">2</td>
-                <td className="py-4 px-4">
-                  <div>
-                    <p className="text-[14px] text-[#333843] font-medium">Product Name</p>
-                    <p className="text-[13px] text-[#667085]">Product Description</p>
-                  </div>
-                </td>
-                <td className="py-4 px-4 text-right">
-                  <div>
-                    <p className="text-[14px] text-[#333843]">150</p>
-                    <p className="text-[13px] text-[#667085]">Unit(s)</p>
-                  </div>
-                </td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹20</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">0%</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹3,000</td>
-                <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹3,000</td>
-              </tr>
+            {result && (
+    <tr className="border-b border-[#f0f1f3]">
+      <td className="py-4 px-4 text-[14px] text-[#333843]">1</td>
+      <td className="py-4 px-4">
+        <div>
+          <p className="text-[14px] text-[#333843] font-medium">{result.itemName}</p>
+          <p className="text-[13px] text-[#667085]">{result.itemCode}</p>
+        </div>
+      </td>
+      <td className="py-4 px-4 text-right">
+        <div>
+          <p className="text-[14px] text-[#333843]">{result.inventory}</p>
+          <p className="text-[13px] text-[#667085]">{result.measuringUnit}</p>
+        </div>
+      </td>
+      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹{result.salesPrice}</td>
+      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">{result.taxRate}%</td>
+      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+        ₹{Number(result.inventory) * Number(result.salesPrice)}
+      </td>
+      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+        ₹{(Number(result.inventory) * Number(result.salesPrice) * (1 + Number(result.taxRate)/100)).toFixed(2)}
+      </td>
+    </tr>
+  )}
             </tbody>
           </table>
         </div>
@@ -358,7 +401,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             <Plus size={16} className="mr-1.5" />
             Add Item/Product/Service
           </button>
-          <button className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[370px] justify-center">
+          <button 
+            onClick={() => {
+              setIsModalOpen(true);
+              startScanning();
+            }}
+          className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[370px] justify-center">
             Scan Barcode
             <svg
               className="ml-2"
@@ -377,6 +425,40 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             </svg>
           </button>
         </div>
+
+        <Dialog
+                open={isModalOpen}
+                onClose={() => {
+                    stopScanning();
+                    setIsModalOpen(false);
+                }}
+                className="relative z-50"
+            >
+                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="mx-auto max-w-md rounded bg-white p-4">
+                        <Dialog.Title className="text-lg font-bold mb-4">
+                            Scan QR Code
+                        </Dialog.Title>
+
+                        <div className="relative">
+                            <video
+                                id="preview"
+                                className="w-full rounded"
+                                style={{ maxWidth: '400px' }}
+                            ></video>
+
+                            <button
+                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                                onClick={stopScanning}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </Dialog.Panel>
+                </div>
+            </Dialog>
 
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">

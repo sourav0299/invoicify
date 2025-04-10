@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { BrowserQRCodeReader } from '@zxing/browser';
+import { Dialog } from '@headlessui/react';
 
 interface ScanData {
     userEmail: string;
@@ -15,6 +16,7 @@ interface ScanData {
 }
 
 export default function Page() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState<ScanData | null>(null);
 
@@ -38,6 +40,7 @@ export default function Page() {
                             const jsonData: ScanData = JSON.parse(result.getText());
                             setResult(jsonData);
                             setScanning(false);
+                            setIsModalOpen(false);
                             controls.stop();
                         } catch (error) {
                             console.error('Invalid JSON data');
@@ -46,32 +49,60 @@ export default function Page() {
                 }
             );
         } catch (error) {
-            console.error('Error starting scanner:', error);
             setScanning(false);
         }
     };
 
     const stopScanning = () => {
         setScanning(false);
+        setIsModalOpen(false);
     };
 
     return (
         <div className="p-4">
             <button 
                 className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-                onClick={scanning ? stopScanning : startScanning}
+                onClick={() => {
+                    setIsModalOpen(true);
+                    startScanning();
+                }}
             >
-                {scanning ? 'Stop Scanning' : 'Start QR Scan'}
+                Start QR Scan
             </button>
 
-            {scanning && (
-                <div className="max-w-md mx-auto">
-                    <video
-                        id="preview"
-                        style={{ width: '100%', maxWidth: '400px' }}
-                    ></video>
+            <Dialog
+                open={isModalOpen}
+                onClose={() => {
+                    stopScanning();
+                    setIsModalOpen(false);
+                }}
+                className="relative z-50"
+            >
+                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="mx-auto max-w-md rounded bg-white p-4">
+                        <Dialog.Title className="text-lg font-bold mb-4">
+                            Scan QR Code
+                        </Dialog.Title>
+
+                        <div className="relative">
+                            <video
+                                id="preview"
+                                className="w-full rounded"
+                                style={{ maxWidth: '400px' }}
+                            ></video>
+
+                            <button
+                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                                onClick={stopScanning}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </Dialog.Panel>
                 </div>
-            )}
+            </Dialog>
 
             {result && (
                 <div className="mt-4">
