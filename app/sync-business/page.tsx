@@ -42,10 +42,6 @@ const BusinessSettings = () => {
     city: "",
     termsAndConditions: "",
   })
-  const [errors, setErrors] = useState({
-    gstNumber: "",
-    panNumber: "",
-  })
 
   useEffect(() => {
     fetchBusinessDetails()
@@ -116,64 +112,9 @@ const BusinessSettings = () => {
     }
   }
 
-  const validateGSTNumber = (gstNumber: string): boolean => {
-    // GST format: 2 digits + 5 letters + 4 digits + 1 letter + 1 letter/digit + Z + 1 letter/digit
-    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
-
-    if (!gstNumber) {
-      setErrors((prev) => ({ ...prev, gstNumber: "GST Number is required" }))
-      return false
-    }
-
-    if (gstNumber.length !== 15) {
-      setErrors((prev) => ({ ...prev, gstNumber: "GST Number must be 15 characters" }))
-      return false
-    }
-
-    if (!gstRegex.test(gstNumber)) {
-      setErrors((prev) => ({ ...prev, gstNumber: "Invalid GST Number format (e.g. 27AAPFU0939F1ZV)" }))
-      return false
-    }
-
-    setErrors((prev) => ({ ...prev, gstNumber: "" }))
-    return true
-  }
-
-  const validatePANNumber = (panNumber: string): boolean => {
-    // PAN format: 5 letters + 4 digits + 1 letter
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-
-    if (!panNumber) {
-      setErrors((prev) => ({ ...prev, panNumber: "PAN Number is required" }))
-      return false
-    }
-
-    if (panNumber.length !== 10) {
-      setErrors((prev) => ({ ...prev, panNumber: "PAN Number must be 10 characters" }))
-      return false
-    }
-
-    if (!panRegex.test(panNumber)) {
-      setErrors((prev) => ({ ...prev, panNumber: "Invalid PAN Number format (e.g. ABCDE1234F)" }))
-      return false
-    }
-
-    setErrors((prev) => ({ ...prev, panNumber: "" }))
-    return true
-  }
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    // Validate GST and PAN numbers as user types
-    if (name === "gstNumber" && isGstRegistered) {
-      validateGSTNumber(value)
-    }
-
-    if (name === "panNumber") {
-      validatePANNumber(value)
-    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "signature" | "businessLogo") => {
@@ -207,27 +148,6 @@ const BusinessSettings = () => {
   }
 
   const handleSave = async () => {
-    // Validate all fields before submission
-    let isValid = true
-
-    // Validate GST number if registered
-    if (isGstRegistered) {
-      const isGstValid = validateGSTNumber(formData.gstNumber)
-      if (!isGstValid) {
-        toast.error("Please enter a valid GST Number")
-        isValid = false
-      }
-    }
-
-    // Validate PAN number
-    const isPanValid = validatePANNumber(formData.panNumber)
-    if (!isPanValid) {
-      toast.error("Please enter a valid PAN Number")
-      isValid = false
-    }
-
-    if (!isValid) return
-
     try {
       const formDataToSend = new FormData()
 
@@ -255,16 +175,17 @@ const BusinessSettings = () => {
       })
 
       if (response.ok) {
-        toast.success("form Submitted succesfully")
-
-        // Optionally, you can refresh the data here
-        await fetchBusinessDetails()
+        toast.success("Form submitted successfully")
+        // Redirect to dashboard
+        window.location.href = "/dashboard"
       } else {
-        const errorData = await response.json()
-        console.log("Failed to save business details:", errorData.error)
+        // Even if there's an error, redirect to dashboard
+        window.location.href = "/dashboard"
       }
     } catch (error) {
       console.log("Error saving business details:", error)
+      // Even if there's an error, redirect to dashboard
+      window.location.href = "/dashboard"
     }
   }
 
@@ -415,7 +336,6 @@ const BusinessSettings = () => {
                     className="custom-radio h-4 w-4"
                     onChange={() => {
                       setIsGstRegistered(false)
-                      setErrors((prev) => ({ ...prev, gstNumber: "" }))
                       setFormData((prev) => ({ ...prev, gstNumber: "" }))
                     }}
                   />
@@ -433,13 +353,12 @@ const BusinessSettings = () => {
                 name="gstNumber"
                 value={formData.gstNumber}
                 onChange={handleInputChange}
-                className={`bg-transparent border ${errors.gstNumber ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
+                className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
                   !isGstRegistered ? "cursor-not-allowed" : ""
                 }`}
                 disabled={!isGstRegistered}
                 placeholder="27AAPFU0939F1ZV"
               />
-              {errors.gstNumber && isGstRegistered && <p className="text-xs text-red-500 mt-1">{errors.gstNumber}</p>}
             </div>
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">PAN Number</div>
@@ -448,10 +367,9 @@ const BusinessSettings = () => {
                 name="panNumber"
                 value={formData.panNumber}
                 onChange={handleInputChange}
-                className={`bg-transparent border ${errors.panNumber ? "border-red-500" : "border-business_settings_gray_border"} border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1`}
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 placeholder="ABCDE1234F"
               />
-              {errors.panNumber && <p className="text-xs text-red-500 mt-1">{errors.panNumber}</p>}
             </div>
           </div>
           <div className="flex gap-3">
@@ -561,7 +479,7 @@ const BusinessSettings = () => {
           <div className="flex justify-end gap-3">
             <button
               className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
-              onClick={() => fetchBusinessDetails()}
+              onClick={() => (window.location.href = "/dashboard")}
             >
               Cancel
             </button>
