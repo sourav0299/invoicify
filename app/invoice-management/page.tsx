@@ -11,11 +11,10 @@ export default function InvoicePage() {
   const [sortBy, setSortBy] = useState("newest first")
   const [activePage, setActivePage] = useState(1)
 
-  // Constants for pagination
-  const itemsPerPage = 10
-  const totalItems = 60 // Total number of invoices (6 pages × 10 items)
 
-  // Calculate the range of items being shown
+  const itemsPerPage = 10
+  const totalItems = 60 
+
   const startItem = (activePage - 1) * itemsPerPage + 1
   const endItem = Math.min(activePage * itemsPerPage, totalItems)
 

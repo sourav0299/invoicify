@@ -5,6 +5,7 @@ import { useState, useRef } from "react"
 import { Eye, EyeOff, Upload } from "lucide-react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
+import toast from "react-hot-toast"
 
 export default function SyncUser() {
   const [showPassword, setShowPassword] = useState(false)
