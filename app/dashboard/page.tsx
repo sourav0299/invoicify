@@ -23,12 +23,13 @@ async function checkUser() {
         "Content-Type": "application/json",
       },
     })
+    const data = await response.json();
     if (!response.ok) {
-      console.log("something is wrong")
+      return { error: data.error };
     }
-    return response.json()
+    return data;
   } catch (error) {
-    return null
+    return { error: 'Failed to check user' };
   }
 }
 
