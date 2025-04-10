@@ -45,6 +45,7 @@ const ExpensesManager: React.FC = () => {
     taxIncluded: true,
     taxRate: 0,
   })
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [errors, setErrors] = useState<{ [K in keyof Expense]?: string }>({})
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
@@ -59,9 +60,26 @@ const ExpensesManager: React.FC = () => {
   const [selectedExpenses, setSelectedExpenses] = useState<string[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
+  const [categories, setCategories] = useState(["Product", "Service", "All Categories"])
 
-  const categories = ["Product", "Service", "All Categories"]
+
   const durations = ["Last 3 Months", "Last 6 Months", "Last 9 Months", "All Time"]
+
+  const handleCreateCategory = () => {
+    if (newCategoryName.trim() === "") return
+
+   
+    if (!categories.includes(newCategoryName)) {
+      setCategories((prev) => [...prev.filter((cat) => cat !== "All Categories"), newCategoryName, "All Categories"])
+    }
+
+    setExpense((prev) => ({ ...prev, itemType: newCategoryName }))
+
+ 
+    setNewCategoryName("")
+    setShowCategoryForm(false)
+  }
 
   const handleOpenModal = () => {
     setShowModal(true)
@@ -100,7 +118,6 @@ const ExpensesManager: React.FC = () => {
   }
 
   const handleConfirm = async () => {
-    
     const expenseAmountNum = Number(expense.expenseAmount)
     const taxRate = expense.taxRate / 100
     let totalPrice: number
@@ -116,7 +133,7 @@ const ExpensesManager: React.FC = () => {
 
     const expenseToSave = {
       ...expense,
-      expenseAmount: expenseAmountNum, 
+      expenseAmount: expenseAmountNum,
       totalPrice,
       taxAmount,
       userEmail: user?.primaryEmailAddress?.emailAddress || "",
@@ -160,11 +177,9 @@ const ExpensesManager: React.FC = () => {
     }
   }
 
-  
   useEffect(() => {
     let result = [...expenseList]
 
-    
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       result = result.filter(
@@ -175,12 +190,10 @@ const ExpensesManager: React.FC = () => {
       )
     }
 
-   
     if (selectedCategory !== "All Categories") {
       result = result.filter((expense) => expense.itemType === selectedCategory)
     }
 
-    
     if (selectedDuration !== "Select Duration") {
       const now = new Date()
       let monthsAgo = 0
@@ -196,10 +209,8 @@ const ExpensesManager: React.FC = () => {
       }
     }
 
-    
     if (sortConfig) {
       result.sort((a, b) => {
-        
         const aValue = a[sortConfig.key] ?? ""
         const bValue = b[sortConfig.key] ?? ""
 
@@ -216,7 +227,6 @@ const ExpensesManager: React.FC = () => {
     setFilteredExpenses(result)
   }, [expenseList, searchQuery, selectedCategory, selectedDuration, sortConfig])
 
- 
   const requestSort = (key: keyof Expense) => {
     let direction: "ascending" | "descending" = "ascending"
     if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
@@ -225,7 +235,6 @@ const ExpensesManager: React.FC = () => {
     setSortConfig({ key, direction })
   }
 
-  
   const handleSelectExpense = (id: string | undefined) => {
     if (!id) return
 
@@ -270,7 +279,6 @@ const ExpensesManager: React.FC = () => {
 
   const handleBulkDelete = async () => {
     try {
-     
       for (const id of selectedExpenses) {
         await fetch(`/api/expenses/${id}`, {
           method: "DELETE",
@@ -430,7 +438,7 @@ const ExpensesManager: React.FC = () => {
                   onClick={() => requestSort("invoiceName")}
                 >
                   <div className="flex items-center justify-center">
-                    Name
+                    Invoice Number
                     {sortConfig?.key === "invoiceName" && (
                       <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
                     )}
@@ -529,7 +537,6 @@ const ExpensesManager: React.FC = () => {
         </div>
       </div>
 
-     
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
@@ -571,8 +578,13 @@ const ExpensesManager: React.FC = () => {
                           className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
                         >
                           <option value="">Select a category</option>
-                          <option value="Product">Product</option>
-                          <option value="Service">Service</option>
+                          {categories
+                            .filter((cat) => cat !== "All Categories")
+                            .map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                           <CaretIcon isOpen={false} />
@@ -580,11 +592,42 @@ const ExpensesManager: React.FC = () => {
                       </div>
                       <button
                         type="button"
-                        className="w-full sm:max-w-[176px] border bg-green-50 border-green-600 text-green-600 rounded text-sm font-semibold h-8"
+                        onClick={() => setShowCategoryForm(!showCategoryForm)}
+                       className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                       >
                         Create New Category
                       </button>
                     </div>
+                    {showCategoryForm && (
+                      <div className="flex  gap-2 mt-2 items-center">
+                        <input
+                          type="text"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Enter category name"
+                          className="bg-transparent border border-business_settings_gray_border border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCreateCategory}
+                            className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
+                          >
+                            Add
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowCategoryForm(false)
+                              setNewCategoryName("")
+                            }}
+                            className="border border-gray-300 bg-white text-gray-700 rounded text-sm font-semibold h-8 px-4"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-3 flex-col md:flex-row">
@@ -683,7 +726,7 @@ const ExpensesManager: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="bg-green-600 h-10 text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                    className="bg-sidebar_green_button_background text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
                   >
                     Save
                   </button>
@@ -694,7 +737,6 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
-      
       {showDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
@@ -750,7 +792,6 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
-      
       {showBulkDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
@@ -804,4 +845,3 @@ const ExpensesManager: React.FC = () => {
 }
 
 export default ExpensesManager
-

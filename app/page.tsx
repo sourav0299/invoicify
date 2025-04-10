@@ -304,7 +304,7 @@ export default function landing() {
               width={600}
               height={500}
               className="w-full h-auto"
-              priority
+              
             />
           </div>
 

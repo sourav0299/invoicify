@@ -4,8 +4,8 @@ import type React from "react"
 import { useUser } from "@clerk/nextjs"
 import "../globals.css"
 import "react-tooltip/dist/react-tooltip.css"
-// Add these imports at the top of the file
-import CategoryModal from "@/components/category-modal"
+
+// import CategoryModal from "@/components/category-modal"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -144,8 +144,11 @@ const Modal: React.FC = () => {
   const [lowStockCount, setLowStockCount] = useState(0)
   const [inStockCount, setInStockCount] = useState(0)
   // Add these state variables inside the Modal component, near the other state declarations
-  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  // const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [categories, setCategories] = useState<string[]>(["Customer", "Supplier"])
+  const [showInlineCategoryForm, setShowInlineCategoryForm] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
 
   const categoriesList = ["Product", "Services"]
 
@@ -210,7 +213,11 @@ const Modal: React.FC = () => {
     // If the select field for category is changed, update the selectedCategory state
     if (name === "category") {
       setSelectedCategory(value)
+      // Only update the partyType if it's coming from the category dropdown
       setParties((prevParties) => ({ ...prevParties, partyType: value }))
+    } else if (name === "partyType") {
+      // When partyType changes, only update the partyType in the state, not the category
+      setParties((prevParties) => ({ ...prevParties, [name]: value }))
     } else {
       setParties((prevParties) => ({ ...prevParties, [name]: value }))
     }
@@ -307,13 +314,13 @@ const Modal: React.FC = () => {
     }
   }
 
-  // Add this function inside the Modal component
+
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories")
       if (response.ok) {
         const data = await response.json()
-        // Combine default categories with custom ones
+       
         const categoryNames = data.map((cat: any) => cat.name)
         setCategories(["Customer", "Supplier", ...categoryNames])
       }
@@ -322,7 +329,7 @@ const Modal: React.FC = () => {
     }
   }
 
-  // Add this function inside the Modal component
+ 
   const handleCreateCategory = async (categoryName: string) => {
     try {
       const response = await fetch("/api/categories", {
@@ -336,10 +343,13 @@ const Modal: React.FC = () => {
       if (response.ok) {
         const newCategory = await response.json()
         setCategories([...categories, newCategory.name])
-        // Set the newly created category as selected
+
         setSelectedCategory(newCategory.name)
-        // Also update the parties state with the new category
+
         setParties((prev) => ({ ...prev, partyType: newCategory.name }))
+
+        setNewCategoryName("")
+        setShowInlineCategoryForm(false)
       } else {
         const error = await response.json()
         console.error("Error creating category:", error)
@@ -358,12 +368,13 @@ const Modal: React.FC = () => {
       }
       const parties = await response.json()
       setPartiesList(parties)
-      // const outOfStock = parties.filter((parties: Parties) => parties.inventory <= 0).length;
-      // const lowStock = parties.filter((parties: Parties) => parties.inventory <= 10).length;
-      // const inStock = parties.length - outOfStock;
-      // setInStockCount(inStock);
-      // setLowStockCount(lowStock);
-      // setOutOfStockCount(outOfStock);
+
+      const customerCount = parties.filter((party: PartiesProp) => party.partyType === "Customer").length
+      const supplierCount = parties.filter((party: PartiesProp) => party.partyType === "Supplier").length
+
+      setInStockCount(supplierCount)
+      setLowStockCount(0)
+      setOutOfStockCount(0)
     } catch (error) {
       setPartiesList([])
       setOutOfStockCount(0)
@@ -372,14 +383,37 @@ const Modal: React.FC = () => {
     }
   }
 
-  // Add this useEffect to fetch categories when the component mounts
   useEffect(() => {
     fetchCategories()
   }, [])
 
+  useEffect(() => {
+    fetchPartiesList()
+  }, [])
+
+  useEffect(() => {
+    if (partiesList.length > 0) {
+      const filteredList =
+        selectedCategory === "Select Categories"
+          ? partiesList
+          : partiesList.filter((party) => party.partyType === selectedCategory)
+
+      const customerCount = filteredList.filter((party) => party.partyType === "Customer").length
+      const supplierCount = filteredList.filter((party) => party.partyType === "Supplier").length
+
+      setInStockCount(supplierCount)
+    }
+  }, [selectedCategory, partiesList])
+
   const handleCancel = () => {
     setShowConfirmation(false)
   }
+
+  // Function to reset filters
+  // const resetFilters = () => {
+  //   setSelectedCategory("Select Categories");
+  //   setSearchQuery("");
+  // }
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-6 bg-universal_gray_background">
@@ -445,6 +479,8 @@ const Modal: React.FC = () => {
               className="w-full outline-none text-business_settings_black_text font-bold pl-10"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -458,6 +494,15 @@ const Modal: React.FC = () => {
           </div>
           {isDropdownOpen && (
             <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer font-medium text-sidebar_green_button_background"
+                onClick={() => {
+                  setSelectedCategory("Select Categories")
+                  setIsDropdownOpen(false)
+                }}
+              >
+                Show All Categories
+              </li>
               {categories.map((category, index) => (
                 <li
                   key={index}
@@ -480,6 +525,28 @@ const Modal: React.FC = () => {
           <div className="">+Add New Customer/Supplier</div>
         </button>
       </div>
+      {(selectedCategory !== "Select Categories" || searchQuery) && (
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-sm text-business_settings_gray_text">
+            {selectedCategory !== "Select Categories" && (
+              <span className="mr-2">
+                Category: <span className="font-medium">{selectedCategory}</span>
+              </span>
+            )}
+            {searchQuery && (
+              <span>
+                Search: <span className="font-medium">"{searchQuery}"</span>
+              </span>
+            )}
+          </div>
+          {/* <button 
+            onClick={resetFilters}
+            className="text-sm text-sidebar_green_button_background hover:underline"
+          >
+            Reset Filters
+          </button> */}
+        </div>
+      )}
       <div className="border-[0.5px]">
         <div className="overflow-x-auto">
           <table className="w-full bg-universal_gray_background">
@@ -494,18 +561,48 @@ const Modal: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {partiesList.map((product, index) => (
-                <tr key={index} className="bg-white">
-                  <td className="py-2 px-4 border-b">{product.partyName}</td>
-                  <td className="py-2 px-4 border-b">{product.partyType}</td>
-                  <td className="py-2 px-4 border-b">{product.partyType}</td>
-                  <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
-                  <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
-                  <td className="py-2 px-4 border-b">{Number(product.creditLimit).toFixed(2)}</td>
-                </tr>
-              ))}
+              {partiesList
+                .filter((party) => {
+                  // First filter by search query
+                  const matchesSearch =
+                    searchQuery === "" ||
+                    party.partyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    party.partyType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    party.partyContactDetails.toLowerCase().includes(searchQuery.toLowerCase())
+
+                  // Then filter by selected category
+                  const matchesCategory =
+                    selectedCategory === "Select Categories" || party.partyType === selectedCategory
+
+                  return matchesSearch && matchesCategory
+                })
+                .map((product, index) => (
+                  <tr key={index} className="bg-white">
+                    <td className="py-2 px-4 border-b">{product.partyName}</td>
+                    <td className="py-2 px-4 border-b">{product.partyType}</td>
+                    <td className="py-2 px-4 border-b">{product.partyType}</td>
+                    <td className="py-2 px-4 border-b">{product.partyContactDetails}</td>
+                    <td className="py-2 px-4 border-b">{new Date().toLocaleDateString()}</td>
+                    <td className="py-2 px-4 border-b">{Number(product.creditLimit).toFixed(2)}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
+          {partiesList.filter((party) => {
+            const matchesSearch =
+              searchQuery === "" ||
+              party.partyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              party.partyType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              party.partyContactDetails.toLowerCase().includes(searchQuery.toLowerCase())
+
+            const matchesCategory = selectedCategory === "Select Categories" || party.partyType === selectedCategory
+
+            return matchesSearch && matchesCategory
+          }).length === 0 && (
+            <div className="py-8 text-center text-business_settings_gray_text">
+              No parties found matching your filters.
+            </div>
+          )}
         </div>
       </div>
       {showDeleteConfirmation && (
@@ -565,7 +662,7 @@ const Modal: React.FC = () => {
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
-              <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+              <div className="w-[849px] h-[auto] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add New Item</div>
                   <button className="" onClick={() => setShowModal(false)}>
@@ -593,7 +690,6 @@ const Modal: React.FC = () => {
                             checked={parties.partyType === "Customer"}
                             onChange={(e) => {
                               handleInputChange(e)
-                              setSelectedCategory("Customer")
                             }}
                             className="custom-radio h-4 w-4"
                           />
@@ -607,7 +703,6 @@ const Modal: React.FC = () => {
                             checked={parties.partyType === "Supplier"}
                             onChange={(e) => {
                               handleInputChange(e)
-                              setSelectedCategory("Supplier")
                             }}
                             className="custom-radio h-4 w-4 "
                           />
@@ -639,12 +734,46 @@ const Modal: React.FC = () => {
                           className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                           onClick={(e) => {
                             e.preventDefault()
-                            setShowCategoryModal(true)
+                            setShowInlineCategoryForm(!showInlineCategoryForm)
                           }}
                         >
                           Create New Category
                         </button>
                       </div>
+                      {showInlineCategoryForm && (
+                        <div className="mt-2 flex gap-2">
+                          <input
+                            type="text"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            placeholder="Enter category name"
+                            className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (newCategoryName.trim()) {
+                                handleCreateCategory(newCategoryName)
+                                setNewCategoryName("")
+                                setShowInlineCategoryForm(false)
+                              }
+                            }}
+                            className="px-3 bg-sidebar_green_button_background text-white rounded"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setShowInlineCategoryForm(false)
+                              setNewCategoryName("")
+                            }}
+                            className="px-3 border border-gray-300 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -822,16 +951,8 @@ const Modal: React.FC = () => {
           </div>
         </div>
       )}
-      {showCategoryModal && (
-        <CategoryModal
-          isOpen={showCategoryModal}
-          onClose={() => setShowCategoryModal(false)}
-          onSave={handleCreateCategory}
-        />
-      )}
     </div>
   )
 }
 
 export default Modal
-
