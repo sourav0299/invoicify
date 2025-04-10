@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -46,7 +46,7 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Invoicify streamlined our invoicing process overnight. It’s intuitive, fast, and has seriously improved our workflow. We can’t imagine going back!",
+      "Invoicify streamlined our invoicing process overnight. It's intuitive, fast, and has seriously improved our workflow. We can't imagine going back!",
     image: "/Invoice.png",
   },
   {
@@ -55,7 +55,7 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Using Invoicify has been a breath of fresh air. It’s clean, powerful, and just works. Total time-saver and worth every penny.",
+      "Using Invoicify has been a breath of fresh air. It's clean, powerful, and just works. Total time-saver and worth every penny.",
     image: "/Invoice.png",
   },
   {
@@ -64,15 +64,57 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Billing used to be a headache—now it’s a breeze. Invoicify gives us back hours every week. Truly essential for any growing business.",
+      "Billing used to be a headache—now it's a breeze. Invoicify gives us back hours every week. Truly essential for any growing business.",
     image: "/Invoice.png",
   },
 ]
+// @ts-ignore
+function useCounter(end, duration = 3000, startValue = 0, shouldStart = false) {
+  const [count, setCount] = useState(startValue)
+  const countRef = useRef(startValue)
+  const timeRef = useRef<number | null>(null)
+  const hasStarted = useRef(false)
+
+  useEffect(() => {
+    // Only start the counter if shouldStart is true and it hasn't already started
+    if (shouldStart && !hasStarted.current) {
+      hasStarted.current = true
+      countRef.current = startValue
+      const startTime = Date.now()
+
+      const updateCount = () => {
+        const now = Date.now()
+        const progress = Math.min((now - startTime) / duration, 1)
+        const currentCount = Math.floor(progress * (end - startValue) + startValue)
+
+        if (countRef.current !== currentCount) {
+          countRef.current = currentCount
+          setCount(currentCount)
+        }
+
+        if (progress < 1) {
+          timeRef.current = requestAnimationFrame(updateCount)
+        }
+      }
+
+      timeRef.current = requestAnimationFrame(updateCount)
+    }
+
+    return () => {
+      if (timeRef.current) {
+        cancelAnimationFrame(timeRef.current)
+      }
+    }
+  }, [end, duration, startValue, shouldStart])
+
+  return count
+}
 
 export default function landing() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isStatsVisible, setIsStatsVisible] = useState(false)
+  const statsRef = useRef<HTMLDivElement>(null)
 
-  
   const totalSlides = Math.ceil(testimonials.length / 2)
 
   const nextSlide = () => {
@@ -82,6 +124,27 @@ export default function landing() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
   }
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsStatsVisible(true)
+          // Once triggered, disconnect the observer
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2 }, // Trigger when at least 20% of the element is visible
+    )
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   return (
     <>
@@ -114,7 +177,7 @@ export default function landing() {
                 platform for improved efficiency and growth.
               </p>
               <div className="mt-8">
-              <button className="mt-8 group inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                <button className="mt-8 group inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
                   <span>
                     <a href="/dashboard">Get Started Now</a>
                   </span>
@@ -152,18 +215,24 @@ export default function landing() {
             Businesses thrive with smoother operations and faster growth using our solutions.
           </p>
 
-          <div className=" h-22">
-            <div className=" mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
+          <div className="h-22" ref={statsRef}>
+            <div className="mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">300+</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(300, 1500, 0, isStatsVisible)}+
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Businesses transformed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">4x</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(4, 1500, 1, isStatsVisible)}x
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Growth witnessed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">95%</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">
+                  {useCounter(95, 1500, 0, isStatsVisible)}%
+                </dt>
                 <dd className="text-base leading-7 text-gray-600">Customer satisfaction</dd>
               </div>
             </div>
@@ -203,7 +272,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Create invoices.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Create Invoice.png" alt="img" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -285,8 +354,8 @@ export default function landing() {
         </div>
       </section>
 
-      <section className="py-[100px] px-[100px] text-white flex items-center text-4xl text-center bg-[linear-gradient(92deg,#1BA078_10.35%,#0A3A2C_112.5%)] font-Inter">
-        <div className="max-w-7xl">
+      <section className="py-8 sm:py-16 md:py-24 lg:py-[100px] px-4 sm:px-8 md:px-16 lg:px-[100px] text-white flex flex-col items-center justify-center text-2xl sm:text-3xl md:text-4xl text-center bg-[linear-gradient(92deg,#1BA078_10.35%,#0A3A2C_112.5%)] font-Inter">
+        <div className="w-full max-w-7xl mx-auto">
           <p>
             An <span className="font-bold">ALL-in-ONE</span> billing and business management{" "}
             <span className="font-bold">solution,</span> tailored to empower small and medium{" "}
@@ -304,7 +373,6 @@ export default function landing() {
               width={600}
               height={500}
               className="w-full h-auto"
-              
             />
           </div>
 
@@ -465,7 +533,7 @@ export default function landing() {
               </div>
 
               {/* <nav> */}
-                {/* <ul className="flex items-center gap-8 text-gray-600">
+              {/* <ul className="flex items-center gap-8 text-gray-600">
                   <li>
                     <Link href="#" className="hover:text-gray-900 transition-colors">
                       Home
@@ -531,4 +599,3 @@ export default function landing() {
     </>
   )
 }
-
