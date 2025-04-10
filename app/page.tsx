@@ -219,19 +219,19 @@ export default function landing() {
             <div className="mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
               <div className="flex flex-col gap-y-3">
                 <dt className="text-5xl font-semibold tracking-tight text-gray-900">
-                  {useCounter(300, 3500, 0, isStatsVisible)}+
+                  {useCounter(300, 1500, 0, isStatsVisible)}+
                 </dt>
                 <dd className="text-base leading-7 text-gray-600">Businesses transformed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
                 <dt className="text-5xl font-semibold tracking-tight text-gray-900">
-                  {useCounter(4, 3000, 1, isStatsVisible)}x
+                  {useCounter(4, 1500, 1, isStatsVisible)}x
                 </dt>
                 <dd className="text-base leading-7 text-gray-600">Growth witnessed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
                 <dt className="text-5xl font-semibold tracking-tight text-gray-900">
-                  {useCounter(95, 3500, 0, isStatsVisible)}%
+                  {useCounter(95, 1500, 0, isStatsVisible)}%
                 </dt>
                 <dd className="text-base leading-7 text-gray-600">Customer satisfaction</dd>
               </div>
