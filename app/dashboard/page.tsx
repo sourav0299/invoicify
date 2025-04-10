@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
-import { CashflowChart } from "@/components/ui/cashflow-char" // Fixed typo in import
+import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
-// Moved checkUser function outside of component
 async function checkUser() {
   try {
     const response = await fetch("/api/middleware/check-user", {
@@ -52,6 +51,7 @@ export default function DashboardPage() {
         if (!userVerification || userVerification.error) {
           router.push("/sync-user")
         }
+        router.push("/dashboard")
       } catch (error) {
         router.push("/sync-user")
       }
