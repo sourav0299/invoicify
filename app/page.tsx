@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -46,7 +46,7 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Invoicify streamlined our invoicing process overnight. It’s intuitive, fast, and has seriously improved our workflow. We can’t imagine going back!",
+      "Invoicify streamlined our invoicing process overnight. It's intuitive, fast, and has seriously improved our workflow. We can't imagine going back!",
     image: "/Invoice.png",
   },
   {
@@ -55,7 +55,7 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Using Invoicify has been a breath of fresh air. It’s clean, powerful, and just works. Total time-saver and worth every penny.",
+      "Using Invoicify has been a breath of fresh air. It's clean, powerful, and just works. Total time-saver and worth every penny.",
     image: "/Invoice.png",
   },
   {
@@ -64,14 +64,49 @@ const testimonials = [
     role: "Business Owner",
     date: "20 Jun 2024",
     quote:
-      "Billing used to be a headache—now it’s a breeze. Invoicify gives us back hours every week. Truly essential for any growing business.",
+      "Billing used to be a headache—now it's a breeze. Invoicify gives us back hours every week. Truly essential for any growing business.",
     image: "/Invoice.png",
   },
 ]
 
+function useCounter(end=100, duration = 2000, start = 0) {
+  const [count, setCount] = useState(start)
+  const countRef = useRef(start)
+  const timeRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    countRef.current = start
+    const startTime = Date.now()
+
+    const updateCount = () => {
+      const now = Date.now()
+      const progress = Math.min((now - startTime) / duration, 1)
+      const currentCount = Math.floor(progress * (end - start) + start)
+
+      if (countRef.current !== currentCount) {
+        countRef.current = currentCount
+        setCount(currentCount)
+      }
+
+      if (progress < 1) {
+        timeRef.current = requestAnimationFrame(updateCount)
+      }
+    }
+
+    timeRef.current = requestAnimationFrame(updateCount)
+
+    return () => {
+      if (timeRef.current) {
+        cancelAnimationFrame(timeRef.current)
+      }
+    }
+  }, [end, duration, start])
+
+  return count
+}
+
 export default function landing() {
   const [currentSlide, setCurrentSlide] = useState(0)
-
 
   const totalSlides = Math.ceil(testimonials.length / 2)
 
@@ -155,15 +190,15 @@ export default function landing() {
           <div className=" h-22">
             <div className=" mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">300+</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(300)}+</dt>
                 <dd className="text-base leading-7 text-gray-600">Businesses transformed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">4x</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(4, 1500, 1)}x</dt>
                 <dd className="text-base leading-7 text-gray-600">Growth witnessed</dd>
               </div>
               <div className="flex flex-col gap-y-3">
-                <dt className="text-5xl font-semibold tracking-tight text-gray-900">95%</dt>
+                <dt className="text-5xl font-semibold tracking-tight text-gray-900">{useCounter(95)}%</dt>
                 <dd className="text-base leading-7 text-gray-600">Customer satisfaction</dd>
               </div>
             </div>
@@ -226,7 +261,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Data Analytics.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Data Analytics.png" alt="img" className=" w-full p-0" />
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
@@ -249,7 +284,7 @@ export default function landing() {
                 </p>
               </div>
               <div className="w-full flex items-end justify-end">
-                <img src="/Manage Invoices.png" alt="sdch" className=" w-full p-0" />
+                <img src="/Manage Invoices.png" alt="img" className=" w-full p-0" />
               </div>
             </div>
           </div>
@@ -304,7 +339,6 @@ export default function landing() {
               width={600}
               height={500}
               className="w-full h-auto"
-
             />
           </div>
 
@@ -425,8 +459,9 @@ export default function landing() {
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${index === currentSlide ? "bg-emerald-500" : "bg-gray-300"
-                  }`}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentSlide ? "bg-emerald-500" : "bg-gray-300"
+                }`}
                 onClick={() => setCurrentSlide(index)}
               />
             ))}
@@ -530,4 +565,3 @@ export default function landing() {
     </>
   )
 }
-
