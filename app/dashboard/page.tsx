@@ -22,14 +22,27 @@ async function checkUser() {
       headers: {
         "Content-Type": "application/json",
       },
-    })
+      credentials: 'include'
+    });
+
     const data = await response.json();
+
     if (!response.ok) {
-      return { error: data.error };
+      return { 
+        error: data.error,
+        status: response.status 
+      };
     }
-    return data;
+
+    return {
+      user: data.user,
+      message: data.message
+    };
   } catch (error) {
-    return { error: 'Failed to check user' };
+    return { 
+      error: 'Connection failed',
+      status: 500
+    };
   }
 }
 
@@ -48,18 +61,30 @@ export default function DashboardPage() {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const userVerification = await checkUser()
-        if (!userVerification || userVerification.error) {
-          router.push("/sync-user")
-        }
-        router.push("/dashboard")
-      } catch (error) {
-        router.push("/sync-user")
-      }
-    }
+        const result = await checkUser();
 
-    verifyUser()
-  }, [router])
+        if (result.error) {
+          switch(result.status) {
+            case 401:
+              router.push("/login");
+              break;
+            case 404:
+              router.push("/sync-user");
+              break;
+            default:
+              router.push("/sync-user");
+              break;
+          }
+          return;
+        }
+      } catch (error) {
+        console.error('Verification error:', error);
+        router.push("/error");
+      }
+    };
+
+    verifyUser();
+  }, [router]);
 
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
