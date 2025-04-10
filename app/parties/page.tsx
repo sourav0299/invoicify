@@ -662,7 +662,7 @@ const Modal: React.FC = () => {
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
-              <div className="w-[849px] h-[570px] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+              <div className="w-[849px] h-[auto] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add New Item</div>
                   <button className="" onClick={() => setShowModal(false)}>
