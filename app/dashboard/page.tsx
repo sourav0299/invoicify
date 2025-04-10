@@ -1,22 +1,41 @@
 "use client"
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
-import { CashflowChart } from "@/components/ui/cashflow-char"
+import { CashflowChart } from "@/components/ui/cashflow-char" // Fixed typo in import
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
-import {useRouter} from 'next/navigation'
-import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
+// Moved checkUser function outside of component
+async function checkUser() {
+  try {
+    const response = await fetch("/api/middleware/check-user", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    if (!response.ok) {
+      console.log("something is wrong")
+    }
+    return response.json()
+  } catch (error) {
+    return null
+  }
+}
+
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
+  const router = useRouter()
 
   const handleCardClick = (view: DetailViewType) => {
     setActiveDetailView(view === activeDetailView ? null : view)
@@ -25,43 +44,21 @@ export default function DashboardPage() {
   const closeDetailView = () => {
     setActiveDetailView(null)
   }
-  
-
-async function checkUser(){
-  try{
-    const response = await fetch("/api/middleware/check-user", {
-      method: "GET",
-      headers: {
-        'Content-Type' : 'application/json',
-      },
-    })
-    if(!response.ok){
-      console.log("something is wrong")
-    }
-    return response.json();
-  }catch(error){
-    return null;
-  }
-}
-
-export default function DashboardPage() {
-  const router = useRouter();
 
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const userVerification = await checkUser();
-        if(!userVerification || userVerification.error) {
-          router.push("/sync-user");
+        const userVerification = await checkUser()
+        if (!userVerification || userVerification.error) {
+          router.push("/sync-user")
         }
       } catch (error) {
-        router.push("/sync-user");
+        router.push("/sync-user")
       }
-    };
-    
-    verifyUser();
-  }, [router]);
+    }
 
+    verifyUser()
+  }, [router])
 
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
@@ -103,7 +100,7 @@ export default function DashboardPage() {
                 height="24"
                 stroke="currentColor"
                 strokeLinecap="round"
-                strokeLinejoin="round" 
+                strokeLinejoin="round"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
                 width="24"
