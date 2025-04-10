@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +10,8 @@ import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-c
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
+import {useRouter} from 'next/navigation'
+import { useEffect } from "react"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
@@ -24,6 +25,43 @@ export default function DashboardPage() {
   const closeDetailView = () => {
     setActiveDetailView(null)
   }
+  
+
+async function checkUser(){
+  try{
+    const response = await fetch("/api/middleware/check-user", {
+      method: "GET",
+      headers: {
+        'Content-Type' : 'application/json',
+      },
+    })
+    if(!response.ok){
+      console.log("something is wrong")
+    }
+    return response.json();
+  }catch(error){
+    return null;
+  }
+}
+
+export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const verifyUser = async () => {
+      try {
+        const userVerification = await checkUser();
+        if(!userVerification || userVerification.error) {
+          router.push("/sync-user");
+        }
+      } catch (error) {
+        router.push("/sync-user");
+      }
+    };
+    
+    verifyUser();
+  }, [router]);
+
 
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
