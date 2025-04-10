@@ -1,12 +1,30 @@
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
 import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
+import { SalesDetailView } from "@/components/sales-detail-view"
+import { ExpensesDetailView } from "@/components/expenses-detail-view"
+import { PaymentsDetailView } from "@/components/payments-detail-view"
+
+type DetailViewType = "sales" | "expenses" | "payments" | null
 
 export default function DashboardPage() {
+  const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
+
+  const handleCardClick = (view: DetailViewType) => {
+    setActiveDetailView(view === activeDetailView ? null : view)
+  }
+
+  const closeDetailView = () => {
+    setActiveDetailView(null)
+  }
+
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
       {/* Header */}
@@ -34,7 +52,10 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="overflow-hidden shadow-sm">
+        <Card
+          className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "sales" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
+          onClick={() => handleCardClick("sales")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Sales</CardTitle>
             <div className="rounded-full bg-blue-100 p-2">
@@ -44,7 +65,7 @@ export default function DashboardPage() {
                 height="24"
                 stroke="currentColor"
                 strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinejoin="round" 
                 strokeWidth="2"
                 viewBox="0 0 24 24"
                 width="24"
@@ -67,7 +88,10 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="overflow-hidden shadow-sm">
+        <Card
+          className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "expenses" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
+          onClick={() => handleCardClick("expenses")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
             <div className="rounded-full bg-purple-100 p-2">
@@ -101,7 +125,10 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="overflow-hidden shadow-sm">
+        <Card
+          className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "payments" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
+          onClick={() => handleCardClick("payments")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Payment Received</CardTitle>
             <div className="rounded-full bg-pink-100 p-2">
@@ -135,6 +162,28 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Detail View Section - Shows when a card is clicked */}
+      {activeDetailView && (
+        <Card className="shadow-sm border-t-4 border-t-[#3a8bff] animate-in fade-in duration-300">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle>
+              {activeDetailView === "sales" && "Sales Details"}
+              {activeDetailView === "expenses" && "Expenses Details"}
+              {activeDetailView === "payments" && "Payment Details"}
+            </CardTitle>
+            <Button variant="ghost" size="icon" onClick={closeDetailView}>
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {activeDetailView === "sales" && <SalesDetailView />}
+            {activeDetailView === "expenses" && <ExpensesDetailView />}
+            {activeDetailView === "payments" && <PaymentsDetailView />}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Charts Section */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -449,4 +498,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
