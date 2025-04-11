@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
 import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
+import { RadialChart } from "@/components/ui/radial-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
@@ -22,70 +23,124 @@ async function checkUser() {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include'
-    });
+      credentials: "include",
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (!response.ok) {
-      return { 
+      return {
         error: data.error,
-        status: response.status 
-      };
+        status: response.status,
+      }
     }
 
     return {
       user: data.user,
-      message: data.message
-    };
+      message: data.message,
+    }
   } catch (error) {
-    return { 
-      error: 'Connection failed',
-      status: 500
-    };
+    return {
+      error: "Connection failed",
+      status: 500,
+    }
   }
 }
 
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
+  const [showFullView, setShowFullView] = useState<DetailViewType>(null)
   const router = useRouter()
 
   const handleCardClick = (view: DetailViewType) => {
-    setActiveDetailView(view === activeDetailView ? null : view)
+    setShowFullView(view)
   }
 
   const closeDetailView = () => {
     setActiveDetailView(null)
   }
 
+  const backToDashboard = () => {
+    setShowFullView(null)
+  }
+
+  // Net profit chart data
+  const netProfitData = [
+    { name: "Income", value: 2300000000, color: "#3a8bff" },
+    { name: "Expenses", value: 1800000000, color: "#c369b7" },
+    { name: "Profit", value: 500000000, color: "#40c79a" },
+  ]
+
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const result = await checkUser();
+        const result = await checkUser()
 
         if (result.error) {
-          switch(result.status) {
+          switch (result.status) {
             case 401:
-              router.push("/login");
-              break;
+              router.push("/login")
+              break
             case 404:
-              router.push("/sync-user");
-              break;
+              router.push("/sync-user")
+              break
             default:
-              router.push("/sync-user");
-              break;
+              router.push("/sync-user")
+              break
           }
-          return;
+          return
         }
       } catch (error) {
-        console.error('Verification error:', error);
-        router.push("/error");
+        console.error("Verification error:", error)
+        router.push("/error")
       }
-    };
+    }
 
-    verifyUser();
-  }, [router]);
+    verifyUser()
+  }, [router])
 
+  // If showFullView is set, render only the corresponding detail view
+  if (showFullView) {
+    return (
+      <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={backToDashboard}>
+              <ChevronRight className="h-4 w-4 rotate-180" />
+            </Button>
+            <h1 className="text-2xl font-semibold">
+              {showFullView === "sales" && "Sales Details"}
+              {showFullView === "expenses" && "Expenses Details"}
+              {showFullView === "payments" && "Payment Details"}
+            </h1>
+          </div>
+          <Button className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white">
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            Create New Invoice
+          </Button>
+        </div>
+        {showFullView === "sales" && <SalesDetailView />}
+        {showFullView === "expenses" && <ExpensesDetailView />}
+        {showFullView === "payments" && <PaymentsDetailView />}
+      </div>
+    )
+  }
+
+  // Otherwise, render the regular dashboard
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
       {/* Header */}
@@ -229,7 +284,6 @@ export default function DashboardPage() {
         <Card className="shadow-sm border-t-4 border-t-[#3a8bff] animate-in fade-in duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>
-              {activeDetailView === "sales" && "Sales Details"}
               {activeDetailView === "expenses" && "Expenses Details"}
               {activeDetailView === "payments" && "Payment Details"}
             </CardTitle>
@@ -239,7 +293,6 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            {activeDetailView === "sales" && <SalesDetailView />}
             {activeDetailView === "expenses" && <ExpensesDetailView />}
             {activeDetailView === "payments" && <PaymentsDetailView />}
           </CardContent>
@@ -352,7 +405,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Net Profit */}
+        {/* Net Profit - Updated with RadialChart */}
         <Card className="shadow-sm h-[280px]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>Net Profit</CardTitle>
@@ -363,39 +416,8 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="h-[calc(100%-56px)] flex flex-col items-center justify-center">
             <div className="text-2xl font-bold mb-4">₹22,18,508,114</div>
-            <div className="relative h-[120px] w-[120px]">
-              <svg viewBox="0 0 100 100" className="h-full w-full transform -rotate-90">
-                <circle cx="50" cy="50" r="45" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  fill="transparent"
-                  stroke="#3a8bff"
-                  strokeWidth="8"
-                  strokeDasharray="220 283"
-                />
-                <circle cx="50" cy="50" r="35" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="35"
-                  fill="transparent"
-                  stroke="#c369b7"
-                  strokeWidth="8"
-                  strokeDasharray="180 220"
-                />
-                <circle cx="50" cy="50" r="25" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="25"
-                  fill="transparent"
-                  stroke="#40c79a"
-                  strokeWidth="8"
-                  strokeDasharray="140 157"
-                />
-              </svg>
+            <div className="relative h-[120px] w-full">
+              <RadialChart data={netProfitData} innerRadius={25} outerRadius={60} height={120} />
             </div>
             <div className="mt-4 flex w-full justify-between text-xs">
               <div className="flex items-center gap-1">
