@@ -1,78 +1,72 @@
 "use client"
-
+import { BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type React from "react"
 
-// Simple chart container
-export const ChartContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => {
-  return <div className={className}>{children}</div>
+import { Card } from "@/components/ui/card"
+
+interface ChartProps {
+  // Update the data type to accept any object with a name property
+  data: Array<Record<string, any>>
+  labels: string[]
+  colors: string[]
+  height?: number
+  children?: React.ReactNode
 }
 
-// Simple chart component that doesn't rely on recharts
-export const Chart = ({ data, children }: { data: any[]; children: React.ReactNode }) => {
-  return <div className="w-full h-full relative">{children}</div>
+export function Chart({ data, labels, colors, height = 300, children }: ChartProps) {
+  // No need to transform the data since it's already in the correct format
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+        <YAxis
+          stroke="#888888"
+          fontSize={12}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={(value) => `₹${value}`}
+        />
+        <Tooltip
+          cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
+          content={({ active, payload, label }) => {
+            if (active && payload && payload.length) {
+              return (
+                <Card className="border-none shadow-md p-2">
+                  <div className="text-sm font-medium">{label}</div>
+                  {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                      <div className="text-xs">
+                        {entry.name}: ₹{entry.value}
+                      </div>
+                    </div>
+                  ))}
+                </Card>
+              )
+            }
+            return null
+          }}
+        />
+        <Legend
+          content={({ payload }) => {
+            if (payload && payload.length) {
+              return (
+                <div className="flex justify-center gap-6 mt-2">
+                  {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                      <span className="text-xs">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
+            return null
+          }}
+        />
+        {children}
+      </BarChart>
+    </ResponsiveContainer>
+  )
 }
-
-// Simplified versions of recharts components
-export const ChartLine = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartArea = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartBar = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartXAxis = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartYAxis = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartTooltip = ({ children }: { children: React.ReactNode }) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartTooltipContent = ({
-  active,
-  payload,
-  label,
-  formatter,
-  labelFormatter,
-}: {
-  active?: boolean
-  payload?: any[]
-  label?: string
-  formatter?: (value: any, name: string) => any
-  labelFormatter?: (label: string) => string
-}) => {
-  // We'll keep the same API but return null since we're not using recharts
-  return null
-}
-
-export const ChartPie = ({ children, ...props }: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return <div className="w-full h-full relative">{children}</div>
-}
-
-// This is a recursive reference in the original code, so we need to define it differently
-export const Cell = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-
-export const ChartLegend = (props: any) => {
-  // Simple implementation that doesn't rely on recharts
-  return null
-}
-

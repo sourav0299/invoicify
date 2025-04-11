@@ -1,35 +1,69 @@
 "use client"
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Card } from "@/components/ui/card"
+
+const data = [
+  {
+    name: "Jan",
+    total: 1200,
+  },
+  {
+    name: "Feb",
+    total: 1800,
+  },
+  {
+    name: "Mar",
+    total: 2200,
+  },
+  {
+    name: "Apr",
+    total: 2800,
+  },
+  {
+    name: "May",
+    total: 2500,
+  },
+  {
+    name: "Jun",
+    total: 3000,
+  },
+]
 
 export function SalesSummaryChart() {
-  const data = [
-    { month: "Jan", sales: 30000 },
-    { month: "Feb", sales: 20000 },
-    { month: "Mar", sales: 35000 },
-    { month: "Apr", sales: 50000 },
-    { month: "May", sales: 25000 },
-    { month: "Jun", sales: 40000 },
-  ]
-
-  const maxValue = Math.max(...data.map((item) => item.sales))
-
   return (
-    <div className="h-[200px] w-full">
-      <div className="flex h-full items-end justify-between gap-2">
-        {data.map((item, i) => (
-          <div key={i} className="relative flex w-full flex-col items-center">
-            <div
-              className={`w-full rounded-t-md bg-gradient-to-t from-[#40c79a] to-[#adedd2] ${
-                item.sales === 50000
-                  ? "after:content-[''] after:absolute after:top-0 after:right-0 after:text-xs after:bg-black after:text-white after:px-1 after:rounded"
-                  : ""
-              }`}
-              style={{ height: `${(item.sales / maxValue) * 100}%` }}
-            ></div>
-            <span className="mt-2 text-xs text-muted-foreground">{item.month}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+        <YAxis
+          stroke="#888888"
+          fontSize={12}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={(value) => `₹${value}`}
+        />
+        <Tooltip
+          cursor={{ fill: "rgba(58, 139, 255, 0.1)" }}
+          content={({ active, payload }) => {
+            if (active && payload && payload.length) {
+              return (
+                <Card className="border-none shadow-md p-2">
+                  <div className="text-sm font-medium">{payload[0].payload.name}</div>
+                  <div className="text-sm font-bold">₹{payload[0].value}</div>
+                </Card>
+              )
+            }
+            return null
+          }}
+        />
+        <Bar dataKey="total" fill="url(#colorGradient)" radius={[4, 4, 0, 0]} barSize={30} />
+        <defs>
+          <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3a8bff" stopOpacity={1} />
+            <stop offset="100%" stopColor="#3a8bff" stopOpacity={0.6} />
+          </linearGradient>
+        </defs>
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
-
