@@ -16,6 +16,7 @@ import {
 import { BrowserQRCodeReader } from "@zxing/browser";
 import { Dialog } from "@headlessui/react";
 import toast from "react-hot-toast";
+import { auth } from "@clerk/nextjs";
 
 interface CreateInvoiceProps {
   onClose: () => void;
@@ -46,6 +47,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [billDate, setBillDate] = useState("14/12/2024");
   const [paymentDate, setPaymentDate] = useState("14/12/2024");
   const [showPreviousInvoices, setShowPreviousInvoices] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [billingAddress, setBillingAddress] = useState('');
+  const [note, setNote] = useState('');
+  const [additionalCharges, setAdditionalCharges] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [roundOff, setRoundOff] = useState(0);
   const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([
     {
       id: "INV-001",
@@ -202,6 +209,76 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     }
   };
 
+  const calculateTotalBeforeTax = () => {
+    return results.reduce((sum, item) => 
+      sum + (Number(item.inventory) * Number(item.salesPrice)), 0)
+  }
+
+  const calculateTotalTax = () => {
+    return results.reduce((sum, item) => sum + (Number(item.inventory) * Number(item.salesPrice) * Number(item.taxRate) / 100), 0)
+  }
+
+  const calculateTotalAfterTax = () => {
+    return results.reduce((sum, item) => 
+      sum + (Number(item.inventory) * Number(item.salesPrice)* (1+Number(item.taxRate)/100)), 0)
+  }
+
+  const calculateFinalAmount = () => {
+    const subtotal = calculateTotalAfterTax();
+    return subtotal + additionalCharges - discount + roundOff;
+  }
+
+  const calculateTotalQuantity = () => {
+    return results.reduce((total, item) => total + Number(item.inventory), 0);
+  }
+
+  const calculateTotalIgst = () => {
+    return results.reduce((total, item) => {
+      const igst = ((Number(item.salesPrice)*Number(item.inventory)) * 0.09);
+      return total + igst;
+    }, 0);
+  }
+
+  const handleSaveInvoice = async () => {
+    try{
+      const response = await fetch('/api/create-invoice', {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify({
+          billingAddress,
+          invoiceNumber,
+          billDate: new Date(billDate.split('/').reverse().join('-')),
+          paymentDeadline: new Date(paymentDate.split('/').reverse().join('-')),
+          items: results.map(item => ({
+        ...item,
+        beforeTaxAmount: Number(item.inventory) * Number(item.salesPrice),
+        afterTaxAmount: Number(item.inventory) * Number(item.salesPrice) * 
+          (1 + Number(item.taxRate) / 100)
+          })),
+          totalTax: calculateTotalTax(),
+          totalBeforeTax: calculateTotalBeforeTax(),
+          totalAfterTax: calculateTotalAfterTax(),
+          additionalCharges,
+          roundOff,
+          discount,
+          totalPayableAmount: calculateFinalAmount(),
+          userId: (await auth()).userId
+        })
+      });
+      if(response.ok){
+        const data = await response.json()
+        toast.success('Invoice Generated Successfully')
+        onClose();
+      }else{
+        toast.error('Something went wrong');
+      }
+    }catch(error){
+      toast.error('Something went wrong');
+    }
+  }
+
   return (
     <div className="bg-white p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -239,12 +316,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <h3 className="text-[13px] text-[#667085] mb-2">
                 Billing Address
               </h3>
-              <div className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center">
-                <button className="flex items-center text-[#1eb386] text-[13px]">
-                  <Plus size={16} className="mr-1" />
-                  Add Customer/Supplier
-                </button>
-              </div>
+              <textarea 
+              placeholder="eg. banashankari, bangalore"
+              value={billingAddress}
+              onChange={(e) => setBillingAddress(e.target.value)}
+              className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center w-full resize-none">
+                
+              </textarea>
             </div>
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">
@@ -252,19 +330,16 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               </h3>
               <input
                 type="text"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
                 className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
-                placeholder=""
+                placeholder="eg. INV-001-2025"
               />
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-[13px] text-[#667085] mb-2">Note</h3>
-              <textarea
-                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[72px] resize-none"
-                placeholder="Write a Note"
-              ></textarea>
             </div>
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">
@@ -299,12 +374,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <h3 className="text-[13px] text-[#667085]">
                   Terms & Conditions
                 </h3>
-                <button className="text-[#667085] hover:text-[#333843]">
-                  <X size={16} />
-                </button>
               </div>
               <div className="mt-2 text-[13px] text-[#667085]">
-                <p>Please pay within 15 days of receiving this invoice.</p>
+                <p>Please pay within 30 days of receiving this invoice.</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -561,20 +633,19 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <span className="text-[14px] text-[#667085]">Subtotal</span>
               <div className="flex gap-6">
                 <div className="text-right">
-                  <p className="text-[14px] text-[#333843]">300</p>
+                  <p className="text-[14px] text-[#333843]">{calculateTotalQuantity()}</p>
                   <p className="text-[13px] text-[#667085]">Unit(s)</p>
                 </div>
                 <div className="w-20 text-right text-[14px] text-[#333843]">
-                  ₹40
+                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
+                  <p className="text-[13px] text-[#667085]">(IGST)</p>
                 </div>
                 <div className="w-20 text-right text-[14px] text-[#333843]">
-                  ₹0
+                <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
+                <p className="text-[13px] text-[#667085]">(CGST)</p>
                 </div>
                 <div className="w-20 text-right text-[14px] text-[#333843]">
-                  ₹6,000
-                </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">
-                  ₹6,000
+                  {calculateTotalBeforeTax()}
                 </div>
               </div>
             </div>
@@ -586,9 +657,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               </button>
               <input
                 type="text"
+                value={additionalCharges}
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
                 defaultValue="₹0"
-                readOnly
               />
             </div>
 
@@ -599,8 +670,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <input
                 type="text"
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-                defaultValue="₹6,000"
-                readOnly
+                value={(calculateTotalAfterTax()).toFixed(2)}
               />
             </div>
 
@@ -613,7 +683,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 type="text"
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
                 defaultValue="-₹0"
-                readOnly
               />
             </div>
 
@@ -670,10 +739,11 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 type="text"
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px]"
                 placeholder="Enter Amount"
+                value={(calculateFinalAmount()).toFixed(2)}
               />
             </div>
 
-            <button className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
+            <button onClick={handleSaveInvoice} className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
               Generate Invoice
             </button>
 
