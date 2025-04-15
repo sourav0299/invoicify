@@ -1054,7 +1054,7 @@ const Modal: React.FC = () => {
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
-              <div className="w-full max-w-[849px] h-[auto] mt-24 p-3 md:p-6 gap-3 md:gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+              <div className="w-screen max-w-[900px] h-[auto] mt-24 p-3 md:p-6 gap-3 md:gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add New Item</div>
                   <button className="" onClick={() => setShowModal(false)}>
@@ -1107,7 +1107,7 @@ const Modal: React.FC = () => {
                               name="category"
                               value={product.category}
                               onChange={handleInputChange}
-                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 px-2 appearance-none"
                             >
                               <option value="">Select a category</option>
                               {categories.map((category, index) => (
@@ -1123,7 +1123,7 @@ const Modal: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setShowCategoryForm(!showCategoryForm)}
-                            className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                            className="w-full max-w-[160px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                           >
                             Create New Category
                           </button>

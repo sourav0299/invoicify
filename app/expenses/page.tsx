@@ -848,7 +848,7 @@ const ExpensesManager: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="bg-green-600 text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] focus:outline-none"
+                    className="bg-sidebar_green_button_background text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] focus:outline-none"
                   >
                     Save
                   </button>

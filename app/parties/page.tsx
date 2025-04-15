@@ -386,9 +386,9 @@ const Modal: React.FC = () => {
         </div>
       </div>
 
-      {/* Responsive Search and Filter Controls */}
-      <div className="flex flex-col gap-3 mb-4">
-        <div className="border rounded-lg bg-white py-4 px-5 w-full">
+      {/* Search and Filter Controls on same line */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4 items-center">
+        <div className="border rounded-lg bg-white py-4 px-5 w-full sm:w-1/3">
           <div className="flex items-center justify-start gap-3 relative">
             <span className="absolute left-0 top-1/2 transform -translate-y-1/2 ml-1">
               <Search className="h-5 w-5 text-gray-500" />
@@ -405,48 +405,47 @@ const Modal: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full">
-            <div
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <div>{selectedCategory}</div>
-              <CaretIcon isOpen={isDropdownOpen} />
-            </div>
-            {isDropdownOpen && (
-              <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full sm:w-1/3">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <div>{selectedCategory}</div>
+            <CaretIcon isOpen={isDropdownOpen} />
+          </div>
+          {isDropdownOpen && (
+            <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer font-medium text-sidebar_green_button_background"
+                onClick={() => {
+                  setSelectedCategory("Select Categories")
+                  setIsDropdownOpen(false)
+                }}
+              >
+                Show All Categories
+              </li>
+              {categories.map((category, index) => (
                 <li
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer font-medium text-sidebar_green_button_background"
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-                    setSelectedCategory("Select Categories")
+                    setSelectedCategory(category)
                     setIsDropdownOpen(false)
                   }}
                 >
-                  Show All Categories
+                  {category}
                 </li>
-                {categories.map((category, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      setSelectedCategory(category)
-                      setIsDropdownOpen(false)
-                    }}
-                  >
-                    {category}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <button
-            className="border rounded-lg py-4 px-5 w-full text-semibold bg-sidebar_green_button_background text-white"
-            onClick={() => setShowModal(true)}
-          >
-            <div className="">+Add New Customer/Supplier</div>
-          </button>
+              ))}
+            </ul>
+          )}
         </div>
+
+        <button
+          className="border rounded-lg py-4 px-5 w-full sm:w-1/3 text-semibold bg-sidebar_green_button_background text-white"
+          onClick={() => setShowModal(true)}
+        >
+          <div className="">+Add New Customer/Supplier</div>
+        </button>
       </div>
 
       {(selectedCategory !== "Select Categories" || searchQuery) && (
@@ -642,7 +641,7 @@ const Modal: React.FC = () => {
                       </div>
                       <button
                         type="button"
-                        className="w-full sm:max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold py-1"
+                        className="w-full sm:max-w-[176px] border g-change_password_green_background border-sidebar_green_button_background  text-sidebar_green_button_background rounded text-sm font-semibold py-1"
                         onClick={(e) => {
                           e.preventDefault()
                           setShowInlineCategoryForm(!showInlineCategoryForm)

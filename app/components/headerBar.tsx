@@ -3,9 +3,20 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import NotificationPanel from "./notification-panel"
+import { Bell } from "lucide-react"
 
 interface DropDownIconProps {
   isOpen: boolean
+}
+
+interface Notification {
+  id: string
+  type: "low-stock" | "out-of-stock" | "invoice" | "payment"
+  title: string
+  description: string
+  timestamp: string
+  read: boolean
 }
 
 const DropDownIcon: React.FC<DropDownIconProps> = ({ isOpen }) => (
@@ -23,25 +34,6 @@ const DropDownIcon: React.FC<DropDownIconProps> = ({ isOpen }) => (
   </svg>
 )
 
-const BellIcon: React.FC = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="22"
-    viewBox="0 0 18 22"
-    fill="none"
-    className="w-5 h-6 sm:w-[18px] sm:h-[22px]"
-  >
-    <path
-      d="M9.00034 3.62775V1M9.00034 3.62775C10.5393 3.68686 11.995 4.3423 13.0593 5.45542C14.1237 6.56854 14.7134 8.05204 14.7036 9.59212V11.5921C14.7036 14.2432 16.778 14.9054 16.778 16.2309C16.778 16.8898 16.778 17.6665 16.1803 17.6665H1.82043C1.22266 17.6665 1.22266 16.8898 1.22266 16.2309C1.22266 14.9054 3.29708 14.2432 3.29708 11.5921V9.59212C3.28729 8.05204 3.87695 6.56854 4.94134 5.45542C6.00573 4.3423 7.46136 3.68686 9.00034 3.62775ZM5.37055 17.6665C5.475 18.6131 5.7104 19.3778 6.41978 20.0132C7.12915 20.6486 8.04801 21 9.00034 21C9.95268 21 10.8715 20.6486 11.5809 20.0132C12.2903 19.3778 12.9549 18.6131 13.0593 17.6665H5.37055Z"
-      stroke="#667085"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
 const HeaderBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [businessDetails, setBusinessDetails] = useState<{
@@ -49,6 +41,10 @@ const HeaderBar = () => {
     businessLogoUrl: string
   } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const notificationRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchBusinessDetails = async () => {
@@ -70,10 +66,77 @@ const HeaderBar = () => {
 
     fetchBusinessDetails()
 
+    const fetchNotifications = async () => {
+      try {
+        // This would be replaced with an actual API call in production
+        // Simulating notification data for demonstration
+        const mockNotifications: Notification[] = [
+          {
+            id: "1",
+            type: "low-stock",
+            title: "Low Stock Alert",
+            description: "Printer paper is running low (5 units remaining)",
+            timestamp: "10 minutes ago",
+            read: false,
+          },
+          {
+            id: "2",
+            type: "out-of-stock",
+            title: "Out of Stock",
+            description: "Blue ink cartridges are out of stock",
+            timestamp: "1 hour ago",
+            read: false,
+          },
+          {
+            id: "3",
+            type: "invoice",
+            title: "Invoice Generated",
+            description: "Invoice #INV-2023-042 has been generated",
+            timestamp: "3 hours ago",
+            read: true,
+          },
+          {
+            id: "4",
+            type: "payment",
+            title: "Payment Received",
+            description: "₹5,000 received from Customer ABC",
+            timestamp: "4 hours ago",
+            read: false,
+          },
+          {
+            id: "5",
+            type: "low-stock",
+            title: "Low Stock Alert",
+            description: "A4 notebooks are running low (8 units remaining)",
+            timestamp: "5 hours ago",
+            read: true,
+          },
+          {
+            id: "6",
+            type: "invoice",
+            title: "Invoice Generated",
+            description: "Invoice #INV-2023-041 has been generated",
+            timestamp: "Yesterday",
+            read: true,
+          },
+        ]
+
+        setNotifications(mockNotifications)
+        setUnreadCount(mockNotifications.filter((n) => !n.read).length)
+      } catch (error) {
+        console.log("Error fetching notifications:", error)
+      }
+    }
+
+    // Call the function
+    fetchNotifications()
 
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false)
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false)
       }
     }
 
@@ -87,12 +150,49 @@ const HeaderBar = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  const handleMarkAllAsRead = () => {
+    setNotifications(notifications.map((n) => ({ ...n, read: true })))
+    setUnreadCount(0)
+  }
+
+  const handleReadNotification = (id: string) => {
+    if (!notifications.find((n) => n.id === id)?.read) {
+      setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)))
+      setUnreadCount((prev) => prev - 1)
+    }
+  }
+
   return (
     <div className="w-full h-14 sm:h-16 flex items-center justify-end px-3 py-2 sm:p-6 bg-white shadow-sm ml-2">
       <div className="flex items-center space-x-2 sm:space-x-4">
-        <div className="cursor-pointer p-1 sm:p-0">
-          <BellIcon />
+        <div
+          className="cursor-pointer p-1 sm:p-0 relative"
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsNotificationOpen(!isNotificationOpen)
+            setIsMenuOpen(false)
+          }}
+        >
+          <Bell className="h-5 w-5 text-gray-600" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </div>
+        {isNotificationOpen && (
+          <div
+            ref={notificationRef}
+            className="absolute top-14 sm:top-16 right-0 z-20 transition-all duration-300 ease-in-out"
+          >
+            <NotificationPanel
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onReadNotification={handleReadNotification}
+            />
+          </div>
+        )}
         <div
           ref={dropdownRef}
           className="flex items-center space-x-1 sm:space-x-2 cursor-pointer relative"
