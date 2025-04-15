@@ -199,31 +199,34 @@ const BusinessSettings = () => {
   }
 
   return (
-    <div className=" bg-universal_gray_background pb-10">
-      <div className="px-6 gap-3">
-        <div className="py-6 gap-1">
-          <div className="text-3xl font-semibold text-business_settings_black_text">Your Business Details</div>
-          <div className="text-lg font-medium text-business_settings_gray_text">
+    <div className="bg-universal_gray_background pb-10 w-full min-h-screen">
+      <div className="px-3 sm:px-6 gap-3 max-w-7xl mx-auto">
+        <div className="py-4 sm:py-6 gap-1">
+          <div className="text-xl sm:text-2xl md:text-3xl font-semibold text-business_settings_black_text mb-1">
+            Your Business Details
+          </div>
+          <div className="text-sm sm:text-base md:text-lg font-medium text-business_settings_gray_text">
             An Overview of all your transactions over the year.
           </div>
         </div>
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
-          <div className="flex gap-3">
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-4 sm:p-5 md:p-6 h-auto gap-4 md:gap-5 shadow-sm">
+          {/* Business Logo and Name Section */}
+          <div className="flex flex-col md:flex-row gap-4 md:gap-5">
             <div
-              className="cursor-pointer flex flex-col items-center justify-center p-4 w-[188px] h-[188px] rounded-lg border-dashed border border-business_settings_gray_border"
+              className="cursor-pointer flex flex-col items-center justify-center p-4 w-full md:w-[188px] h-[160px] md:h-[188px] rounded-lg border-dashed border-2 border-business_settings_gray_border mx-auto md:mx-0 hover:border-sidebar_green_button_background transition-colors duration-200 bg-universal_gray_background/50"
               onClick={() => businessLogoRef.current?.click()}
             >
               {businessLogoPreview ? (
                 <Image
                   src={businessLogoPreview || "/placeholder.svg"}
                   alt="Business Logo"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain rounded-md"
                   height={188}
                   width={188}
                 />
               ) : (
                 <>
-                  <div className="">
+                  <div className="bg-white/80 p-3 rounded-full mb-2">
                     <PhotoIcon />
                   </div>
                   <div className="text-xs font-medium text-sidebar_green_button_background">+ Upload Image</div>
@@ -237,40 +240,44 @@ const BusinessSettings = () => {
                 hidden
               />
             </div>
-            <div className="flex flex-col w-full gap-6">
-              <div className="p-5 bg-universal_gray_background rounded-lg gap-1">
-                <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Name</div>
+            <div className="flex flex-col w-full gap-4 md:gap-6">
+              <div className="p-4 bg-universal_gray_background rounded-lg gap-1 shadow-sm">
+                <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                  Business Name
+                </div>
                 <input
                   type="text"
                   name="businessName"
                   value={formData.businessName}
                   onChange={handleInputChange}
-                  className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                  className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
                 />
               </div>
-              <div className="flex w-full gap-3">
-                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Type</div>
+              <div className="flex flex-col sm:flex-row w-full gap-3">
+                <div className="flex flex-col w-full bg-universal_gray_background p-4 rounded-lg gap-1 shadow-sm">
+                  <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                    Business Type
+                  </div>
                   <select
                     name="businessType"
                     value={formData.businessType}
                     onChange={handleInputChange}
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 text-sidebar_black_text appearance-none transition-colors duration-200"
                   >
                     <option value="">Select Business Type</option>
                     <option value="retailer">Retailer</option>
                     <option value="wholesaler">Wholesaler</option>
                   </select>
                 </div>
-                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
-                  <div className="bg-transparent w-full text-xs text-sidebar_black_text">
+                <div className="flex flex-col w-full bg-universal_gray_background p-4 rounded-lg gap-1 shadow-sm mt-3 sm:mt-0">
+                  <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
                     Business Registration Type
                   </div>
                   <select
                     name="businessRegistrationType"
                     value={formData.businessRegistrationType}
                     onChange={handleInputChange}
-                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 text-sidebar_black_text"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 text-sidebar_black_text appearance-none transition-colors duration-200"
                   >
                     <option value="">Select Registration Type</option>
                     <option value="private">Private Limited</option>
@@ -280,156 +287,204 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg">
-              <div className="text-sidebar_black_text text-xs">Gst Registered?</div>
-              <div className="flex gap-10">
-                <label className="flex items-center gap-3">
-                  <span className="text-sm py-3">Yes</span>
+
+          {/* GST and PAN Section */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full sm:w-auto shadow-sm">
+              <div className="text-sidebar_black_text text-xs font-medium mb-2">GST Registered?</div>
+              <div className="flex gap-6 sm:gap-10">
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+                  <span className="text-sm py-1">Yes</span>
                   <input
                     type="radio"
                     name="gstRegistered"
                     value="yes"
                     checked={isGstRegistered}
-                    className="custom-radio h-4 w-4"
+                    className="custom-radio h-5 w-5 accent-sidebar_green_button_background"
                     onChange={() => setIsGstRegistered(true)}
                   />
                 </label>
-                <label className="flex items-center gap-3">
-                  <span className="py-3 text-sm">No</span>
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+                  <span className="py-1 text-sm">No</span>
                   <input
                     type="radio"
                     name="gstRegistered"
                     value="no"
                     checked={!isGstRegistered}
-                    className="custom-radio h-4 w-4"
+                    className="custom-radio h-5 w-5 accent-sidebar_green_button_background"
                     onChange={() => setIsGstRegistered(false)}
                   />
                 </label>
               </div>
             </div>
             <div
-              className={`p-5 bg-universal_gray_background rounded-lg w-full gap-1 ${
+              className={`p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm mt-3 sm:mt-0 ${
                 !isGstRegistered ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Gst Number</div>
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">GST Number</div>
               <input
                 type="text"
                 name="gstNumber"
                 value={formData.gstNumber}
                 onChange={handleInputChange}
-                className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 ${
+                className={`bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200 ${
                   !isGstRegistered ? "cursor-not-allowed" : ""
                 }`}
                 disabled={!isGstRegistered}
                 placeholder="22AAAAA0000A1Z5"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">PAN Number</div>
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm mt-3 sm:mt-0">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">PAN Number</div>
               <input
                 type="text"
                 name="panNumber"
                 value={formData.panNumber}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
                 placeholder="AAAAA0000A"
               />
             </div>
           </div>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full max-w-[365px] gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company E-mail</div>
+
+          {/* Company Contact Section */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                Company E-mail
+              </div>
               <input
                 type="text"
                 name="companyEmail"
                 value={formData.companyEmail}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company Number</div>
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm mt-3 sm:mt-0">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                Company Number
+              </div>
               <input
                 type="text"
                 name="companyNumber"
                 value={formData.companyNumber}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
               />
             </div>
           </div>
+
+          {/* Billing Address Section */}
           <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Billing Address</div>
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                Billing Address
+              </div>
               <textarea
                 name="billingAddress"
                 value={formData.billingAddress}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-24 rounded-[4px] focus:outline-none p-1 resize-none"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-20 sm:h-24 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 resize-none transition-colors duration-200"
               />
             </div>
           </div>
-          <button className="flex justify-end items-center gap-4 " onClick={getlocation}>
-            Get Location <FaLocationCrosshairs className="border border-gray text-blue-400" />
+
+          {/* Location Button */}
+          <button
+            className="flex justify-end items-center gap-2 text-sm font-medium text-sidebar_green_button_background hover:text-sidebar_green_button_background/80 transition-colors duration-200 self-end"
+            onClick={getlocation}
+          >
+            Get Current Location
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sidebar_green_button_background/10 ml-1">
+              <FaLocationCrosshairs className="text-sidebar_green_button_background" />
+            </div>
           </button>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">State</div>
+
+          {/* Location Details Section */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">State</div>
               <input
                 type="text"
                 name="state"
                 value={formData.state}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Pincode</div>
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm mt-3 sm:mt-0">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">Pincode</div>
               <input
                 type="text"
                 name="pincode"
                 value={formData.pincode}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">City</div>
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm mt-3 sm:mt-0">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">City</div>
               <input
                 type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200"
               />
             </div>
           </div>
+
+          {/* Terms & Conditions Section */}
           <div className="flex">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
-              <div className="bg-transparent w-full text-xs text-sidebar_black_text">Terms & Conditions</div>
-              <div className="flex gap-8">
+            <div className="p-4 bg-universal_gray_background rounded-lg w-full gap-1 shadow-sm">
+              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-2">
+                Terms & Conditions
+              </div>
+              <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                 <textarea
                   name="termsAndConditions"
                   value={formData.termsAndConditions}
                   onChange={handleInputChange}
-                  className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
+                  className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-3 transition-colors duration-200"
                 />
                 <div
-                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1"
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border-2 border-business_settings_gray_border border-dashed w-full md:max-w-[260px] h-32 rounded-md focus:outline-none p-1 hover:border-sidebar_green_button_background transition-colors duration-200"
                   onClick={() => signatureRef.current?.click()}
                 >
                   {signaturePreview ? (
                     <Image
                       src={signaturePreview || "/placeholder.svg"}
                       alt="Signature"
-                      className="max-w-full max-h-full object-contain"
+                      className="max-w-full max-h-full object-contain rounded-md"
                       height={128}
                       width={240}
                     />
                   ) : (
-                    <span className="text-sidebar_green_button_background">+ Upload Signature</span>
+                    <div className="flex flex-col items-center">
+                      <div className="bg-sidebar_green_button_background/10 p-2 rounded-full mb-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#1EB386"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20 16v-4h-4" />
+                          <path d="M14 16H8a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h8" />
+                          <path d="M4 8V4h4" />
+                          <path d="M4 8h6a2 2 0 0 0 2-2V4" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-sidebar_green_button_background">
+                        + Upload Signature
+                      </span>
+                    </div>
                   )}
                   <input
                     type="file"
@@ -442,16 +497,18 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 mt-2">
             <button
-              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-universal_white_background px-4 py-3 border border-business_settings_gray_border flex items-center justify-center rounded-lg w-full max-w-[120px] sm:max-w-[150px] text-sm font-medium hover:bg-universal_gray_background/50 transition-colors duration-200"
               onClick={() => fetchBusinessDetails()}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-3 flex items-center justify-center rounded-lg w-full max-w-[120px] sm:max-w-[150px] text-sm font-medium hover:bg-sidebar_green_button_background/90 transition-colors duration-200"
             >
               Save
             </button>
@@ -463,4 +520,3 @@ const BusinessSettings = () => {
 }
 
 export default BusinessSettings
-

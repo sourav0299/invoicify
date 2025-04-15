@@ -23,7 +23,7 @@ const geistMono = localFont({
   weight: "100 900",
 })
 
-export default function RootLayout({
+export default function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -32,19 +32,30 @@ export default function RootLayout({
   const fullScreenPaths = ["/", "/sync-user", "/sync-business", "/sync-plans", "/sync-reviewplan"]
   const isFullScreenLayout = fullScreenPaths.includes(pathname)
   const [navCollapsed, setNavCollapsed] = useState(false)
+  const [viewportWidth, setViewportWidth] = useState(0)
 
-  // Effect to check initial screen size
+
   useEffect(() => {
     const checkScreenSize = () => {
-      if (window.innerWidth < 768) {
+      const width = window.innerWidth
+      setViewportWidth(width)
+
+     
+      if (width >= 768 && width < 1024) {
         setNavCollapsed(true)
       }
     }
 
-    checkScreenSize()
+    
+    if (typeof window !== "undefined") {
+      checkScreenSize()
+    }
+
     window.addEventListener("resize", checkScreenSize)
     return () => window.removeEventListener("resize", checkScreenSize)
   }, [])
+
+  const isMobileOrTablet = viewportWidth > 0 && viewportWidth < 1024
 
   if (isFullScreenLayout) {
     return (
@@ -66,19 +77,46 @@ export default function RootLayout({
           <Toaster />
           <NavbarContext.Provider value={{ collapsed: navCollapsed, setCollapsed: setNavCollapsed }}>
             <div className="flex h-screen overflow-hidden">
-              <nav className="w-auto h-screen fixed left-0 top-0 overflow-y-auto z-20">
-                <Navbar />
-              </nav>
+             
+              {!isMobileOrTablet && (
+                <nav className="w-auto h-screen fixed left-0 top-0 overflow-y-auto z-20">
+                  <Navbar />
+                </nav>
+              )}
+
+              
               <div
-                className={`flex-1 transition-all duration-300 ${navCollapsed ? "ml-[80px]" : "ml-[264px]"} flex flex-col`}
+                className={`flex-1 transition-all duration-300 flex flex-col ${
+                  isMobileOrTablet ? "ml-0" : navCollapsed ? "ml-[60px] sm:ml-[80px]" : "ml-[200px] sm:ml-[264px]"
+                }`}
               >
+             
                 <header
-                  className={`fixed top-0 right-0 transition-all duration-300 ${navCollapsed ? "left-[80px]" : "left-[264px]"} z-10 bg-white`}
+                  className={`fixed top-0 right-0 transition-all duration-300 z-10 bg-white ${
+                    isMobileOrTablet
+                      ? "left-0"
+                      : navCollapsed
+                        ? "left-[60px] sm:left-[80px]"
+                        : "left-[200px] sm:left-[264px]"
+                  }`}
                 >
                   <HeaderBar />
                 </header>
-                <main className="flex-1 pt-16 pl-2 overflow-auto">{children}</main>
+
+               
+                <main
+                  className={`flex-1 overflow-auto ${
+                    isMobileOrTablet
+                      ? "pt-14 pb-16 px-2" 
+                      : "pt-16 pl-2"
+                  }`}
+                >
+                  {children}
+                </main>
               </div>
+
+             
+              {isMobileOrTablet && <Navbar />}
             </div>
           </NavbarContext.Provider>
         </body>
@@ -86,4 +124,3 @@ export default function RootLayout({
     </ClerkProvider>
   )
 }
-

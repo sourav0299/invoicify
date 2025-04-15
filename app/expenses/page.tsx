@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import type React from "react"
 import { useUser } from "@clerk/nextjs"
-import { ChevronDown, Search, Trash2 } from "lucide-react"
+import { ChevronDown, Search, Trash2, ChevronRight } from "lucide-react"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -62,21 +62,19 @@ const ExpensesManager: React.FC = () => {
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [categories, setCategories] = useState(["Product", "Service", "All Categories"])
-
+  const [expandedExpenses, setExpandedExpenses] = useState<string[]>([])
 
   const durations = ["Last 3 Months", "Last 6 Months", "Last 9 Months", "All Time"]
 
   const handleCreateCategory = () => {
     if (newCategoryName.trim() === "") return
 
-   
     if (!categories.includes(newCategoryName)) {
       setCategories((prev) => [...prev.filter((cat) => cat !== "All Categories"), newCategoryName, "All Categories"])
     }
 
     setExpense((prev) => ({ ...prev, itemType: newCategoryName }))
 
- 
     setNewCategoryName("")
     setShowCategoryForm(false)
   }
@@ -294,23 +292,34 @@ const ExpensesManager: React.FC = () => {
     }
   }
 
+  const toggleExpenseExpand = (expenseId: string | undefined) => {
+    if (!expenseId) return
+
+    if (expandedExpenses.includes(expenseId)) {
+      setExpandedExpenses(expandedExpenses.filter((id) => id !== expenseId))
+    } else {
+      setExpandedExpenses([...expandedExpenses, expenseId])
+    }
+  }
+
   useEffect(() => {
     fetchExpenseList()
   }, [])
 
   return (
-    <div className="flex flex-col gap-3 pt-3 px-6 bg-gray-50">
+    <div className="flex flex-col gap-3 pt-3 px-3 sm:px-6 bg-gray-50">
       <div className="flex flex-col items-start">
         <div className="flex justify-between w-full gap-3">
           <div>
-            <div className="text-[28px] font-semibold text-gray-900">Expenses List</div>
-            <div className="text-gray-500">An Overview of all your transaction over the year.</div>
+            <div className="text-[22px] sm:text-[28px] font-semibold text-gray-900">Expenses List</div>
+            <div className="text-gray-500 text-sm sm:text-base">An Overview of all your transaction over the year.</div>
           </div>
           <div className="flex gap-3">{}</div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 flex-wrap md:flex-nowrap">
+      {/* Responsive Filter Controls */}
+      <div className="flex flex-col gap-3">
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
             <span
@@ -332,63 +341,67 @@ const ExpensesManager: React.FC = () => {
             />
           </div>
         </div>
-        <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full md:max-w-[339px]">
-          <div
-            className="flex items-center justify-between cursor-pointer"
-            onClick={() => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
-          >
-            <div>{selectedDuration}</div>
-            <CaretIcon isOpen={isDurationDropdownOpen} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
+            >
+              <div>{selectedDuration}</div>
+              <CaretIcon isOpen={isDurationDropdownOpen} />
+            </div>
+            {isDurationDropdownOpen && (
+              <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                {durations.map((duration, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setSelectedDuration(duration)
+                      setIsDurationDropdownOpen(false)
+                    }}
+                  >
+                    {duration}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          {isDurationDropdownOpen && (
-            <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-              {durations.map((duration, index) => (
-                <li
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setSelectedDuration(duration)
-                    setIsDurationDropdownOpen(false)
-                  }}
-                >
-                  {duration}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full md:max-w-[339px]">
-          <div
-            className="flex items-center justify-between cursor-pointer"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <div>{selectedCategory}</div>
-            <CaretIcon isOpen={isDropdownOpen} />
+          <div className="relative border rounded-lg bg-white text-gray-900 font-semibold py-4 px-5 w-full">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <div>{selectedCategory}</div>
+              <CaretIcon isOpen={isDropdownOpen} />
+            </div>
+            {isDropdownOpen && (
+              <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                {categories.map((category, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setSelectedCategory(category)
+                      setIsDropdownOpen(false)
+                    }}
+                  >
+                    {category}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          {isDropdownOpen && (
-            <ul className="absolute z-10 w-full left-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-              {categories.map((category, index) => (
-                <li
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setSelectedCategory(category)
-                    setIsDropdownOpen(false)
-                  }}
-                >
-                  {category}
-                </li>
-              ))}
-            </ul>
-          )}
+          <button
+            className="border rounded-lg py-4 px-5 w-full font-semibold bg-sidebar_green_button_background text-white"
+            onClick={() => setShowModal(true)}
+          >
+            <div className="">+Add New Expenses</div>
+          </button>
         </div>
-        <button
-          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] font-semibold bg-sidebar_green_button_background text-white"
-          onClick={() => setShowModal(true)}
-        >
-          <div className="">+Add New Expenses</div>
-        </button>
       </div>
+
       <div className="mt-4 mb-2">
         <button
           className={`border rounded-lg py-2 px-3 flex items-center gap-2 ${
@@ -407,8 +420,10 @@ const ExpensesManager: React.FC = () => {
           <div>Delete Selected ({selectedExpenses.length})</div>
         </button>
       </div>
+
+      {/* Desktop and Tablet Table View */}
       <div className="border-[0.5px] bg-white rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50">
@@ -535,13 +550,120 @@ const ExpensesManager: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          <div className="flex items-center justify-between bg-gray-50 p-4 border-b">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600 mr-2"
+              />
+              <span className="text-sm font-medium">Select All</span>
+            </div>
+            <button className="text-sm text-gray-700 flex items-center" onClick={() => requestSort("date")}>
+              Sort by Date
+              {sortConfig?.key === "date" && (
+                <span className="ml-1">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+              )}
+            </button>
+          </div>
+
+          {filteredExpenses.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              No expenses found. Try adjusting your search or filters.
+            </div>
+          ) : (
+            filteredExpenses.map((expense, index) => (
+              <div key={index} className="border-b border-gray-200">
+                <div className="p-4 bg-white">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedExpenses.includes(expense._id || "")}
+                        onChange={() => handleSelectExpense(expense._id)}
+                        className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600 mt-1"
+                      />
+                      <div>
+                        <div className="font-medium">{expense.expenseName || "Unnamed Expense"}</div>
+                        <div className="text-sm text-gray-500">{expense.date}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="text-right font-semibold">₹{Number(expense.expenseAmount).toFixed(2)}</div>
+                      <button className="ml-2 p-1" onClick={() => toggleExpenseExpand(expense._id)}>
+                        {expandedExpenses.includes(expense._id || "") ? (
+                          <ChevronDown className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm">
+                      <span className="text-gray-500">Invoice: </span>
+                      {expense.invoiceName || "N/A"}
+                    </div>
+                    <div
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        expense.taxIncluded ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      GST {expense.taxIncluded ? "Included" : "Excluded"}
+                    </div>
+                  </div>
+
+                  {expandedExpenses.includes(expense._id || "") && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-gray-500">Category: </span>
+                          {expense.itemType}
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Tax Rate: </span>
+                          {expense.taxRate}%
+                        </div>
+                        {expense.note && (
+                          <div className="col-span-2">
+                            <span className="text-gray-500">Note: </span>
+                            {expense.note}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          className="text-red-500 flex items-center gap-1 text-sm"
+                          onClick={() => {
+                            setExpenseToDelete(expense)
+                            setShowDeleteConfirmation(true)
+                          }}
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
+      {/* Responsive Modal */}
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-          <div className="relative bg-white rounded-lg shadow-xl max-w-[849px] w-full mx-4 md:mx-auto">
-            <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-[849px] w-full mx-4 md:mx-auto max-h-[90vh] overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6">
               <div className="flex items-center justify-between w-full">
                 <div className="text-xl font-semibold">Add Expenses</div>
                 <button type="button" className="focus:outline-none" onClick={() => setShowModal(false)}>
@@ -593,25 +715,25 @@ const ExpensesManager: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setShowCategoryForm(!showCategoryForm)}
-                       className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                        className="w-full sm:max-w-[176px] border bg-green-50 border-green-600 text-green-600 rounded text-sm font-semibold py-1"
                       >
                         Create New Category
                       </button>
                     </div>
                     {showCategoryForm && (
-                      <div className="flex  gap-2 mt-2 items-center">
+                      <div className="flex flex-col sm:flex-row gap-2 mt-2 items-start sm:items-center">
                         <input
                           type="text"
                           value={newCategoryName}
                           onChange={(e) => setNewCategoryName(e.target.value)}
                           placeholder="Enter category name"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
+                          className="bg-transparent border border-gray-300 border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
                         />
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                           <button
                             type="button"
                             onClick={handleCreateCategory}
-                            className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
+                            className="border bg-green-600 text-white rounded text-sm font-semibold h-8 px-4"
                           >
                             Add
                           </button>
@@ -716,17 +838,17 @@ const ExpensesManager: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="bg-white px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+                    className="bg-white px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full sm:max-w-[190px]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="bg-sidebar_green_button_background text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                    className="bg-green-600 text-white px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] focus:outline-none"
                   >
                     Save
                   </button>
@@ -737,6 +859,7 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
+      {/* Responsive Delete Confirmation */}
       {showDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
@@ -748,7 +871,7 @@ const ExpensesManager: React.FC = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -792,6 +915,7 @@ const ExpensesManager: React.FC = () => {
         </div>
       )}
 
+      {/* Responsive Bulk Delete Confirmation */}
       {showBulkDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 py-20 text-center sm:block sm:p-0">
@@ -803,7 +927,7 @@ const ExpensesManager: React.FC = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">

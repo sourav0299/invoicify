@@ -19,7 +19,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-// Sample data for the charts
+
 const monthlyData = [
   { name: "Jan", Received: 8, Expected: 6 },
   { name: "Feb", Received: 9, Expected: 7 },
@@ -42,14 +42,14 @@ const quarterlyData = [
   { name: "Q4", Received: 60, Expected: 50 },
 ]
 
-// Sample payment methods data
+
 const paymentMethodsData = [
   { name: "UPI", value: 60, color: "#ff6b6b", amount: "₹16,868" },
   { name: "Bank Transfer", value: 30, color: "#ffd166", amount: "₹8,434" },
   { name: "Cash", value: 10, color: "#06d6a0", amount: "₹2,811" },
 ]
 
-// Sample payment data
+
 const payments = [
   {
     id: "PAY-45678",
@@ -232,7 +232,7 @@ export function PaymentsDetailView() {
         </CardContent>
       </Card>
 
-      {/* Payment Trends with a different visualization */}
+      
       <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle>Payment Trends</CardTitle>
@@ -336,7 +336,6 @@ export function PaymentsDetailView() {
         </CardContent>
       </Card>
 
-      {/* Payment Methods with a different layout */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -426,7 +425,7 @@ export function PaymentsDetailView() {
         </Card>
       </div>
 
-      {/* Payment Transactions Section with a different style */}
+     
       <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle>Recent Payments</CardTitle>
