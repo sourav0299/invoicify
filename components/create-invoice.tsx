@@ -16,7 +16,7 @@ import {
 import { BrowserQRCodeReader } from "@zxing/browser";
 import { Dialog } from "@headlessui/react";
 import toast from "react-hot-toast";
-import { auth } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 
 interface CreateInvoiceProps {
   onClose: () => void;
@@ -42,6 +42,7 @@ interface ScanData {
 }
 
 export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
+  const { userId } = useAuth()
   const [billDateOpen, setBillDateOpen] = useState(false);
   const [paymentDateOpen, setPaymentDateOpen] = useState(false);
   const [billDate, setBillDate] = useState("14/12/2024");
@@ -264,7 +265,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           roundOff,
           discount,
           totalPayableAmount: calculateFinalAmount(),
-          userId: (await auth()).userId
+          userId,
         })
       });
       if(response.ok){

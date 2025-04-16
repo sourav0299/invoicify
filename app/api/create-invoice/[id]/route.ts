@@ -4,11 +4,12 @@ import prisma from "@/utils/prisma";
 // Get single invoice
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: { items: true }
     });
 
@@ -31,19 +32,20 @@ export async function GET(
 // Update invoice
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const data = await request.json();
 
     // Delete existing items
+    const nextParam = await params
     await prisma.invoiceItem.deleteMany({
-      where: { invoiceId: params.id }
+      where: { invoiceId: nextParam.id }
     });
 
     // Update invoice with new items
     const invoice = await prisma.invoice.update({
-      where: { id: params.id },
+      where: { id: nextParam.id },
       data: {
         billingAddress: data.billingAddress,
         invoiceNumber: data.invoiceNumber,
@@ -87,15 +89,16 @@ export async function PUT(
 // Delete invoice
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const nextParam = await params
     await prisma.invoiceItem.deleteMany({
-      where: { invoiceId: params.id }
+      where: { invoiceId: nextParam.id }
     });
 
     await prisma.invoice.delete({
-      where: { id: params.id }
+      where: { id: nextParam.id }
     });
 
     return NextResponse.json({ message: "Invoice deleted successfully" });
