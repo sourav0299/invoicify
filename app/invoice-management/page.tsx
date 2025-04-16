@@ -1,16 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Download, Eye, Send, X } from "lucide-react"
+import { ChevronDown, Eye } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
 
 export default function InvoicePage() {
-  const [showCreateInvoice, setShowCreateInvoice] = useState(false)
-  const [activeTab, setActiveTab] = useState("All")
-  const [sortBy, setSortBy] = useState("newest first")
+  const [showCreateInvoice, setShowCreateInvoice] = useState(true)
   const [activePage, setActivePage] = useState(1)
-  const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [selectedInvoices, setSelectedInvoices] = useState<number[]>([])
   const [selectAll, setSelectAll] = useState(false)
 
@@ -37,13 +34,6 @@ export default function InvoicePage() {
     }
   }
 
-  const sortOptions = ["newest first", "oldest first", "highest amount", "lowest amount"]
-
-  const handleSortChange = (option: string) => {
-    setSortBy(option)
-    setShowSortDropdown(false)
-  }
-
   return (
     <div className="bg-universal_white_background min-h-screen">
       {showCreateInvoice ? (
@@ -65,10 +55,6 @@ export default function InvoicePage() {
               >
                 Create New Invoice
               </button>
-              <button className="px-4 py-2.5 bg-sidebar_green_button_background text-white rounded-md hover:bg-[#40c79a] transition-colors text-[14px] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-                <Download className="h-4 w-4" />
-                Download PDF
-              </button>
             </div>
           </header>
 
@@ -80,116 +66,6 @@ export default function InvoicePage() {
             <Link href="#" className="text-business_settings_black_text text-[14px] underline font-medium">
               Upgrade your plan to enjoy more benefits.
             </Link>
-          </div>
-
-          {/* Responsive Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="bg-universal_white_background border border-sidebar_gray_border rounded-md p-4 flex items-start">
-              <div className="w-10 h-10 rounded-full bg-[#ddebff] flex items-center justify-center mr-3">
-                <Send className="h-5 w-5 text-chart-income" />
-              </div>
-              <div>
-                <div className="text-business_settings_black_text text-xl font-semibold">₹23,08,114</div>
-                <div className="text-sidebar_black_text text-sm">Sales</div>
-                <div className="mt-2">
-                  <span className="text-chart-income font-semibold">3843</span> Invoices Sent
-                </div>
-              </div>
-            </div>
-            <div className="bg-universal_white_background border border-sidebar_gray_border rounded-md p-4 flex items-start">
-              <div className="w-10 h-10 rounded-full bg-[#d3ffe2] flex items-center justify-center mr-3">
-                <div className="h-5 w-5 text-chart-profit flex items-center justify-center">
-                  <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M1 5L5 9L13 1"
-                      stroke="#40c79a"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <div className="text-business_settings_black_text text-xl font-semibold">₹18,08,114</div>
-                <div className="text-sidebar_black_text text-sm">Sales</div>
-                <div className="mt-2">
-                  <span className="text-chart-sales font-semibold">3843</span> Paid Invoices
-                </div>
-              </div>
-            </div>
-            <div className="bg-universal_white_background border border-sidebar_gray_border rounded-md p-4 flex items-start">
-              <div className="w-10 h-10 rounded-full bg-[#ffefcd] flex items-center justify-center mr-3">
-                <div className="h-5 w-5 text-[#d98f07]">⊙</div>
-              </div>
-              <div>
-                <div className="text-business_settings_black_text text-xl font-semibold">₹4,08,114</div>
-                <div className="text-sidebar_black_text text-sm">Sales</div>
-                <div className="mt-2">
-                  <span className="text-[#d98f07] font-semibold">3843</span> Pending Invoices
-                </div>
-              </div>
-            </div>
-            <div className="bg-universal_white_background border border-sidebar_gray_border rounded-md p-4 flex items-start">
-              <div className="w-10 h-10 rounded-full bg-[#fee0e0] flex items-center justify-center mr-3">
-                <X className="h-5 w-5 text-[#e30000]" />
-              </div>
-              <div>
-                <div className="text-business_settings_black_text text-xl font-semibold">₹28,114</div>
-                <div className="text-sidebar_black_text text-sm">Sales</div>
-                <div className="mt-2">
-                  <span className="text-[#e30000] font-semibold">3843</span> Cancelled Invoices
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Responsive Tabs and Sort */}
-          <div className="mb-6 border-b border-sidebar_gray_border">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <div className="flex overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto hide-scrollbar">
-                <button
-                  onClick={() => setActiveTab("All")}
-                  className={`px-4 sm:px-6 py-3 text-[14px] whitespace-nowrap ${activeTab === "All" ? "text-sidebar_green_button_background border-b-2 border-sidebar_green_button_background" : "text-sidebar_black_text"}`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setActiveTab("Sales")}
-                  className={`px-4 sm:px-6 py-3 text-[14px] whitespace-nowrap ${activeTab === "Sales" ? "text-sidebar_green_button_background border-b-2 border-sidebar_green_button_background" : "text-sidebar_black_text"}`}
-                >
-                  Sales
-                </button>
-                <button
-                  onClick={() => setActiveTab("Purchases")}
-                  className={`px-4 sm:px-6 py-3 text-[14px] whitespace-nowrap ${activeTab === "Purchases" ? "text-sidebar_green_button_background border-b-2 border-sidebar_green_button_background" : "text-sidebar_black_text"}`}
-                >
-                  Purchases
-                </button>
-              </div>
-              <div className="flex items-center gap-2 text-[14px] text-sidebar_black_text pr-4 mt-2 sm:mt-0 relative">
-                <span>sort by:</span>
-                <div className="relative">
-                  <button className="flex items-center gap-1" onClick={() => setShowSortDropdown(!showSortDropdown)}>
-                    {sortBy}
-                    <ChevronDown className={`h-4 w-4 transition-transform ${showSortDropdown ? "rotate-180" : ""}`} />
-                  </button>
-                  {showSortDropdown && (
-                    <div className="absolute right-0 mt-1 bg-white border border-sidebar_gray_border rounded-md shadow-lg z-10 min-w-[150px]">
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option}
-                          className={`block w-full text-left px-4 py-2 text-[14px] hover:bg-gray-100 ${sortBy === option ? "bg-gray-50" : ""}`}
-                          onClick={() => handleSortChange(option)}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Desktop and Tablet Table View */}
@@ -335,7 +211,7 @@ export default function InvoicePage() {
                 <ChevronDown className="h-4 w-4 rotate-90" />
               </button>
 
-              {/* Show fewer page numbers on mobile */}
+              {/* Show fewer page numbers on mobile, all on desktop */}
               {[1, 2, 3].map((pageNumber) => (
                 <button
                   key={pageNumber}
@@ -353,22 +229,20 @@ export default function InvoicePage() {
               {/* Show ellipsis if there are more pages */}
               {totalItems / itemsPerPage > 3 && <span className="text-sidebar_black_text">...</span>}
 
-              {/* Show additional pages on larger screens */}
-              <div className="hidden sm:block">
-                {[4, 5, 6].map((pageNumber) => (
-                  <button
-                    key={pageNumber}
-                    onClick={() => setActivePage(pageNumber)}
-                    className={`w-8 h-8 flex items-center justify-center border border-sidebar_gray_border rounded-md ${
-                      activePage === pageNumber
-                        ? "bg-sidebar_green_button_background text-white"
-                        : "text-sidebar_black_text"
-                    }`}
-                  >
-                    {pageNumber}
-                  </button>
-                ))}
-              </div>
+              {/* Additional pages - visible on larger screens */}
+              {[4, 5, 6].map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  onClick={() => setActivePage(pageNumber)}
+                  className={`hidden sm:flex w-8 h-8 items-center justify-center border border-sidebar_gray_border rounded-md ${
+                    activePage === pageNumber
+                      ? "bg-sidebar_green_button_background text-white"
+                      : "text-sidebar_black_text"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
 
               <button
                 onClick={() => activePage < Math.ceil(totalItems / itemsPerPage) && setActivePage(activePage + 1)}

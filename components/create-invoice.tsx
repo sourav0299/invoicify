@@ -1,59 +1,47 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import {
-  CalendarIcon,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  FileText,
-  Plus,
-  X,
-} from "lucide-react";
-import { BrowserQRCodeReader } from "@zxing/browser";
-import { Dialog } from "@headlessui/react";
-import toast from "react-hot-toast";
-import { useAuth } from "@clerk/nextjs";
+import { useState } from "react"
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Plus } from "lucide-react"
+import { BrowserQRCodeReader } from "@zxing/browser"
+import { Dialog } from "@headlessui/react"
+import toast from "react-hot-toast"
+import { useAuth } from "@clerk/nextjs"
 
 interface CreateInvoiceProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
 interface Invoice {
-  id: string;
-  date: string;
-  customer: string;
-  amount: string;
+  id: string
+  date: string
+  customer: string
+  amount: string
 }
 
 interface ScanData {
-  userEmail: string;
-  itemName: string;
-  itemType: "Product" | "Service";
-  itemCode: string;
-  inventory: string;
-  measuringUnit: string;
-  salesPrice: string;
-  taxIncluded: boolean;
-  taxRate: string;
+  userEmail: string
+  itemName: string
+  itemType: "Product" | "Service"
+  itemCode: string
+  inventory: string
+  measuringUnit: string
+  salesPrice: string
+  taxIncluded: boolean
+  taxRate: string
 }
 
 export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const { userId } = useAuth()
-  const [billDateOpen, setBillDateOpen] = useState(false);
-  const [paymentDateOpen, setPaymentDateOpen] = useState(false);
-  const [billDate, setBillDate] = useState("14/12/2024");
-  const [paymentDate, setPaymentDate] = useState("14/12/2024");
-  const [showPreviousInvoices, setShowPreviousInvoices] = useState(false);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [billingAddress, setBillingAddress] = useState('');
-  const [note, setNote] = useState('');
-  const [additionalCharges, setAdditionalCharges] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [roundOff, setRoundOff] = useState(0);
+  const [billDateOpen, setBillDateOpen] = useState(false)
+  const [paymentDateOpen, setPaymentDateOpen] = useState(false)
+  const [billDate, setBillDate] = useState("14/12/2024")
+  const [paymentDate, setPaymentDate] = useState("14/12/2024")
+  const [showPreviousInvoices, setShowPreviousInvoices] = useState(false)
+  const [invoiceNumber, setInvoiceNumber] = useState("")
+  const [billingAddress, setBillingAddress] = useState("")
+  const [note, setNote] = useState("")
   const [brandName, setBrandName] = useState("")
   const [partyContactEmail, setPartyContactEmail] = useState("")
   const [partyContactNumber, setPartyContactNumber] = useState("")
@@ -83,7 +71,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       customer: "Tech Solutions",
       amount: "₹9,200",
     },
-  ]);
+  ])
 
   const months = [
     "January",
@@ -98,70 +86,65 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     "October",
     "November",
     "December",
-  ];
-  const currentDate = new Date();
-  const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
-  const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+  ]
+  const currentDate = new Date()
+  const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
+  const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [results, setResults] = useState<ScanData[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [results, setResults] = useState<ScanData[]>([])
 
   const startScanning = async () => {
-    setScanning(true);
-    const codeReader = new BrowserQRCodeReader();
+    setScanning(true)
+    const codeReader = new BrowserQRCodeReader()
 
     try {
-      const videoInputDevices =
-        await BrowserQRCodeReader.listVideoInputDevices();
-      const selectedDeviceId = videoInputDevices[0].deviceId;
+      const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices()
+      const selectedDeviceId = videoInputDevices[0].deviceId
 
-      const previewElem = document.getElementById("preview");
-      if (!previewElem) return;
+      const previewElem = document.getElementById("preview")
+      if (!previewElem) return
 
-      const result = await codeReader.decodeFromVideoDevice(
-        selectedDeviceId,
-        "preview",
-        (result, _, controls) => {
-          if (result) {
-            try {
-              const jsonData: ScanData = JSON.parse(result.getText());
-              setResults(prev => [...prev, jsonData]);
-              toast.success("Item added successfully!");
-              setScanning(false);
-              setIsModalOpen(false);
-              controls.stop();
-            } catch (error) {
-              console.error("Invalid JSON data");
-            }
+      const result = await codeReader.decodeFromVideoDevice(selectedDeviceId, "preview", (result, _, controls) => {
+        if (result) {
+          try {
+            const jsonData: ScanData = JSON.parse(result.getText())
+            setResults((prev) => [...prev, jsonData])
+            toast.success("Item added successfully!")
+            setScanning(false)
+            setIsModalOpen(false)
+            controls.stop()
+          } catch (error) {
+            console.error("Invalid JSON data")
           }
         }
-      );
+      })
     } catch (error) {
-      setScanning(false);
+      setScanning(false)
     }
-  };
+  }
 
   const stopScanning = () => {
-    setScanning(false);
-    setIsModalOpen(false);
-  };
+    setScanning(false)
+    setIsModalOpen(false)
+  }
 
   const getDaysInMonth = (month: number, year: number): number => {
-    return new Date(year, month + 1, 0).getDate();
-  };
+    return new Date(year, month + 1, 0).getDate()
+  }
 
   const getFirstDayOfMonth = (month: number, year: number): number => {
-    return new Date(year, month, 1).getDay();
-  };
+    return new Date(year, month, 1).getDay()
+  }
 
   const generateCalendarDays = () => {
-    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
-    const days: React.ReactNode[] = [];
+    const daysInMonth = getDaysInMonth(currentMonth, currentYear)
+    const firstDay = getFirstDayOfMonth(currentMonth, currentYear)
+    const days: React.ReactNode[] = []
 
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8 w-8"></div>);
+      days.push(<div key={`empty-${i}`} className="h-8 w-8"></div>)
     }
 
     for (let i = 1; i <= daysInMonth; i++) {
@@ -172,92 +155,88 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           className="h-8 w-8 rounded-full hover:bg-[#f0f1f3] flex items-center justify-center text-[13px]"
         >
           {i}
-        </button>
-      );
+        </button>,
+      )
     }
 
-    return days;
-  };
+    return days
+  }
 
   const handleDateSelect = (day: number): void => {
-    const formattedDay = day < 10 ? `0${day}` : day.toString();
-    const formattedMonth =
-      currentMonth + 1 < 10
-        ? `0${currentMonth + 1}`
-        : (currentMonth + 1).toString();
-    const formattedDate = `${formattedDay}/${formattedMonth}/${currentYear}`;
+    const formattedDay = day < 10 ? `0${day}` : day.toString()
+    const formattedMonth = currentMonth + 1 < 10 ? `0${currentMonth + 1}` : (currentMonth + 1).toString()
+    const formattedDate = `${formattedDay}/${formattedMonth}/${currentYear}`
 
     if (billDateOpen) {
-      setBillDate(formattedDate);
-      setBillDateOpen(false);
+      setBillDate(formattedDate)
+      setBillDateOpen(false)
     } else if (paymentDateOpen) {
-      setPaymentDate(formattedDate);
-      setPaymentDateOpen(false);
+      setPaymentDate(formattedDate)
+      setPaymentDateOpen(false)
     }
-  };
+  }
 
   const prevMonth = (): void => {
     if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
+      setCurrentMonth(11)
+      setCurrentYear(currentYear - 1)
     } else {
-      setCurrentMonth(currentMonth - 1);
+      setCurrentMonth(currentMonth - 1)
     }
-  };
+  }
 
   const nextMonth = (): void => {
     if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
+      setCurrentMonth(0)
+      setCurrentYear(currentYear + 1)
     } else {
-      setCurrentMonth(currentMonth + 1);
+      setCurrentMonth(currentMonth + 1)
     }
-  };
+  }
 
   const calculateTotalBeforeTax = () => {
-    return results.reduce((sum, item) => 
-      sum + (Number(item.inventory) * Number(item.salesPrice)), 0)
+    return results.reduce((sum, item) => sum + Number(item.inventory) * Number(item.salesPrice), 0)
   }
 
   const calculateTotalTax = () => {
-    return results.reduce((sum, item) => sum + (Number(item.inventory) * Number(item.salesPrice) * Number(item.taxRate) / 100), 0)
+    return results.reduce(
+      (sum, item) => sum + (Number(item.inventory) * Number(item.salesPrice) * Number(item.taxRate)) / 100,
+      0,
+    )
   }
 
   const calculateTotalAfterTax = () => {
-    return results.reduce((sum, item) => 
-      sum + (Number(item.inventory) * Number(item.salesPrice)* (1+Number(item.taxRate)/100)), 0)
-  }
-
-  const calculateFinalAmount = () => {
-    const subtotal = calculateTotalAfterTax();
-    return subtotal + additionalCharges - discount + roundOff;
+    return results.reduce(
+      (sum, item) => sum + Number(item.inventory) * Number(item.salesPrice) * (1 + Number(item.taxRate) / 100),
+      0,
+    )
   }
 
   const calculateTotalQuantity = () => {
-    return results.reduce((total, item) => total + Number(item.inventory), 0);
+    return results.reduce((total, item) => total + Number(item.inventory), 0)
   }
 
   const calculateTotalIgst = () => {
     return results.reduce((total, item) => {
-      const igst = ((Number(item.salesPrice)*Number(item.inventory)) * 0.09);
-      return total + igst;
-    }, 0);
+      const igst = Number(item.salesPrice) * Number(item.inventory) * 0.09
+      return total + igst
+    }, 0)
   }
 
   const handleSaveInvoice = async () => {
     if (!userId) {
-      toast.error("You must be logged in to create an invoice");
-      return;
+      toast.error("You must be logged in to create an invoice")
+      return
     }
 
     try {
       // Convert Clerk userId string to integer
-      const numericUserId = parseInt(userId.replace(/\D/g, ''), 10);
-      
-      const response = await fetch('/api/create-invoice', {
-        method: 'POST',
+      const numericUserId = Number.parseInt(userId.replace(/\D/g, ""), 10)
+
+      const response = await fetch("/api/create-invoice", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           billingAddress,
@@ -266,32 +245,27 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           partyContactNumber,
           partyGst: partyGST,
           invoiceNumber,
-          billDate: new Date(billDate.split('/').reverse().join('-')),
-          paymentDeadline: new Date(paymentDate.split('/').reverse().join('-')),
-          items: results.map(item => ({
+          billDate: new Date(billDate.split("/").reverse().join("-")),
+          paymentDeadline: new Date(paymentDate.split("/").reverse().join("-")),
+          items: results.map((item) => ({
             ...item,
             beforeTaxAmount: Number(item.inventory) * Number(item.salesPrice),
-            afterTaxAmount: Number(item.inventory) * Number(item.salesPrice) * 
-              (1 + Number(item.taxRate) / 100)
+            afterTaxAmount: Number(item.inventory) * Number(item.salesPrice) * (1 + Number(item.taxRate) / 100),
           })),
           totalTax: calculateTotalTax(),
           totalBeforeTax: calculateTotalBeforeTax(),
           totalAfterTax: calculateTotalAfterTax(),
-          additionalCharges,
-          roundOff,
-          discount,
-          totalPayableAmount: calculateFinalAmount(),
-          userId: numericUserId
-        })
-      });
-      if(response.ok){
+          totalPayableAmount: calculateTotalAfterTax(),
+        }),
+      })
+      if (response.ok) {
         const data = await response.json()
-        toast.success('Invoice Generated Successfully')
-      }else{
-        toast.error('Something went wrong');
+        toast.success("Invoice Generated Successfully")
+      } else {
+        toast.error("Something went wrong")
       }
-    }catch(error){
-      toast.error('Something went wrong');
+    } catch (error) {
+      toast.error("Something went wrong")
     }
   }
 
@@ -300,38 +274,23 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-[22px] font-semibold text-[#212626]">
-              Create Invoice
-            </h1>
-            <p className="text-[14px] text-[#667085] mt-1">
-              An Overview of all your transactions over the year.
-            </p>
+            <h1 className="text-[22px] font-semibold text-[#212626]">Create Invoice</h1>
+            <p className="text-[14px] text-[#667085] mt-1">An Overview of all your transactions over the year.</p>
           </div>
           <div className="flex gap-3">
-            <div className="relative">
-              <button className="flex items-center gap-2 px-4 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px]">
-                <span>Invoice Type</span>
-                <ChevronDown size={16} className="text-[#667085]" />
-              </button>
-            </div>
             <button
               onClick={onClose}
               className="px-4 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px]"
             >
-              Cancel
-            </button>
-            <button className="px-4 py-2.5 bg-[#1eb386] text-white rounded-md hover:bg-[#40c79a] transition-colors text-[14px]">
-              Save Invoice
+              Preview Invoices
             </button>
           </div>
         </div>
 
         <div className="bg-white border border-[#f0f1f3] rounded-md p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
-          <div className="">
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Brand Name
-              </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
+            <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">Brand Name</h3>
               <input
                 type="text"
                 value={brandName}
@@ -341,9 +300,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               />
             </div>
             <div className="">
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Party Contact Email
-              </h3>
+              <h3 className="text-[13px] text-[#667085] mb-2">Party Contact Email</h3>
               <input
                 type="text"
                 value={partyContactEmail}
@@ -354,10 +311,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
-          <div className="">
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Party Contact Number
-              </h3>
+            <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">Party Contact Number</h3>
               <input
                 type="text"
                 value={partyContactNumber}
@@ -367,9 +322,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               />
             </div>
             <div className="">
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Party GSTIN No:
-              </h3>
+              <h3 className="text-[13px] text-[#667085] mb-2">Party GSTIN No:</h3>
               <input
                 type="text"
                 value={partyGST}
@@ -379,24 +332,19 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Billing Address
-              </h3>
-              <textarea 
-              placeholder="eg. banashankari, bangalore"
-              value={billingAddress}
-              onChange={(e) => setBillingAddress(e.target.value)}
-              className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center w-full resize-none">
-                
-              </textarea>
+              <h3 className="text-[13px] text-[#667085] mb-2">Billing Address</h3>
+              <textarea
+                placeholder="eg. banashankari, bangalore"
+                value={billingAddress}
+                onChange={(e) => setBillingAddress(e.target.value)}
+                className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center w-full resize-none"
+              ></textarea>
             </div>
             <div className="">
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Sales Invoice No:
-              </h3>
+              <h3 className="text-[13px] text-[#667085] mb-2">Sales Invoice No:</h3>
               <input
                 type="text"
                 value={invoiceNumber}
@@ -408,30 +356,21 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div></div>
             <div>
-            </div>
-            <div>
-              <h3 className="text-[13px] text-[#667085] mb-2">
-                Payment Terms:
-              </h3>
+              <h3 className="text-[13px] text-[#667085] mb-2">Payment Terms:</h3>
               <div className="flex">
                 <div className="relative w-full">
                   <select className="w-full appearance-none border border-[#e0e2e7] rounded-l-md py-2.5 px-3 pr-8 text-[14px] text-[#333843] bg-white h-[42px]">
                     <option>30</option>
                   </select>
-                  <ChevronDown
-                    size={16}
-                    className="absolute right-3 top-[13px] text-[#667085] pointer-events-none"
-                  />
+                  <ChevronDown size={16} className="absolute right-3 top-[13px] text-[#667085] pointer-events-none" />
                 </div>
                 <div className="relative w-full">
                   <select className="w-full appearance-none border border-[#e0e2e7] border-l-0 rounded-r-md py-2.5 px-3 pr-8 text-[14px] text-[#333843] bg-white h-[42px]">
                     <option>Days</option>
                   </select>
-                  <ChevronDown
-                    size={16}
-                    className="absolute right-3 top-[13px] text-[#667085] pointer-events-none"
-                  />
+                  <ChevronDown size={16} className="absolute right-3 top-[13px] text-[#667085] pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -440,9 +379,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-[13px] text-[#667085]">
-                  Terms & Conditions
-                </h3>
+                <h3 className="text-[13px] text-[#667085]">Terms & Conditions</h3>
               </div>
               <div className="mt-2 text-[13px] text-[#667085]">
                 <p>Please pay within 30 days of receiving this invoice.</p>
@@ -457,18 +394,18 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text-left pr-10"
                     value={billDate}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value
                       // Basic date format validation (DD/MM/YYYY)
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
-                        setBillDate(value);
+                        setBillDate(value)
                       }
                     }}
                     placeholder="DD/MM/YYYY"
                   />
                   <button
                     onClick={() => {
-                      setBillDateOpen(!billDateOpen);
-                      setPaymentDateOpen(false);
+                      setBillDateOpen(!billDateOpen)
+                      setPaymentDateOpen(false)
                     }}
                     className="absolute right-3 top-[12px] text-[#1eb386]"
                   >
@@ -478,63 +415,51 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   {billDateOpen && (
                     <div className="absolute right-0 mt-1 bg-white border border-[#e0e2e7] rounded-md shadow-lg z-10 p-3 w-[280px]">
                       <div className="flex justify-between items-center mb-2">
-                        <button
-                          onClick={prevMonth}
-                          className="p-1 hover:bg-[#f0f1f3] rounded-full"
-                        >
+                        <button onClick={prevMonth} className="p-1 hover:bg-[#f0f1f3] rounded-full">
                           <ChevronLeft size={16} className="text-[#667085]" />
                         </button>
                         <div className="text-[14px] font-medium">
                           {months[currentMonth]} {currentYear}
                         </div>
-                        <button
-                          onClick={nextMonth}
-                          className="p-1 hover:bg-[#f0f1f3] rounded-full"
-                        >
+                        <button onClick={nextMonth} className="p-1 hover:bg-[#f0f1f3] rounded-full">
                           <ChevronRight size={16} className="text-[#667085]" />
                         </button>
                       </div>
                       <div className="grid grid-cols-7 gap-1 mb-1">
-                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(
-                          (day) => (
-                            <div
-                              key={day}
-                              className="h-8 w-8 flex items-center justify-center text-[12px] text-[#667085]"
-                            >
-                              {day}
-                            </div>
-                          )
-                        )}
+                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                          <div
+                            key={day}
+                            className="h-8 w-8 flex items-center justify-center text-[12px] text-[#667085]"
+                          >
+                            {day}
+                          </div>
+                        ))}
                       </div>
-                      <div className="grid grid-cols-7 gap-1">
-                        {generateCalendarDays()}
-                      </div>
+                      <div className="grid grid-cols-7 gap-1">{generateCalendarDays()}</div>
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <h3 className="text-[13px] text-[#667085] mb-2">
-                  Payment Deadline
-                </h3>
+                <h3 className="text-[13px] text-[#667085] mb-2">Payment Deadline</h3>
                 <div className="relative">
                   <input
                     type="text"
                     className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text- pr-10"
                     value={paymentDate}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value
                       // Basic date format validation (DD/MM/YYYY)
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
-                        setPaymentDate(value);
+                        setPaymentDate(value)
                       }
                     }}
                     placeholder="DD/MM/YYYY"
                   />
                   <button
                     onClick={() => {
-                      setPaymentDateOpen(!paymentDateOpen);
-                      setBillDateOpen(false);
+                      setPaymentDateOpen(!paymentDateOpen)
+                      setBillDateOpen(false)
                     }}
                     className="absolute right-3 top-[12px] text-[#1eb386]"
                   >
@@ -544,37 +469,27 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   {paymentDateOpen && (
                     <div className="absolute right-0 mt-1 bg-white border border-[#e0e2e7] rounded-md shadow-lg z-10 p-3 w-[280px]">
                       <div className="flex justify-between items-center mb-2">
-                        <button
-                          onClick={prevMonth}
-                          className="p-1 hover:bg-[#f0f1f3] rounded-full"
-                        >
+                        <button onClick={prevMonth} className="p-1 hover:bg-[#f0f1f3] rounded-full">
                           <ChevronLeft size={16} className="text-[#667085]" />
                         </button>
                         <div className="text-[14px] font-medium">
                           {months[currentMonth]} {currentYear}
                         </div>
-                        <button
-                          onClick={nextMonth}
-                          className="p-1 hover:bg-[#f0f1f3] rounded-full"
-                        >
+                        <button onClick={nextMonth} className="p-1 hover:bg-[#f0f1f3] rounded-full">
                           <ChevronRight size={16} className="text-[#667085]" />
                         </button>
                       </div>
                       <div className="grid grid-cols-7 gap-1 mb-1">
-                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(
-                          (day) => (
-                            <div
-                              key={day}
-                              className="h-8 w-8 flex items-center justify-center text-[12px] text-[#667085]"
-                            >
-                              {day}
-                            </div>
-                          )
-                        )}
+                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                          <div
+                            key={day}
+                            className="h-8 w-8 flex items-center justify-center text-[12px] text-[#667085]"
+                          >
+                            {day}
+                          </div>
+                        ))}
                       </div>
-                      <div className="grid grid-cols-7 gap-1">
-                        {generateCalendarDays()}
-                      </div>
+                      <div className="grid grid-cols-7 gap-1">{generateCalendarDays()}</div>
                     </div>
                   )}
                 </div>
@@ -593,9 +508,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <th className="py-3 px-4 text-right font-medium">UNIT PRICE</th>
                 <th className="py-3 px-4 text-right font-medium">TAX</th>
                 <th className="py-3 px-4 text-right font-medium">AMOUNT</th>
-                <th className="py-3 px-4 text-right font-medium">
-                  FINAL AMOUNT
-                </th>
+                <th className="py-3 px-4 text-right font-medium">FINAL AMOUNT</th>
               </tr>
             </thead>
             <tbody>
@@ -604,30 +517,18 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   <td className="py-4 px-4 text-[14px] text-[#333843]">{index + 1}</td>
                   <td className="py-4 px-4">
                     <div>
-                      <p className="text-[14px] text-[#333843] font-medium">
-                        {result.itemName}
-                      </p>
-                      <p className="text-[13px] text-[#667085]">
-                        {result.itemCode}
-                      </p>
+                      <p className="text-[14px] text-[#333843] font-medium">{result.itemName}</p>
+                      <p className="text-[13px] text-[#667085]">{result.itemCode}</p>
                     </div>
                   </td>
                   <td className="py-4 px-4 text-right">
                     <div>
-                      <p className="text-[14px] text-[#333843]">
-                        {result.inventory}
-                      </p>
-                      <p className="text-[13px] text-[#667085]">
-                        {result.measuringUnit}
-                      </p>
+                      <p className="text-[14px] text-[#333843]">{result.inventory}</p>
+                      <p className="text-[13px] text-[#667085]">{result.measuringUnit}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
-                    ₹{result.salesPrice}
-                  </td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
-                    {result.taxRate}%
-                  </td>
+                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹{result.salesPrice}</td>
+                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">{result.taxRate}%</td>
                   <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
                     ₹{Number(result.inventory) * Number(result.salesPrice)}
                   </td>
@@ -652,8 +553,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </button>
           <button
             onClick={() => {
-              setIsModalOpen(true);
-              startScanning();
+              setIsModalOpen(true)
+              startScanning()
             }}
             className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[370px] justify-center"
           >
@@ -679,8 +580,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         <Dialog
           open={isModalOpen}
           onClose={() => {
-            stopScanning();
-            setIsModalOpen(false);
+            stopScanning()
+            setIsModalOpen(false)
           }}
           className="relative z-50"
         >
@@ -688,16 +589,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Dialog.Panel className="mx-auto max-w-md rounded bg-white p-4">
-              <Dialog.Title className="text-lg font-bold mb-4">
-                Scan QR Code
-              </Dialog.Title>
+              <Dialog.Title className="text-lg font-bold mb-4">Scan QR Code</Dialog.Title>
 
               <div className="relative">
-                <video
-                  id="preview"
-                  className="w-full rounded"
-                  style={{ maxWidth: "400px" }}
-                ></video>
+                <video id="preview" className="w-full rounded" style={{ maxWidth: "400px" }}></video>
 
                 <button
                   className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
@@ -724,111 +619,24 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   <p className="text-[13px] text-[#667085]">(IGST)</p>
                 </div>
                 <div className="w-20 text-right text-[14px] text-[#333843]">
-                <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
-                <p className="text-[13px] text-[#667085]">(CGST)</p>
+                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
+                  <p className="text-[13px] text-[#667085]">(CGST)</p>
                 </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">
-                  {calculateTotalBeforeTax()}
-                </div>
+                <div className="w-20 text-right text-[14px] text-[#333843]">{calculateTotalBeforeTax()}</div>
               </div>
             </div>
 
             <div className="flex justify-between items-center">
-              <button className="flex items-center text-[#1eb386] text-[14px]">
-                <Plus size={16} className="mr-1.5" />
-                Add Additional Charges
-              </button>
-              <input
-                type="text"
-                value={additionalCharges}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9.]/g, '');
-                  setAdditionalCharges(Number(value) || 0);
-                }}
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-              />
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-[14px] text-[#333843] font-medium">
-                Total Taxable Amount
-              </span>
+              <span className="text-[14px] text-[#333843] font-medium">Total Taxable Amount</span>
               <div className="w-32 rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px] flex items-center justify-end font-bold">
-                {(calculateTotalAfterTax()).toFixed(2)}
+                {calculateTotalAfterTax().toFixed(2)}
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <button className="flex items-center text-[#1eb386] text-[14px]">
-                <Plus size={16} className="mr-1.5" />
-                Add Discount
-              </button>
-              <input
-                type="text"
-                value={discount}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9.]/g, '');
-                  setDiscount(Number(value) || 0);
-                }}
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-              />
-            </div>
-
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    id="autoRound"
-                    className="w-4 h-4 appearance-none border border-[#e0e2e7] rounded relative"
-                  />
-                  <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center pointer-events-none">
-                    <svg
-                      className="w-3 h-3 text-white opacity-0"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M20 6L9 17L4 12"
-                        stroke="white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <label
-                  htmlFor="autoRound"
-                  className="text-[14px] text-[#333843]"
-                >
-                  Auto Round Off
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <button className="flex items-center text-[#333843] border border-[#e0e2e7] rounded-md py-1 px-2">
-                    <Plus size={14} />
-                    <ChevronDown size={14} />
-                  </button>
-                </div>
-                <span className="text-[14px] text-[#333843] w-32 text-right">
-                  ₹0
-                </span>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center pt-4 border-t border-[#f0f1f3]">
-              <span className="text-[14px] text-[#333843] font-medium">
-                Total Payable Amount
-              </span>
-              <div className="w-32 rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px] font-bold">
-                {calculateFinalAmount().toFixed(2)}
-              </div>
-            </div>
-
-            <button onClick={handleSaveInvoice} className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
+            <button
+              onClick={handleSaveInvoice}
+              className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]"
+            >
               Generate Invoice
             </button>
 
@@ -837,9 +645,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               className="w-full flex items-center justify-center text-[#1eb386] border border-[#e0e2e7] py-3.5 rounded-md hover:bg-[#f9f9f9] transition-colors mt-4 text-[14px]"
             >
               <Eye size={16} className="mr-1.5" />
-              {showPreviousInvoices
-                ? "Hide Previous Invoices"
-                : "Preview Previous Invoices"}
+              {showPreviousInvoices ? "Hide Previous Invoices" : "Preview Previous Invoices"}
             </button>
           </div>
         </div>
@@ -854,37 +660,20 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <table className="w-full">
                 <thead>
                   <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
-                    <th className="py-2 px-3 text-left font-medium">
-                      INVOICE #
-                    </th>
+                    <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
                     <th className="py-2 px-3 text-left font-medium">DATE</th>
-                    <th className="py-2 px-3 text-left font-medium">
-                      CUSTOMER
-                    </th>
+                    <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
                     <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
-                    <th className="py-2 px-3 text-center font-medium">
-                      ACTION
-                    </th>
+                    <th className="py-2 px-3 text-center font-medium">ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
                   {previousInvoices.map((invoice) => (
-                    <tr
-                      key={invoice.id}
-                      className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]"
-                    >
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">
-                        {invoice.id}
-                      </td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">
-                        {invoice.date}
-                      </td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">
-                        {invoice.customer}
-                      </td>
-                      <td className="py-3 px-3 text-right text-[14px] text-[#333843]">
-                        {invoice.amount}
-                      </td>
+                    <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
+                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
+                      <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
                       <td className="py-3 px-3 text-center">
                         <button className="text-[#1eb386] hover:text-[#40c79a]">
                           <Eye size={16} />
@@ -899,5 +688,5 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         )}
       </div>
     </div>
-  );
+  )
 }
