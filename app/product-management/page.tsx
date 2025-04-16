@@ -7,7 +7,7 @@ import { useUser } from "@clerk/nextjs"
 import "../globals.css"
 import { Tooltip } from "react-tooltip"
 import "react-tooltip/dist/react-tooltip.css"
-import { ArrowUpDown, Trash2, CheckSquare, Square } from 'lucide-react'
+import { ArrowUpDown, Trash2, CheckSquare, Square, ChevronDown, ChevronRight } from "lucide-react"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -150,6 +150,7 @@ const Modal: React.FC = () => {
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
+  const [expandedProducts, setExpandedProducts] = useState<string[]>([])
 
   const [categories, setCategories] = useState(["Product", "Service"])
 
@@ -413,25 +414,27 @@ const Modal: React.FC = () => {
     setShowBulkDeleteConfirmation(false)
   }
 
-  
   const handleCreateCategory = () => {
     if (newCategoryName.trim()) {
-      
       const updatedCategories = [...categories, newCategoryName]
       setCategories(updatedCategories)
 
-     
       localStorage.setItem("productCategories", JSON.stringify(updatedCategories))
 
-     
       setProduct((prevProduct) => ({ ...prevProduct, category: newCategoryName }))
 
-      
       setSelectedCategory(newCategoryName)
 
-      
       setNewCategoryName("")
       setShowCategoryForm(false)
+    }
+  }
+
+  const toggleProductExpand = (productId: string) => {
+    if (expandedProducts.includes(productId)) {
+      setExpandedProducts(expandedProducts.filter((id) => id !== productId))
+    } else {
+      setExpandedProducts([...expandedProducts, productId])
     }
   }
 
@@ -482,7 +485,7 @@ const Modal: React.FC = () => {
         <div className="text-[28px] font-semibold text-business_settings_black_text">Product List</div>
         <div className="text-business_settings_gray_text">An Overview of all your transaction over the year.</div>
       </div>
-      <div className="flex gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <div className="w-full bg-white flex shadow rounded px-4 py-6 items-center gap-3">
           <div className="">
             <AllItemsIcon />
@@ -528,7 +531,7 @@ const Modal: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
             <span
@@ -550,7 +553,7 @@ const Modal: React.FC = () => {
             />
           </div>
         </div>
-        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full item-start max-w-[339px]">
+        <div className="relative border rounded-lg bg-white text-business_settings_black_text font-semibold py-4 px-5 w-full md:max-w-[339px]">
           <div
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -585,7 +588,7 @@ const Modal: React.FC = () => {
           )}
         </div>
         <button
-          className="border rounded-lg py-4 px-5 w-full items-start max-w-[287px] text-semibold bg-sidebar_green_button_background text-white"
+          className="border rounded-lg py-4 px-5 w-full md:max-w-[287px] text-semibold bg-sidebar_green_button_background text-white"
           onClick={() => setShowModal(true)}
         >
           <div className="">+Add New Item/Product/Service</div>
@@ -604,7 +607,8 @@ const Modal: React.FC = () => {
         </button>
       </div>
       <div className="border-[0.5px]">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View - Only visible on large screens */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
@@ -721,6 +725,231 @@ const Modal: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Tablet View - Optimized table with fewer columns */}
+        <div className="hidden md:block lg:hidden">
+          <table className="w-full bg-universal_gray_background">
+            <thead>
+              <tr className="">
+                <th className="py-6 px-4 border-b text-center">
+                  <div className="flex items-center justify-center">
+                    <button onClick={handleSelectAll} className="">
+                      {selectAll ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("itemCode")}>
+                    Code
+                    {sortField === "itemCode" && <ArrowUpDown className="ml-1 h-4 w-4" />}
+                  </button>
+                </th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("itemName")}>
+                    Name
+                    {sortField === "itemName" && <ArrowUpDown className="ml-1 h-4 w-4" />}
+                  </button>
+                </th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("inventory")}>
+                    Stock
+                    {sortField === "inventory" && <ArrowUpDown className="ml-1 h-4 w-4" />}
+                  </button>
+                </th>
+                <th className="py-6 px-4 border-b text-center">
+                  <button className="flex items-center justify-center mx-auto" onClick={() => handleSort("salesPrice")}>
+                    Price
+                    {sortField === "salesPrice" && <ArrowUpDown className="ml-1 h-4 w-4" />}
+                  </button>
+                </th>
+                <th className="py-6 px-4 border-b text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.map((product, index) => (
+                <tr key={index} className="bg-white">
+                  <td className="py-2 px-4 border-b text-center">
+                    <div className="flex justify-center">
+                      <button onClick={() => handleSelectProduct(product._id || "")}>
+                        {selectedProducts.includes(product._id || "") ? (
+                          <CheckSquare className="h-5 w-5" />
+                        ) : (
+                          <Square className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">{product.itemCode}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleProductExpand(product._id || "")} className="focus:outline-none">
+                        {expandedProducts.includes(product._id || "") ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </button>
+                      {product.itemName}
+                    </div>
+
+                    {/* Expanded details */}
+                    {expandedProducts.includes(product._id || "") && (
+                      <div className="mt-2 text-left text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                        <div>
+                          <span className="font-medium">Type:</span> {product.itemType}
+                        </div>
+                        <div>
+                          <span className="font-medium">Category:</span> {product.category || "-"}
+                        </div>
+                        <div>
+                          <span className="font-medium">Tax:</span> {product.taxRate}%
+                        </div>
+                        <div>
+                          <span className="font-medium">After Tax:</span> ₹{Number(product.totalPrice).toFixed(2)}
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {product.inventory} {product.measuringUnit}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">₹{product.salesPrice}</td>
+                  <td className="py-2 px-4 border-b">
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        id={`tablet-button-${product._id}`}
+                        className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
+                        onClick={() => handleDownloadQr(product)}
+                        data-tooltip-id={`tablet-tooltip-${product._id}`}
+                      >
+                        QR
+                      </button>
+                      <button
+                        className="py-2 px-3 text-sm rounded border border-red-500 text-red-500 bg-red-50"
+                        onClick={() => handleDeleteClick(product)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      <Tooltip
+                        id={`tablet-tooltip-${product._id}`}
+                        place="top"
+                        render={() => (
+                          <img
+                            src={product.qrCode || "/placeholder.svg"}
+                            alt="QR Code"
+                            style={{
+                              width: "150px",
+                              height: "150px",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        )}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          <div className="flex items-center justify-between bg-universal_gray_background p-4 border-b">
+            <button onClick={handleSelectAll} className="flex items-center gap-2">
+              {selectAll ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
+              <span>Select All</span>
+            </button>
+            <button onClick={() => handleSort("itemName")} className="flex items-center gap-1">
+              Sort by Name
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </div>
+
+          {filteredProducts.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No products found</div>
+          ) : (
+            filteredProducts.map((product, index) => (
+              <div key={index} className="bg-white p-4 border-b">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="font-semibold text-lg">{product.itemName}</div>
+                  <button onClick={() => handleSelectProduct(product._id || "")}>
+                    {selectedProducts.includes(product._id || "") ? (
+                      <CheckSquare className="h-5 w-5" />
+                    ) : (
+                      <Square className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div>
+                    <div className="text-xs text-gray-500">Product Code</div>
+                    <div>{product.itemCode}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Type</div>
+                    <div>{product.itemType}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Category</div>
+                    <div>{product.category || "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Inventory</div>
+                    <div>
+                      {product.inventory} {product.measuringUnit}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Sales Price</div>
+                    <div>₹{product.salesPrice}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Tax</div>
+                    <div>{product.taxRate}%</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">After Tax Price</div>
+                    <div>₹{Number(product.totalPrice).toFixed(2)}</div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 justify-end">
+                  <button
+                    id={`mobile-button-${product._id}`}
+                    className="py-2 px-3 text-sm rounded border border-download_purple_text text-download_purple_text bg-download_purple_button"
+                    onClick={() => handleDownloadQr(product)}
+                    data-tooltip-id={`mobile-tooltip-${product._id}`}
+                  >
+                    Download QR
+                  </button>
+                  <button
+                    className="py-2 px-3 text-sm rounded border border-red-500 text-red-500 bg-red-50"
+                    onClick={() => handleDeleteClick(product)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <Tooltip
+                    id={`mobile-tooltip-${product._id}`}
+                    place="top"
+                    render={() => (
+                      <img
+                        src={product.qrCode || "/placeholder.svg"}
+                        alt="QR Code"
+                        style={{
+                          width: "150px",
+                          height: "150px",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
       {showBulkDeleteConfirmation && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -733,7 +962,7 @@ const Modal: React.FC = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
@@ -779,7 +1008,7 @@ const Modal: React.FC = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
@@ -825,7 +1054,7 @@ const Modal: React.FC = () => {
                 <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
 
-              <div className="w-[849px] h-[auto] mt-24 p-6 gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
+              <div className="w-screen max-w-[900px] h-[auto] mt-24 p-3 md:p-6 gap-3 md:gap-6 flex flex-col items-center bg-white rounded-lg shadow-xl transform transition-all">
                 <div className="flex items-center justify-between w-full">
                   <div className="text-xl font-semibold">Add New Item</div>
                   <button className="" onClick={() => setShowModal(false)}>
@@ -840,7 +1069,7 @@ const Modal: React.FC = () => {
                   </button>
                 </div>
                 <div className="flex flex-col rounded-lg p-3 border-[0.5px] border-sidebar_gray_border w-full h-auto gap-3">
-                  <div className="flex gap-3">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <div className="p-5 bg-universal_gray_background rounded-lg text-start">
                       <div className="text-sidebar_black_text text-xs">Item Type</div>
                       <div className="flex gap-10">
@@ -878,7 +1107,7 @@ const Modal: React.FC = () => {
                               name="category"
                               value={product.category}
                               onChange={handleInputChange}
-                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 appearance-none"
+                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 px-2 appearance-none"
                             >
                               <option value="">Select a category</option>
                               {categories.map((category, index) => (
@@ -894,14 +1123,14 @@ const Modal: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setShowCategoryForm(!showCategoryForm)}
-                            className="w-full max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
+                            className="w-full max-w-[160px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
                           >
                             Create New Category
                           </button>
                         </div>
 
                         {showCategoryForm && (
-                          <div className="flex flex-wrap gap-2 mt-2 items-center">
+                          <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-2 items-start sm:items-center">
                             <input
                               type="text"
                               value={newCategoryName}
@@ -909,7 +1138,7 @@ const Modal: React.FC = () => {
                               placeholder="Enter category name"
                               className="bg-transparent border border-business_settings_gray_border border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
                             />
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                               <button
                                 type="button"
                                 onClick={handleCreateCategory}
@@ -933,7 +1162,7 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Item Name</div>
                       <input
@@ -967,7 +1196,7 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Opening Stock
@@ -1007,7 +1236,7 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">
                         Sales Price
@@ -1068,16 +1297,16 @@ const Modal: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <button
                       onClick={handleCloseModal}
-                      className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+                      className="bg-universal_white_background px-4 h-10 py-[10px] border flex items-center justify-center rounded-lg w-full sm:max-w-[190px]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px] focus:outline-none"
+                      className="bg-sidebar_green_button_background h-10 text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] focus:outline-none"
                     >
                       Save
                     </button>
@@ -1100,7 +1329,7 @@ const Modal: React.FC = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">

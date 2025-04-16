@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
 import { CashflowChart } from "@/components/ui/cashflow-char"
 import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
+import { RadialChart } from "@/components/ui/radial-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
@@ -22,76 +23,130 @@ async function checkUser() {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include'
-    });
+      credentials: "include",
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (!response.ok) {
-      return { 
+      return {
         error: data.error,
-        status: response.status 
-      };
+        status: response.status,
+      }
     }
 
     return {
       user: data.user,
-      message: data.message
-    };
+      message: data.message,
+    }
   } catch (error) {
-    return { 
-      error: 'Connection failed',
-      status: 500
-    };
+    return {
+      error: "Connection failed",
+      status: 500,
+    }
   }
 }
 
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
+  const [showFullView, setShowFullView] = useState<DetailViewType>(null)
   const router = useRouter()
 
   const handleCardClick = (view: DetailViewType) => {
-    setActiveDetailView(view === activeDetailView ? null : view)
+    setShowFullView(view)
   }
 
   const closeDetailView = () => {
     setActiveDetailView(null)
   }
 
+  const backToDashboard = () => {
+    setShowFullView(null)
+  }
+
+  // Net profit chart data
+  const netProfitData = [
+    { name: "Income", value: 2300000000, color: "#3a8bff" },
+    { name: "Expenses", value: 1800000000, color: "#c369b7" },
+    { name: "Profit", value: 500000000, color: "#40c79a" },
+  ]
+
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const result = await checkUser();
+        const result = await checkUser()
 
         if (result.error) {
-          switch(result.status) {
+          switch (result.status) {
             case 401:
-              router.push("/login");
-              break;
+              router.push("/login")
+              break
             case 404:
-              router.push("/sync-user");
-              break;
+              router.push("/sync-user")
+              break
             default:
-              router.push("/sync-user");
-              break;
+              router.push("/sync-user")
+              break
           }
-          return;
+          return
         }
       } catch (error) {
-        console.error('Verification error:', error);
-        router.push("/error");
+        console.error("Verification error:", error)
+        router.push("/error")
       }
-    };
+    }
 
-    verifyUser();
-  }, [router]);
+    verifyUser()
+  }, [router])
 
+  // If showFullView is set, render only the corresponding detail view
+  if (showFullView) {
+    return (
+      <div className="flex-1 space-y-4 p-3 sm:p-6 md:p-8 bg-[#FAFAFA]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={backToDashboard}>
+              <ChevronRight className="h-4 w-4 rotate-180" />
+            </Button>
+            <h1 className="text-xl sm:text-2xl font-semibold">
+              {showFullView === "sales" && "Sales Details"}
+              {showFullView === "expenses" && "Expenses Details"}
+              {showFullView === "payments" && "Payment Details"}
+            </h1>
+          </div>
+          <Button className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto">
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            Create New Invoice
+          </Button>
+        </div>
+        {showFullView === "sales" && <SalesDetailView />}
+        {showFullView === "expenses" && <ExpensesDetailView />}
+        {showFullView === "payments" && <PaymentsDetailView />}
+      </div>
+    )
+  }
+
+  // Otherwise, render the regular dashboard
   return (
-    <div className="flex-1 space-y-6 p-6 md:p-8 bg-[#FAFAFA]">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 md:p-8 bg-[#FAFAFA] pb-16 sm:pb-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Hi Minesh,</h1>
-        <Button className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-semibold">Hi Minesh,</h1>
+        <Button className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto">
           <svg
             className="mr-2 h-4 w-4"
             fill="none"
@@ -112,7 +167,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Card
           className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "sales" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
           onClick={() => handleCardClick("sales")}
@@ -139,7 +194,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹23,08,114</div>
+            <div className="text-xl sm:text-2xl font-bold">₹23,08,114</div>
             <div className="flex items-center pt-1">
               <div className="flex items-center text-xs text-green-600">
                 <ArrowUp className="mr-1 h-3 w-3" />
@@ -176,7 +231,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹18,08,114</div>
+            <div className="text-xl sm:text-2xl font-bold">₹18,08,114</div>
             <div className="flex items-center pt-1">
               <div className="flex items-center text-xs text-green-600">
                 <ArrowUp className="mr-1 h-3 w-3" />
@@ -212,7 +267,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹28,114</div>
+            <div className="text-xl sm:text-2xl font-bold">₹28,114</div>
             <div className="flex items-center pt-1">
               <div className="flex items-center text-xs text-red-600">
                 <ArrowDown className="mr-1 h-3 w-3" />
@@ -229,7 +284,6 @@ export default function DashboardPage() {
         <Card className="shadow-sm border-t-4 border-t-[#3a8bff] animate-in fade-in duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>
-              {activeDetailView === "sales" && "Sales Details"}
               {activeDetailView === "expenses" && "Expenses Details"}
               {activeDetailView === "payments" && "Payment Details"}
             </CardTitle>
@@ -239,7 +293,6 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            {activeDetailView === "sales" && <SalesDetailView />}
             {activeDetailView === "expenses" && <ExpensesDetailView />}
             {activeDetailView === "payments" && <PaymentsDetailView />}
           </CardContent>
@@ -247,12 +300,12 @@ export default function DashboardPage() {
       )}
 
       {/* Charts Section */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         {/* Net Cashflow Chart */}
         <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Net Cashflow</CardTitle>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mt-2 sm:mt-0">
               <div className="flex items-center space-x-1">
                 <div className="h-3 w-3 rounded-full bg-blue-500"></div>
                 <span className="text-xs">Inflow</span>
@@ -265,27 +318,39 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="yearly">
-              <TabsList className="mb-4">
-                <TabsTrigger value="daily">Daily</TabsTrigger>
-                <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="yearly">Yearly</TabsTrigger>
+              <TabsList className="mb-4 w-full overflow-x-auto flex-nowrap">
+                <TabsTrigger value="daily" className="flex-1">
+                  Daily
+                </TabsTrigger>
+                <TabsTrigger value="weekly" className="flex-1">
+                  Weekly
+                </TabsTrigger>
+                <TabsTrigger value="monthly" className="flex-1">
+                  Monthly
+                </TabsTrigger>
+                <TabsTrigger value="yearly" className="flex-1">
+                  Yearly
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="yearly">
-                <CashflowChart />
-                <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                  <span>Jan</span>
-                  <span>Feb</span>
-                  <span>Mar</span>
-                  <span>Apr</span>
-                  <span>May</span>
-                  <span>Jun</span>
-                  <span>Jul</span>
-                  <span>Aug</span>
-                  <span>Sep</span>
-                  <span>Oct</span>
-                  <span>Nov</span>
-                  <span>Dec</span>
+                <div className="w-full overflow-x-auto">
+                  <div className="min-w-[500px]">
+                    <CashflowChart />
+                    <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                      <span>Jan</span>
+                      <span>Feb</span>
+                      <span>Mar</span>
+                      <span>Apr</span>
+                      <span>May</span>
+                      <span>Jun</span>
+                      <span>Jul</span>
+                      <span>Aug</span>
+                      <span>Sep</span>
+                      <span>Oct</span>
+                      <span>Nov</span>
+                      <span>Dec</span>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
               <TabsContent value="monthly">
@@ -309,29 +374,35 @@ export default function DashboardPage() {
 
         {/* Sales Summary */}
         <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Sales Summary</CardTitle>
-            <Button variant="outline" size="sm" className="h-8 gap-1">
+            <Button variant="outline" size="sm" className="h-8 gap-1 mt-2 sm:mt-0">
               Jan -Jun 2024
               <ChevronDown className="h-4 w-4" />
             </Button>
           </CardHeader>
           <CardContent>
-            <SalesSummaryChart />
+            <div className="w-full overflow-hidden">
+              <div className="w-full h-[200px] sm:h-[220px]">
+                <SalesSummaryChart />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Grid - First Row */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 auto-rows-auto">
         {/* Expense Distribution */}
-        <Card className="shadow-sm h-[280px]">
+        <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>Expense Distribution</CardTitle>
           </CardHeader>
-          <CardContent className="h-[calc(100%-56px)] flex flex-col justify-center">
-            <ExpenseDistributionChart />
-            <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+          <CardContent className="flex flex-col">
+            <div className="flex justify-center">
+              <ExpenseDistributionChart />
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-x-2 gap-y-2 text-xs">
               <div className="flex items-center gap-1">
                 <div className="h-3 w-3 rounded-full bg-[#40c79a]"></div>
                 <span>Inventory</span>
@@ -352,52 +423,21 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Net Profit */}
-        <Card className="shadow-sm h-[280px]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        {/* Net Profit - Updated with RadialChart */}
+        <Card className="shadow-sm h-auto">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Net Profit</CardTitle>
-            <Button variant="outline" size="sm" className="h-8 gap-1">
+            <Button variant="outline" size="sm" className="h-8 gap-1 mt-2 sm:mt-0">
               This Year
               <ChevronDown className="h-4 w-4" />
             </Button>
           </CardHeader>
-          <CardContent className="h-[calc(100%-56px)] flex flex-col items-center justify-center">
-            <div className="text-2xl font-bold mb-4">₹22,18,508,114</div>
-            <div className="relative h-[120px] w-[120px]">
-              <svg viewBox="0 0 100 100" className="h-full w-full transform -rotate-90">
-                <circle cx="50" cy="50" r="45" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  fill="transparent"
-                  stroke="#3a8bff"
-                  strokeWidth="8"
-                  strokeDasharray="220 283"
-                />
-                <circle cx="50" cy="50" r="35" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="35"
-                  fill="transparent"
-                  stroke="#c369b7"
-                  strokeWidth="8"
-                  strokeDasharray="180 220"
-                />
-                <circle cx="50" cy="50" r="25" fill="transparent" stroke="#e0e2e7" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="25"
-                  fill="transparent"
-                  stroke="#40c79a"
-                  strokeWidth="8"
-                  strokeDasharray="140 157"
-                />
-              </svg>
+          <CardContent className="flex flex-col items-center">
+            <div className="text-lg sm:text-2xl font-bold mb-4 text-center">₹22,18,508,114</div>
+            <div className="relative h-[120px] w-full">
+              <RadialChart data={netProfitData} innerRadius={25} outerRadius={60} height={120} />
             </div>
-            <div className="mt-4 flex w-full justify-between text-xs">
+            <div className="mt-4 flex w-full justify-around text-xs gap-2 flex-wrap">
               <div className="flex items-center gap-1">
                 <div className="h-3 w-3 rounded-full bg-[#3a8bff]"></div>
                 <span>Income</span>
@@ -415,11 +455,11 @@ export default function DashboardPage() {
         </Card>
 
         {/* Top Performers */}
-        <Card className="shadow-sm h-[280px]">
+        <Card className="shadow-sm h-auto">
           <CardHeader className="pb-2">
             <CardTitle>Top Performers</CardTitle>
           </CardHeader>
-          <CardContent className="h-[calc(100%-56px)] flex flex-col justify-center space-y-4">
+          <CardContent className="flex flex-col space-y-4">
             {[
               {
                 id: 1,
@@ -432,7 +472,7 @@ export default function DashboardPage() {
               { id: 2, name: "Item Name", code: "Item Code", amount: "0,00,000", revenue: "21", progress: 60 },
               { id: 3, name: "Item Name", code: "Item Code", amount: "0,00,000", revenue: "21", progress: 50 },
             ].map((item) => (
-              <div key={item.id} className="flex items-start gap-3">
+              <div key={item.id} className="flex items-start gap-2 w-full">
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
                     item.id === 1 ? "bg-[#D8F6E5] text-[#1eb386]" : "bg-[#DDEBFF] text-[#3a8bff]"
@@ -440,13 +480,13 @@ export default function DashboardPage() {
                 >
                   {item.id}
                 </div>
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{item.name}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{item.name}</p>
                       <p className="text-xs text-muted-foreground">{item.code}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="sm:text-right mt-1 sm:mt-0">
                       <p className="text-sm font-medium">₹{item.amount}</p>
                       <p className="text-xs text-green-600">{item.revenue}% Revenue</p>
                     </div>
@@ -465,48 +505,50 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Grid - Second Row */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
         {/* Pending Invoices - Takes 2 columns */}
         <div className="md:col-span-2">
           <Card className="shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
               <CardTitle>Pending Invoices</CardTitle>
-              <Button variant="ghost" size="sm" className="gap-1 text-[#3a8bff]">
+              <Button variant="ghost" size="sm" className="gap-1 text-[#3a8bff] mt-2 sm:mt-0">
                 View All
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="rounded-lg border border-gray-100">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-muted/40">
-                      <th className="py-3 pl-6 text-left text-sm font-medium w-12"></th>
-                      <th className="py-3 text-left text-sm font-medium">Invoice ID</th>
-                      <th className="py-3 text-left text-sm font-medium">Invoice Date</th>
-                      <th className="py-3 text-left text-sm font-medium">Amount</th>
-                      <th className="py-3 pr-6 text-right text-sm font-medium">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[1, 2, 3].map((_, i) => (
-                      <tr key={i} className="border-b last:border-0">
-                        <td className="py-3 pl-6">
-                          <div className="h-4 w-4 rounded border border-gray-300"></div>
-                        </td>
-                        <td className="py-3 text-sm font-medium">AS_PUBLISHER</td>
-                        <td className="py-3 text-sm">12/06/24</td>
-                        <td className="py-3 text-sm">₹78,00,028</td>
-                        <td className="py-3 pr-6 text-right">
-                          <Button variant="outline" size="sm" className="h-8 gap-1 text-[#3a8bff]">
-                            <Eye className="h-4 w-4" />
-                            View Invoice
-                          </Button>
-                        </td>
+              <div className="rounded-lg border border-gray-100 overflow-x-auto">
+                <div className="min-w-[600px]">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-muted/40">
+                        <th className="py-3 pl-6 text-left text-sm font-medium w-12"></th>
+                        <th className="py-3 text-left text-sm font-medium">Invoice ID</th>
+                        <th className="py-3 text-left text-sm font-medium">Invoice Date</th>
+                        <th className="py-3 text-left text-sm font-medium">Amount</th>
+                        <th className="py-3 pr-6 text-right text-sm font-medium">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {[1, 2, 3].map((_, i) => (
+                        <tr key={i} className="border-b last:border-0">
+                          <td className="py-3 pl-6">
+                            <div className="h-4 w-4 rounded border border-gray-300"></div>
+                          </td>
+                          <td className="py-3 text-sm font-medium">AS_PUBLISHER</td>
+                          <td className="py-3 text-sm">12/06/24</td>
+                          <td className="py-3 text-sm">₹78,00,028</td>
+                          <td className="py-3 pr-6 text-right">
+                            <Button variant="outline" size="sm" className="h-8 gap-1 text-[#3a8bff]">
+                              <Eye className="h-4 w-4" />
+                              <span className="hidden sm:inline">View Invoice</span>
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -524,7 +566,7 @@ export default function DashboardPage() {
                 { id: 2, name: "Party Name", invoices: "00", amount: "0,00,000", revenue: "17", progress: 50 },
                 { id: 3, name: "Party Name", invoices: "00", amount: "0,00,000", revenue: "08", progress: 30 },
               ].map((item) => (
-                <div key={item.id} className="flex items-start gap-3">
+                <div key={item.id} className="flex items-start gap-2 w-full">
                   <div
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
                       item.id === 1 ? "bg-[#D8F6E5] text-[#1eb386]" : "bg-[#DDEBFF] text-[#3a8bff]"
@@ -532,13 +574,13 @@ export default function DashboardPage() {
                   >
                     {item.id}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="text-sm font-medium">{item.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{item.name}</p>
                         <p className="text-xs text-muted-foreground">{item.invoices} Invoices</p>
                       </div>
-                      <div className="text-right">
+                      <div className="sm:text-right">
                         <p className="text-sm font-medium">₹{item.amount}</p>
                         <p className="text-xs text-green-600">{item.revenue}% Revenue</p>
                       </div>
