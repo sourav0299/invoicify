@@ -17,6 +17,7 @@ model User {
   updatedAt     DateTime @updatedAt
 
   subscription Subscription[]
+  invoices     Invoice[]
 }
 
 model Plan{
@@ -69,4 +70,39 @@ model BusinessSetting {
   signatureUrl             String?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
+}
+
+model Invoice {
+  id                  String           @id @default(cuid())
+  billingAddress      String
+  invoiceNumber       String
+  billDate            DateTime
+  paymentDeadline     DateTime
+  items               InvoiceItem[]
+  totalTax            Float
+  totalBeforeTax      Float
+  totalAfterTax       Float
+  additionalCharges   Float            @default(0)
+  roundOff            Float            @default(0)
+  discount            Float            @default(0)
+  totalPayableAmount  Float
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  userId              Int
+  user                User             @relation(fields: [userId], references: [id])
+}
+
+model InvoiceItem {
+  id              String          @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice         @relation(fields: [invoiceId], references: [id])
+  itemName        String
+  itemType        String
+  itemCode        String
+  quantity        Int
+  measuringUnit   String
+  unitPrice       Float
+  tax             Float
+  beforeTaxAmount Float
+  afterTaxAmount  Float
 }
