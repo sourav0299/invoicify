@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 
-// Get single invoice
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -29,7 +28,7 @@ export async function GET(
   }
 }
 
-// Update invoice
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -48,6 +47,10 @@ export async function PUT(
       where: { id: nextParam.id },
       data: {
         billingAddress: data.billingAddress,
+        brandName: data.brandName,
+        partyContactEmail: data.partyContactEmail,
+        partyContactNumber: data.partyContactNumber,
+        partyGst: data.partyGst,
         invoiceNumber: data.invoiceNumber,
         billDate: new Date(data.billDate),
         paymentDeadline: new Date(data.paymentDeadline),

@@ -37,6 +37,10 @@ export async function POST(request: Request) {
     const invoice = await prisma.invoice.create({
       data: {
         billingAddress: data.billingAddress,
+        brandName: data.brandName,
+        partyContactEmail: data.partyContactEmail,
+        partyContactNumber: data.partyContactNumber,
+        partyGst: data.partyGst,
         invoiceNumber: data.invoiceNumber,
         billDate: new Date(data.billDate),
         paymentDeadline: new Date(data.paymentDeadline),

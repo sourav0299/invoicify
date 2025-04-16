@@ -54,6 +54,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [additionalCharges, setAdditionalCharges] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(0);
+  const [brandName, setBrandName] = useState("")
+  const [partyContactEmail, setPartyContactEmail] = useState("")
+  const [partyContactNumber, setPartyContactNumber] = useState("")
+  const [partyGST, setPartyGst] = useState("")
   const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([
     {
       id: "INV-001",
@@ -257,6 +261,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         },
         body: JSON.stringify({
           billingAddress,
+          brandName,
+          partyContactEmail,
+          partyContactNumber,
+          partyGst: partyGST,
           invoiceNumber,
           billDate: new Date(billDate.split('/').reverse().join('-')),
           paymentDeadline: new Date(paymentDate.split('/').reverse().join('-')),
@@ -319,6 +327,59 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         </div>
 
         <div className="bg-white border border-[#f0f1f3] rounded-md p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
+          <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">
+                Brand Name
+              </h3>
+              <input
+                type="text"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
+                placeholder="eg. Reliance"
+              />
+            </div>
+            <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">
+                Party Contact Email
+              </h3>
+              <input
+                type="text"
+                value={partyContactEmail}
+                onChange={(e) => setPartyContactEmail(e.target.value)}
+                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
+                placeholder="eg. party@email.com"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
+          <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">
+                Party Contact Number
+              </h3>
+              <input
+                type="text"
+                value={partyContactNumber}
+                onChange={(e) => setPartyContactNumber(e.target.value)}
+                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
+                placeholder="eg. 9876543210"
+              />
+            </div>
+            <div className="">
+              <h3 className="text-[13px] text-[#667085] mb-2">
+                Party GSTIN No:
+              </h3>
+              <input
+                type="text"
+                value={partyGST}
+                onChange={(e) => setPartyGst(e.target.value)}
+                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
+                placeholder="eg. 27AAPFU0939F1ZV"
+              />
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">
@@ -332,7 +393,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 
               </textarea>
             </div>
-            <div>
+            <div className="">
               <h3 className="text-[13px] text-[#667085] mb-2">
                 Sales Invoice No:
               </h3>

@@ -75,6 +75,10 @@ model BusinessSetting {
 model Invoice {
   id                  String           @id @default(cuid())
   billingAddress      String
+  brandName           String
+  partyContactEmail   String
+  partyContactNumber  String
+  partyGst            String
   invoiceNumber       String
   billDate            DateTime
   paymentDeadline     DateTime

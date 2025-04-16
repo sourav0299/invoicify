@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast"
 import axios from "axios"
 import { FaLocationCrosshairs } from "react-icons/fa6"
 import { ArrowUpFromLine } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const PhotoIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -256,7 +257,7 @@ const BusinessSettings = () => {
 
       if (response.ok) {
         toast.success("form Submitted succesfully")
-
+        window.location.href = '/sync-plans'
         // Optionally, you can refresh the data here
         await fetchBusinessDetails()
       } else {
@@ -267,6 +268,7 @@ const BusinessSettings = () => {
       console.log("Error saving business details:", error)
     }
   }
+
 
   return (
     <div className="bg-universal_gray_background pb-10">
@@ -341,7 +343,6 @@ const BusinessSettings = () => {
                 className="mt-2 text-[#1EB386] text-sm flex items-center gap-1"
                 onClick={() => businessLogoRef.current?.click()}
               >
-                <ArrowUpFromLine size={14} />
                 Upload Logo Image
               </button>
             </div>
@@ -487,9 +488,9 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
-          <button className="flex justify-end items-center gap-4 " onClick={getlocation}>
-            Get Location <FaLocationCrosshairs className="border border-gray text-blue-400" />
-          </button>
+          <Button className="flex justify-end items-center gap-4 ml-[88%]" onClick={getlocation}>
+            Get Location 
+          </Button>
           <div className="flex gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">State</div>
