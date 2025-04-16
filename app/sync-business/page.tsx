@@ -270,7 +270,7 @@ const BusinessSettings = () => {
 
   return (
     <div className="bg-universal_gray_background pb-10">
-      <div className="px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
         <div className="flex flex-col items-center py-4">
           {/* Logo and heading area */}
           <div className="flex items-center justify-center mb-4">
@@ -287,15 +287,15 @@ const BusinessSettings = () => {
           </div>
 
           {/* Heading area */}
-          <div className="text-3xl font-semibold text-business_settings_black_text text-center">
+          <div className="text-xl sm:text-2xl md:text-3xl font-semibold text-business_settings_black_text text-center">
             Set Up your Business Details
           </div>
         </div>
 
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
-          <div className="flex gap-6">
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-4 sm:p-6 h-auto gap-4">
+          <div className="flex flex-col md:flex-row gap-6">
             {/* Business Logo Upload Section */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center mx-auto md:mx-0">
               <div
                 className="w-[140px] h-[140px] border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50"
                 onClick={() => businessLogoRef.current?.click()}
@@ -348,7 +348,7 @@ const BusinessSettings = () => {
 
             {/* Business Details Section */}
             <div className="flex flex-col w-full gap-6">
-              <div className="p-5 bg-universal_gray_background rounded-lg gap-1">
+              <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg gap-1">
                 <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Name</div>
                 <input
                   type="text"
@@ -358,8 +358,8 @@ const BusinessSettings = () => {
                   className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 />
               </div>
-              <div className="flex w-full gap-3">
-                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+              <div className="flex flex-col sm:flex-row w-full gap-3">
+                <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-5 rounded-lg gap-1">
                   <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Type</div>
                   <select
                     name="businessType"
@@ -372,7 +372,7 @@ const BusinessSettings = () => {
                     <option value="wholesaler">Wholesaler</option>
                   </select>
                 </div>
-                <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
+                <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-5 rounded-lg gap-1 mt-3 sm:mt-0">
                   <div className="bg-transparent w-full text-xs text-sidebar_black_text">
                     Business Registration Type
                   </div>
@@ -390,8 +390,8 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full md:w-auto">
               <div className="text-sidebar_black_text text-xs">Gst Registered?</div>
               <div className="flex gap-10">
                 <label className="flex items-center gap-3">
@@ -423,7 +423,7 @@ const BusinessSettings = () => {
               </div>
             </div>
             <div
-              className={`p-5 bg-universal_gray_background rounded-lg w-full gap-1 ${
+              className={`p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1 mt-3 md:mt-0 ${
                 !isGstRegistered ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -441,7 +441,7 @@ const BusinessSettings = () => {
               />
               {errors.gstNumber && isGstRegistered && <p className="text-xs text-red-500 mt-1">{errors.gstNumber}</p>}
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1 mt-3 md:mt-0">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">PAN Number</div>
               <input
                 type="text"
@@ -454,8 +454,8 @@ const BusinessSettings = () => {
               {errors.panNumber && <p className="text-xs text-red-500 mt-1">{errors.panNumber}</p>}
             </div>
           </div>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full max-w-[365px] gap-1">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full sm:max-w-[365px] gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company E-mail</div>
               <input
                 type="text"
@@ -465,7 +465,7 @@ const BusinessSettings = () => {
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1 mt-3 sm:mt-0">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company Number</div>
               <input
                 type="text"
@@ -477,7 +477,7 @@ const BusinessSettings = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Billing Address</div>
               <textarea
                 name="billingAddress"
@@ -487,11 +487,11 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
-          <button className="flex justify-end items-center gap-4 " onClick={getlocation}>
+          <button className="flex justify-end items-center gap-4" onClick={getlocation}>
             Get Location <FaLocationCrosshairs className="border border-gray text-blue-400" />
           </button>
-          <div className="flex gap-3">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">State</div>
               <input
                 type="text"
@@ -501,7 +501,7 @@ const BusinessSettings = () => {
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1 mt-3 md:mt-0">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Pincode</div>
               <input
                 type="text"
@@ -511,7 +511,7 @@ const BusinessSettings = () => {
                 className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
               />
             </div>
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1 mt-3 md:mt-0">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">City</div>
               <input
                 type="text"
@@ -523,9 +523,9 @@ const BusinessSettings = () => {
             </div>
           </div>
           <div className="flex">
-            <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
+            <div className="p-3 sm:p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Terms & Conditions</div>
-              <div className="flex gap-8">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                 <textarea
                   name="termsAndConditions"
                   value={formData.termsAndConditions}
@@ -533,7 +533,7 @@ const BusinessSettings = () => {
                   className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
                 />
                 <div
-                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1"
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full md:max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1 mt-3 md:mt-0"
                   onClick={() => signatureRef.current?.click()}
                 >
                   {signaturePreview ? (
@@ -558,16 +558,16 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-2">
             <button
-              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full sm:w-auto sm:max-w-[190px]"
               onClick={() => fetchBusinessDetails()}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:w-auto sm:max-w-[190px] mt-2 sm:mt-0"
             >
               Save
             </button>
@@ -579,4 +579,3 @@ const BusinessSettings = () => {
 }
 
 export default BusinessSettings
-

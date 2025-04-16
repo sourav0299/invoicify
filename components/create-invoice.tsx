@@ -4,8 +4,8 @@ import type React from "react"
 
 import { useState } from "react"
 import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Plus, X } from "lucide-react"
-import { BrowserQRCodeReader } from '@zxing/browser';
-import { Dialog } from '@headlessui/react';
+import { BrowserQRCodeReader } from "@zxing/browser"
+import { Dialog } from "@headlessui/react"
 
 interface CreateInvoiceProps {
   onClose: () => void
@@ -19,15 +19,15 @@ interface Invoice {
 }
 
 interface ScanData {
-  userEmail: string;
-  itemName: string;
-  itemType: 'Product' | 'Service';
-  itemCode: string;
-  inventory: string;
-  measuringUnit: string;
-  salesPrice: string;
-  taxIncluded: boolean;
-  taxRate: string;
+  userEmail: string
+  itemName: string
+  itemType: "Product" | "Service"
+  itemCode: string
+  inventory: string
+  measuringUnit: string
+  salesPrice: string
+  taxIncluded: boolean
+  taxRate: string
 }
 
 export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
@@ -61,47 +61,43 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth())
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear())
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [result, setResult] = useState<ScanData | null>(null);
-  
-      const startScanning = async () => {
-          setScanning(true);
-          const codeReader = new BrowserQRCodeReader();
-          
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [result, setResult] = useState<ScanData | null>(null)
+
+  const startScanning = async () => {
+    setScanning(true)
+    const codeReader = new BrowserQRCodeReader()
+
+    try {
+      const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices()
+      const selectedDeviceId = videoInputDevices[0].deviceId
+
+      const previewElem = document.getElementById("preview")
+      if (!previewElem) return
+
+      const result = await codeReader.decodeFromVideoDevice(selectedDeviceId, "preview", (result, _, controls) => {
+        if (result) {
           try {
-              const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
-              const selectedDeviceId = videoInputDevices[0].deviceId;
-              
-              const previewElem = document.getElementById('preview');
-              if (!previewElem) return;
-  
-              const result = await codeReader.decodeFromVideoDevice(
-                  selectedDeviceId,
-                  'preview',
-                  (result, _, controls) => {
-                      if (result) {
-                          try {
-                              const jsonData: ScanData = JSON.parse(result.getText());
-                              setResult(jsonData);
-                              setScanning(false);
-                              setIsModalOpen(false);
-                              controls.stop();
-                          } catch (error) {
-                              console.error('Invalid JSON data');
-                          }
-                      }
-                  }
-              );
+            const jsonData: ScanData = JSON.parse(result.getText())
+            setResult(jsonData)
+            setScanning(false)
+            setIsModalOpen(false)
+            controls.stop()
           } catch (error) {
-              setScanning(false);
+            console.error("Invalid JSON data")
           }
-      };
-  
-      const stopScanning = () => {
-          setScanning(false);
-          setIsModalOpen(false);
-      };
+        }
+      })
+    } catch (error) {
+      setScanning(false)
+    }
+  }
+
+  const stopScanning = () => {
+    setScanning(false)
+    setIsModalOpen(false)
+  }
 
   const getDaysInMonth = (month: number, year: number): number => {
     return new Date(year, month + 1, 0).getDate()
@@ -168,14 +164,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   }
 
   return (
-    <div className="bg-white p-6 min-h-screen">
+    <div className="bg-white p-2 sm:p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
           <div>
             <h1 className="text-[22px] font-semibold text-[#212626]">Create Invoice</h1>
             <p className="text-[14px] text-[#667085] mt-1">An Overview of all your transactions over the year.</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <div className="relative">
               <button className="flex items-center gap-2 px-4 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px]">
                 <span>Invoice Type</span>
@@ -195,7 +191,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         </div>
 
         <div className="bg-white border border-[#f0f1f3] rounded-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Billing Address</h3>
               <div className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center">
@@ -209,40 +205,40 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <h3 className="text-[13px] text-[#667085] mb-2">Sales Invoice No:</h3>
               <input
                 type="text"
-                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px]"
+                className="w-full max-w-full sm:max-w-none border border-[#e0e2e7] rounded-md py-2 px-3 text-[14px] text-[#333843] h-[40px]"
                 placeholder=""
               />
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mt-4 md:mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Note</h3>
               <textarea
-                className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[72px] resize-none"
+                className="w-full max-w-full sm:max-w-none border border-[#e0e2e7] rounded-md py-2 px-3 text-[14px] text-[#333843] h-[72px] resize-none"
                 placeholder="Write a Note"
               ></textarea>
             </div>
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Payment Terms:</h3>
               <div className="flex">
-                <div className="relative w-full">
-                  <select className="w-full appearance-none border border-[#e0e2e7] rounded-l-md py-2.5 px-3 pr-8 text-[14px] text-[#333843] bg-white h-[42px]">
+                <div className="relative w-1/3">
+                  <select className="w-full appearance-none border border-[#e0e2e7] rounded-l-md py-2 px-2 pr-6 text-[14px] text-[#333843] bg-white h-[40px]">
                     <option>30</option>
                   </select>
-                  <ChevronDown size={16} className="absolute right-3 top-[13px] text-[#667085] pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-2 top-[13px] text-[#667085] pointer-events-none" />
                 </div>
-                <div className="relative w-full">
-                  <select className="w-full appearance-none border border-[#e0e2e7] border-l-0 rounded-r-md py-2.5 px-3 pr-8 text-[14px] text-[#333843] bg-white h-[42px]">
+                <div className="relative w-2/3">
+                  <select className="w-full appearance-none border border-[#e0e2e7] border-l-0 rounded-r-md py-2 px-2 pr-6 text-[14px] text-[#333843] bg-white h-[40px]">
                     <option>Days</option>
                   </select>
-                  <ChevronDown size={16} className="absolute right-3 top-[13px] text-[#667085] pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-2 top-[13px] text-[#667085] pointer-events-none" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mt-4 md:mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-[13px] text-[#667085]">Terms & Conditions</h3>
@@ -254,13 +250,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <p>Please pay within 15 days of receiving this invoice.</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <h3 className="text-[13px] text-[#667085] mb-2">Bill Date</h3>
                 <div className="relative">
                   <input
                     type="text"
-                    className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text-left pr-10"
+                    className="w-full border border-[#e0e2e7] rounded-md py-2 px-2 text-[14px] text-[#333843] h-[40px] text-left pr-8"
                     value={billDate}
                     readOnly
                   />
@@ -269,9 +265,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       setBillDateOpen(!billDateOpen)
                       setPaymentDateOpen(false)
                     }}
-                    className="absolute right-3 top-[12px] text-[#1eb386]"
+                    className="absolute right-2 top-[10px] text-[#1eb386]"
                   >
-                    <CalendarIcon size={18} />
+                    <CalendarIcon size={16} />
                   </button>
 
                   {billDateOpen && (
@@ -307,7 +303,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <div className="relative">
                   <input
                     type="text"
-                    className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text- pr-10"
+                    className="w-full border border-[#e0e2e7] rounded-md py-2 px-2 text-[14px] text-[#333843] h-[40px] text- pr-8"
                     value={paymentDate}
                     readOnly
                   />
@@ -316,9 +312,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       setPaymentDateOpen(!paymentDateOpen)
                       setBillDateOpen(false)
                     }}
-                    className="absolute right-3 top-[12px] text-[#1eb386]"
+                    className="absolute right-2 top-[10px] text-[#1eb386]"
                   >
-                    <CalendarIcon size={18} />
+                    <CalendarIcon size={16} />
                   </button>
 
                   {paymentDateOpen && (
@@ -353,166 +349,167 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-        <div className="overflow-x-auto mb-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
-                <th className="py-3 px-4 text-left font-medium w-16">NO.</th>
-                <th className="py-3 px-4 text-left font-medium">ARTICLE</th>
-                <th className="py-3 px-4 text-right font-medium">QUANTITY</th>
-                <th className="py-3 px-4 text-right font-medium">UNIT PRICE</th>
-                <th className="py-3 px-4 text-right font-medium">TAX</th>
-                <th className="py-3 px-4 text-right font-medium">AMOUNT</th>
-                <th className="py-3 px-4 text-right font-medium">FINAL AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody>
-            {result && (
-    <tr className="border-b border-[#f0f1f3]">
-      <td className="py-4 px-4 text-[14px] text-[#333843]">1</td>
-      <td className="py-4 px-4">
-        <div>
-          <p className="text-[14px] text-[#333843] font-medium">{result.itemName}</p>
-          <p className="text-[13px] text-[#667085]">{result.itemCode}</p>
-        </div>
-      </td>
-      <td className="py-4 px-4 text-right">
-        <div>
-          <p className="text-[14px] text-[#333843]">{result.inventory}</p>
-          <p className="text-[13px] text-[#667085]">{result.measuringUnit}</p>
-        </div>
-      </td>
-      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹{result.salesPrice}</td>
-      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">{result.taxRate}%</td>
-      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
-        ₹{Number(result.inventory) * Number(result.salesPrice)}
-      </td>
-      <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
-        ₹{(Number(result.inventory) * Number(result.salesPrice) * (1 + Number(result.taxRate)/100)).toFixed(2)}
-      </td>
-    </tr>
-  )}
-            </tbody>
-          </table>
+        <div className="overflow-x-auto mb-4 -mx-2 sm:mx-0 rounded-md border border-[#f0f1f3]">
+          <div className="min-w-[900px] px-3 sm:px-0">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
+                  <th className="py-3 px-4 text-left font-medium w-16">NO.</th>
+                  <th className="py-3 px-4 text-left font-medium">ARTICLE</th>
+                  <th className="py-3 px-4 text-right font-medium">QUANTITY</th>
+                  <th className="py-3 px-4 text-right font-medium">UNIT PRICE</th>
+                  <th className="py-3 px-4 text-right font-medium">TAX</th>
+                  <th className="py-3 px-4 text-right font-medium">AMOUNT</th>
+                  <th className="py-3 px-4 text-right font-medium">FINAL AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result && (
+                  <tr className="border-b border-[#f0f1f3]">
+                    <td className="py-4 px-4 text-[14px] text-[#333843]">1</td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-[14px] text-[#333843] font-medium">{result.itemName}</p>
+                        <p className="text-[13px] text-[#667085]">{result.itemCode}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <div>
+                        <p className="text-[14px] text-[#333843]">{result.inventory}</p>
+                        <p className="text-[13px] text-[#667085]">{result.measuringUnit}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹{result.salesPrice}</td>
+                    <td className="py-4 px-4 text-right text-[14px] text-[#333843]">{result.taxRate}%</td>
+                    <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+                      ₹{Number(result.inventory) * Number(result.salesPrice)}
+                    </td>
+                    <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+                      ₹
+                      {(
+                        Number(result.inventory) *
+                        Number(result.salesPrice) *
+                        (1 + Number(result.taxRate) / 100)
+                      ).toFixed(2)}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="flex justify-between mt-4 mb-6">
-          <button className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[800px]">
-            <Plus size={16} className="mr-1.5" />
-            Add Item/Product/Service
-          </button>
-          <button 
-            onClick={() => {
-              setIsModalOpen(true);
-              startScanning();
-            }}
-          className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[370px] justify-center">
-            Scan Barcode
-            <svg
-              className="ml-2"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+        <div className="flex flex-col sm:flex-row justify-between mt-4 mb-6 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mt-4 mb-6">
+            <button className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] col-span-1 sm:col-span-3 justify-center sm:justify-start">
+              <Plus size={16} className="mr-1.5" />
+              <span>Add Item/Product/Service</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsModalOpen(true)
+                startScanning()
+              }}
+              className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] col-span-1 justify-center"
             >
-              <rect x="2" y="4" width="2" height="16" fill="#1eb386" />
-              <rect x="6" y="4" width="1" height="16" fill="#1eb386" />
-              <rect x="9" y="4" width="2" height="16" fill="#1eb386" />
-              <rect x="13" y="4" width="1" height="16" fill="#1eb386" />
-              <rect x="16" y="4" width="2" height="16" fill="#1eb386" />
-              <rect x="20" y="4" width="2" height="16" fill="#1eb386" />
-            </svg>
-          </button>
+              <span className="mr-1.5">Scan</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="4" width="2" height="16" fill="#1eb386" />
+                <rect x="6" y="4" width="1" height="16" fill="#1eb386" />
+                <rect x="9" y="4" width="2" height="16" fill="#1eb386" />
+                <rect x="13" y="4" width="1" height="16" fill="#1eb386" />
+                <rect x="16" y="4" width="2" height="16" fill="#1eb386" />
+                <rect x="20" y="4" width="2" height="16" fill="#1eb386" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <Dialog
-                open={isModalOpen}
-                onClose={() => {
-                    stopScanning();
-                    setIsModalOpen(false);
-                }}
-                className="relative z-50"
-            >
-                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          open={isModalOpen}
+          onClose={() => {
+            stopScanning()
+            setIsModalOpen(false)
+          }}
+          className="relative z-50"
+        >
+          <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
 
-                <div className="fixed inset-0 flex items-center justify-center p-4">
-                    <Dialog.Panel className="mx-auto max-w-md rounded bg-white p-4">
-                        <Dialog.Title className="text-lg font-bold mb-4">
-                            Scan QR Code
-                        </Dialog.Title>
+          <div className="fixed inset-0 flex items-center justify-center p-2">
+            <Dialog.Panel className="w-[95%] max-w-[350px] rounded-lg bg-white p-4">
+              <Dialog.Title className="text-lg font-bold mb-3 flex justify-between items-center">
+                <span>Scan QR Code</span>
+                <button className="bg-red-500 text-white px-3 py-1 rounded-md text-sm" onClick={stopScanning}>
+                  Close
+                </button>
+              </Dialog.Title>
 
-                        <div className="relative">
-                            <video
-                                id="preview"
-                                className="w-full rounded"
-                                style={{ maxWidth: '400px' }}
-                            ></video>
+              <div className="flex justify-center items-center bg-black/5 rounded-md p-2">
+                <video
+                  id="preview"
+                  className="w-full h-auto rounded"
+                  style={{ maxHeight: "50vh", aspectRatio: "1", objectFit: "cover" }}
+                ></video>
+              </div>
 
-                            <button
-                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
-                                onClick={stopScanning}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </Dialog.Panel>
-                </div>
-            </Dialog>
+              <p className="text-center text-sm text-gray-500 mt-3">Position the QR code within the frame</p>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
 
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">
-            <div className="flex justify-between bg-[#f7f7f7] p-3 rounded-md">
-              <span className="text-[14px] text-[#667085]">Subtotal</span>
-              <div className="flex gap-6">
+            <div className="flex flex-col sm:flex-row justify-between bg-[#f7f7f7] p-3 rounded-md">
+              <span className="text-[14px] text-[#667085] mb-2 sm:mb-0">Subtotal</span>
+              <div className="flex gap-2 sm:gap-6 overflow-x-auto pb-1 sm:pb-0">
                 <div className="text-right">
                   <p className="text-[14px] text-[#333843]">300</p>
                   <p className="text-[13px] text-[#667085]">Unit(s)</p>
                 </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">₹40</div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">₹0</div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">₹6,000</div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">₹6,000</div>
+                <div className="w-16 sm:w-20 text-right text-[14px] text-[#333843]">₹40</div>
+                <div className="w-16 sm:w-20 text-right text-[14px] text-[#333843]">₹0</div>
+                <div className="w-16 sm:w-20 text-right text-[14px] text-[#333843]">₹6,000</div>
+                <div className="w-16 sm:w-20 text-right text-[14px] text-[#333843]">₹6,000</div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-row justify-between items-center gap-2 sm:gap-0">
               <button className="flex items-center text-[#1eb386] text-[14px]">
                 <Plus size={16} className="mr-1.5" />
                 Add Additional Charges
               </button>
               <input
                 type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
+                className="w-[100px] sm:w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
                 defaultValue="₹0"
                 readOnly
               />
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-row justify-between items-center gap-2 sm:gap-0">
               <span className="text-[14px] text-[#333843] font-medium">Total Taxable Amount</span>
               <input
                 type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
+                className="w-[100px] sm:w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
                 defaultValue="₹6,000"
                 readOnly
               />
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-row justify-between items-center gap-2 sm:gap-0">
               <button className="flex items-center text-[#1eb386] text-[14px]">
                 <Plus size={16} className="mr-1.5" />
                 Add Discount
               </button>
               <input
                 type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
+                className="w-[100px] sm:w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
                 defaultValue="-₹0"
                 readOnly
               />
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
               <div className="flex items-center gap-2">
                 <div className="relative flex items-center">
                   <input
@@ -541,73 +538,79 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   Auto Round Off
                 </label>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2 sm:mt-0">
                 <div className="relative">
                   <button className="flex items-center text-[#333843] border border-[#e0e2e7] rounded-md py-1 px-2">
                     <Plus size={14} />
                     <ChevronDown size={14} />
                   </button>
                 </div>
-                <span className="text-[14px] text-[#333843] w-32 text-right">₹0</span>
+                <span className="text-[14px] text-[#333843] w-24 sm:w-32 text-right">₹0</span>
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-4 border-t border-[#f0f1f3]">
+            <div className="flex flex-row justify-between items-center gap-2 sm:gap-0 pt-4 border-t border-[#f0f1f3]">
               <span className="text-[14px] text-[#333843] font-medium">Total Payable Amount</span>
               <input
                 type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px]"
+                className="w-[100px] sm:w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px]"
                 placeholder="Enter Amount"
               />
             </div>
 
-            <button className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
-              Generate Invoice
-            </button>
+            <div className="flex justify-center">
+              <button className="w-full sm:w-full max-w-[280px] bg-[#1eb386] text-white py-3 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
+                Generate Invoice
+              </button>
+            </div>
 
-            <button
-              onClick={() => setShowPreviousInvoices(!showPreviousInvoices)}
-              className="w-full flex items-center justify-center text-[#1eb386] border border-[#e0e2e7] py-3.5 rounded-md hover:bg-[#f9f9f9] transition-colors mt-4 text-[14px]"
-            >
-              <Eye size={16} className="mr-1.5" />
-              {showPreviousInvoices ? "Hide Previous Invoices" : "Preview Previous Invoices"}
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowPreviousInvoices(!showPreviousInvoices)}
+                className="w-full sm:w-full max-w-[280px] flex items-center justify-center text-[#1eb386] border border-[#e0e2e7] py-3 rounded-md hover:bg-[#f9f9f9] transition-colors mt-4 text-[14px]"
+              >
+                <Eye size={16} className="mr-1.5" />
+                {showPreviousInvoices ? "Hide Previous Invoices" : "Preview Previous Invoices"}
+              </button>
+            </div>
           </div>
         </div>
 
         {showPreviousInvoices && (
-          <div className="border border-[#e0e2e7] rounded-md p-4 mt-6 w-full transition-all duration-300">
+          <div className="border border-[#e0e2e7] rounded-md p-3 sm:p-4 mt-6 w-full transition-all duration-300">
             <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
               <FileText size={16} className="mr-2 text-[#1eb386]" />
               Previous Invoices
             </h4>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
-                    <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
-                    <th className="py-2 px-3 text-left font-medium">DATE</th>
-                    <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
-                    <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
-                    <th className="py-2 px-3 text-center font-medium">ACTION</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previousInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
-                      <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
-                      <td className="py-3 px-3 text-center">
-                        <button className="text-[#1eb386] hover:text-[#40c79a]">
-                          <Eye size={16} />
-                        </button>
-                      </td>
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
+              <div className="min-w-[600px] px-3 sm:px-0">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
+                      <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
+                      <th className="py-2 px-3 text-left font-medium">DATE</th>
+                      <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
+                      <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
+                      <th className="py-2 px-3 text-center font-medium">ACTION</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {previousInvoices.map((invoice) => (
+                      <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
+                        <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
+                        <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
+                        <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
+                        <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
+                        <td className="py-3 px-3 text-center">
+                          <button className="text-[#1eb386] hover:text-[#40c79a]">
+                            <Eye size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
