@@ -241,11 +241,19 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   }
 
   const handleSaveInvoice = async () => {
-    try{
+    if (!userId) {
+      toast.error("You must be logged in to create an invoice");
+      return;
+    }
+
+    try {
+      // Convert Clerk userId string to integer
+      const numericUserId = parseInt(userId.replace(/\D/g, ''), 10);
+      
       const response = await fetch('/api/create-invoice', {
         method: 'POST',
         headers: {
-          'Content-Type' : 'application/json'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           billingAddress,
@@ -253,10 +261,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           billDate: new Date(billDate.split('/').reverse().join('-')),
           paymentDeadline: new Date(paymentDate.split('/').reverse().join('-')),
           items: results.map(item => ({
-        ...item,
-        beforeTaxAmount: Number(item.inventory) * Number(item.salesPrice),
-        afterTaxAmount: Number(item.inventory) * Number(item.salesPrice) * 
-          (1 + Number(item.taxRate) / 100)
+            ...item,
+            beforeTaxAmount: Number(item.inventory) * Number(item.salesPrice),
+            afterTaxAmount: Number(item.inventory) * Number(item.salesPrice) * 
+              (1 + Number(item.taxRate) / 100)
           })),
           totalTax: calculateTotalTax(),
           totalBeforeTax: calculateTotalBeforeTax(),
@@ -265,13 +273,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           roundOff,
           discount,
           totalPayableAmount: calculateFinalAmount(),
-          userId,
+          userId: numericUserId
         })
       });
       if(response.ok){
         const data = await response.json()
         toast.success('Invoice Generated Successfully')
-        onClose();
       }else{
         toast.error('Something went wrong');
       }
@@ -388,7 +395,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     type="text"
                     className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text-left pr-10"
                     value={billDate}
-                    readOnly
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Basic date format validation (DD/MM/YYYY)
+                      if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
+                        setBillDate(value);
+                      }
+                    }}
+                    placeholder="DD/MM/YYYY"
                   />
                   <button
                     onClick={() => {
@@ -447,7 +461,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     type="text"
                     className="w-full border border-[#e0e2e7] rounded-md py-2.5 px-3 text-[14px] text-[#333843] h-[42px] text- pr-10"
                     value={paymentDate}
-                    readOnly
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Basic date format validation (DD/MM/YYYY)
+                      if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
+                        setPaymentDate(value);
+                      }
+                    }}
+                    placeholder="DD/MM/YYYY"
                   />
                   <button
                     onClick={() => {
@@ -630,7 +651,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">
-            <div className="flex justify-between bg-[#f7f7f7] p-3 rounded-md">
+            <div className="flex justify-between bg-[#f7f7f7] p-3 rounded-md font-semibold">
               <span className="text-[14px] text-[#667085]">Subtotal</span>
               <div className="flex gap-6">
                 <div className="text-right">
@@ -659,8 +680,11 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <input
                 type="text"
                 value={additionalCharges}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, '');
+                  setAdditionalCharges(Number(value) || 0);
+                }}
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-                defaultValue="₹0"
               />
             </div>
 
@@ -668,11 +692,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <span className="text-[14px] text-[#333843] font-medium">
                 Total Taxable Amount
               </span>
-              <input
-                type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-                value={(calculateTotalAfterTax()).toFixed(2)}
-              />
+              <div className="w-32 rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px] flex items-center justify-end font-bold">
+                {(calculateTotalAfterTax()).toFixed(2)}
+              </div>
             </div>
 
             <div className="flex justify-between items-center">
@@ -682,8 +704,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               </button>
               <input
                 type="text"
+                value={discount}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, '');
+                  setDiscount(Number(value) || 0);
+                }}
                 className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-right text-[14px] text-[#333843] h-[36px]"
-                defaultValue="-₹0"
               />
             </div>
 
@@ -736,12 +762,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <span className="text-[14px] text-[#333843] font-medium">
                 Total Payable Amount
               </span>
-              <input
-                type="text"
-                className="w-32 border border-[#e0e2e7] rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px]"
-                placeholder="Enter Amount"
-                value={(calculateFinalAmount()).toFixed(2)}
-              />
+              <div className="w-32 rounded-md py-2 px-3 text-left text-[14px] text-[#333843] h-[36px] font-bold">
+                {calculateFinalAmount().toFixed(2)}
+              </div>
             </div>
 
             <button onClick={handleSaveInvoice} className="w-full bg-[#1eb386] text-white py-3.5 rounded-md hover:bg-[#40c79a] transition-colors mt-6 text-[14px]">
