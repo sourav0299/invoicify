@@ -1,29 +1,29 @@
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, type Db } from "mongodb"
 
-const uri = process.env.NEXT_PUBLIC_MONGODB_URI;
-const dbName = process.env.NEXT_PUBLIC_MONGODB_DB;
+const uri = process.env.NEXT_PUBLIC_MONGODB_URI
+const dbName = process.env.NEXT_PUBLIC_MONGODB_DB
 
-let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+let cachedClient: MongoClient | null = null
+let cachedDb: Db | null = null
 
 if (!uri) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error("Please define the NEXT_PUBLIC_MONGODB_URI environment variable")
 }
 
 if (!dbName) {
-  throw new Error('Please define the MONGODB_DB environment variable');
+  throw new Error("Please define the NEXT_PUBLIC_MONGODB_DB environment variable")
 }
 
 export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
   if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+    return { client: cachedClient, db: cachedDb }
   }
 
-  const client = await MongoClient.connect(uri!);
-  const db = client.db(dbName);
+  const client = await MongoClient.connect(uri!)
+  const db = client.db(dbName)
 
-  cachedClient = client;
-  cachedDb = db;
+  cachedClient = client
+  cachedDb = db
 
-  return { client, db };
+  return { client, db }
 }

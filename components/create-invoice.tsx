@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Plus } from "lucide-react"
+import { useState, useCallback, useEffect } from "react"
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search } from "lucide-react"
 import { BrowserQRCodeReader } from "@zxing/browser"
 import { Dialog } from "@headlessui/react"
 import toast from "react-hot-toast"
@@ -72,6 +72,75 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       amount: "₹9,200",
     },
   ])
+
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout
+    return (...args: any[]) => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        func(...args)
+      }, delay)
+    }
+  }
+
+  const searchProducts = useCallback(
+    debounce(async (query: string) => {
+      if (!query.trim()) {
+        setSearchResults([])
+        setIsSearching(false)
+        return
+      }
+
+      try {
+        setIsSearching(true)
+        console.log("Searching for:", query)
+
+        const response = await fetch(`/api/products?search=${encodeURIComponent(query)}`)
+        console.log("Search response status:", response.status)
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("Search results:", data)
+          setSearchResults(data)
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          console.error("Failed to fetch products:", response.status, errorData)
+          toast.error("Failed to search products")
+        }
+      } catch (error) {
+        console.error("Error searching products:", error)
+        toast.error("Error searching products")
+      } finally {
+        setIsSearching(false)
+      }
+    }, 500),
+    [],
+  )
+
+  const addProductToInvoice = (product: any) => {
+    const newItem: ScanData = {
+      userEmail: "",
+      itemName: product.name || "Product",
+      itemType: "Product",
+      itemCode: product._id || "",
+      inventory: "1",
+      measuringUnit: product.unit || "Piece",
+      salesPrice: product.price?.toString() || "0",
+      taxIncluded: false,
+      taxRate: product.taxRate?.toString() || "18",
+    }
+
+    setResults([...results, newItem])
+    setSearchQuery("")
+    setSearchResults([])
+    setShowSearchResults(false)
+    toast.success("Item added successfully!")
+  }
 
   const months = [
     "January",
@@ -268,6 +337,20 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       toast.error("Something went wrong")
     }
   }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest(".search-container")) {
+        setShowSearchResults(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <div className="bg-white p-6 min-h-screen">
@@ -547,10 +630,50 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         </div>
 
         <div className="flex justify-between mt-4 mb-6">
-          <button className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[800px]">
-            <Plus size={16} className="mr-1.5" />
-            Add Item/Product/Service
-          </button>
+          <div className="relative w-[800px] search-container">
+            <div className="flex items-center border border-[#e0e2e7] rounded-md overflow-hidden">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  searchProducts(e.target.value)
+                  setShowSearchResults(true)
+                }}
+                onFocus={() => setShowSearchResults(true)}
+                placeholder="Search for products..."
+                className="py-3 px-4 text-[14px] w-full outline-none"
+              />
+              <div className="px-3 text-[#667085]">
+                <Search size={18} />
+              </div>
+            </div>
+
+            {showSearchResults && (searchResults.length > 0 || isSearching) && (
+              <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e0e2e7] rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                {isSearching ? (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">Searching...</div>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((product, index) => (
+                    <div
+                      key={index}
+                      onClick={() => addProductToInvoice(product)}
+                      className="p-3 hover:bg-[#f7f7f7] cursor-pointer border-b border-[#f0f1f3] last:border-b-0"
+                    >
+                      <div className="text-[14px] font-medium text-[#333843]">{product.name}</div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-[13px] text-[#667085]">{product.code || "No code"}</span>
+                        <span className="text-[13px] font-medium text-[#333843]">₹{product.price || "0"}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">No products found</div>
+                )}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => {
               setIsModalOpen(true)
