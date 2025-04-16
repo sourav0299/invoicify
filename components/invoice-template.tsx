@@ -81,7 +81,7 @@ export default function InvoiceTemplate({
 
   return (
     <div className="invoice-template" style={{ fontFamily: styles.fontFamily }}>
-      {/* Header section with company info and logo */}
+      
       <div className={`p-6 ${styles.headerBg} rounded-t-lg`}>
         <div className="flex flex-col md:flex-row justify-between">
           {showImage && (
@@ -123,7 +123,7 @@ export default function InvoiceTemplate({
         </div>
       </div>
 
-      {/* Invoice details */}
+     
       <div className="p-6 border-t border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -153,7 +153,7 @@ export default function InvoiceTemplate({
         )}
       </div>
 
-      {/* Invoice items */}
+  
       <div className="px-6 py-4">
         <table className={`w-full border-collapse ${styles.tableBg}`}>
           <thead>
@@ -200,7 +200,7 @@ export default function InvoiceTemplate({
         </table>
       </div>
 
-      {/* Totals */}
+     
       <div className="px-6 py-4 flex justify-end">
         <div className="w-64">
           <div className="flex justify-between py-1">
@@ -230,7 +230,7 @@ export default function InvoiceTemplate({
         </div>
       </div>
 
-      {/* Terms */}
+    
       <div className="px-6 py-4 border-t border-gray-200">
         <p className="font-medium text-sm">Terms & Conditions</p>
         <p className="text-gray-600 text-sm">Please pay within 15 days of receiving this invoice.</p>

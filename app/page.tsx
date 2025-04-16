@@ -149,7 +149,7 @@ export default function landing() {
   return (
     <>
       <section className="min-h-screen bg-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[28%] h-full bg-gradient-to-b from-[#1a9b73] to-[#0d4d39]" />
+        <div className="absolute top-0 right-0 w-0 sm:w-[28%] h-full bg-gradient-to-b from-[#1a9b73] to-[#0d4d39]" />
 
         <header className="relative z-10 flex items-center justify-between px-3 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
@@ -166,18 +166,18 @@ export default function landing() {
           </div>
         </header>
 
-        <div className="relative z-10 px-6 lg:px-8 max-w-7xl mx-auto h-[calc(100vh-76px)]  w-full">
+        <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto h-auto min-h-[calc(100vh-76px)] w-full">
           <div className="grid lg:grid-cols-2 items-start h-full">
-            <div className="relative right-11 py-12 lg:py-24 max-w-[600px] px-5 mt-20">
-              <h1 className="sm:text-[40px] tracking-tight text-gray-900 leading-tight font-Inter font-semibold">
+            <div className="relative py-8 sm:py-12 lg:py-24 max-w-[600px] px-0 sm:px-5 mt-8 sm:mt-20 mx-auto text-center lg:text-left lg:right-11">
+              <h1 className="text-3xl sm:text-[40px] tracking-tight text-gray-900 leading-tight font-Inter font-semibold">
                 Streamline Your Business with Smart Billing and Management Solutions
               </h1>
-              <p className="mt-5 text-[20px] leading-8 text-gray-600">
+              <p className="mt-4 sm:mt-5 text-lg sm:text-[20px] leading-8 text-gray-600">
                 Automate invoicing, manage expenses, track sales, and enhance client relationships all in one intuitive
                 platform for improved efficiency and growth.
               </p>
-              <div className="mt-8">
-                <button className="mt-8 group inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+              <div className="mt-6 sm:mt-8">
+                <button className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
                   <span>
                     <a href="/dashboard">Get Started Now</a>
                   </span>
@@ -186,7 +186,7 @@ export default function landing() {
               </div>
             </div>
 
-            <div className="absolute right-0 top-[76px] bottom-0 w-[55%]">
+            <div className="absolute right-0 top-[76px] bottom-0 w-[55%] hidden md:block">
               <Image
                 src="/chart.png"
                 alt="Business analytics dashboard with charts"
@@ -216,7 +216,7 @@ export default function landing() {
           </p>
 
           <div className="h-22" ref={statsRef}>
-            <div className="mt-16 grid grid-cols-1 gap-10 font-Inter sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)]">
+            <div className="mt-16 grid grid-cols-1 gap-8 font-Inter sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 border-y-[1px] py-8 sm:py-10 border-dashed border-[#869E9D] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,#F0F7F7_24.2%,#F0F7F7_74.85%,rgba(255,255,255,0)_100%)] text-center">
               <div className="flex flex-col gap-y-3">
                 <dt className="text-5xl font-semibold tracking-tight text-gray-900">
                   {useCounter(300, 1500, 0, isStatsVisible)}+
@@ -251,9 +251,9 @@ export default function landing() {
               smooth, efficient, and hassle-free.
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 md:grid-cols-3">
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
-              <div className="flex justify-start flex-col items-start">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <div className="flex items-center justify-center gap-2">
                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="20" r="19.5" fill="white" strokeWidth="#A3BFBE" />
@@ -276,7 +276,7 @@ export default function landing() {
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
-              <div className="flex justify-start flex-col items-start">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <div className="flex items-center justify-center gap-2">
                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="20" r="19.5" fill="white" strokeWidth="#A3BFBE" />
@@ -299,7 +299,7 @@ export default function landing() {
               </div>
             </div>
             <div className="flex flex-col  gap-4 pt-6 pl-8 bg-slate-100 rounded-lg shadow-sm border">
-              <div className="flex justify-start flex-col items-start">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <div className="flex items-center justify-center gap-2">
                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="20" r="19.5" fill="white" strokeWidth="#A3BFBE" />
@@ -327,7 +327,7 @@ export default function landing() {
 
       <section className="py-16 md:py-24 font-Inter">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-[1fr,2fr] gap-12">
-          <div className="space-y-4">
+          <div className="space-y-4 text-center md:text-left">
             <h2 className="text-sm font-medium tracking-wide text-[#667085] uppercase">OUR SERVICES</h2>
             <h3 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#212626]">
               Simplify running your business with Invoicify
@@ -339,14 +339,14 @@ export default function landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
             {services.map((service, index) => (
-              <div key={index} className="space-y-4">
-                <div className="flex items-start gap-4">
+              <div key={index} className="space-y-4 text-center md:text-left">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[#d8f6e5] flex items-center justify-center">
                     <service.icon className="w-6 h-6 text-[#09857e]" />
                   </div>
                   <h4 className="text-xl font-semibold text-[#212626]">{service.title}</h4>
                 </div>
-                <p className="text-[#667085] pl-16">{service.description}</p>
+                <p className="text-[#667085] pl-0 sm:pl-16">{service.description}</p>
                 <div className="border-b border-dashed border-[#869e9d] pt-2 opacity-50"></div>
               </div>
             ))}
@@ -364,9 +364,9 @@ export default function landing() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative">
+      <section className="container mx-auto px-4 py-12 sm:py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="relative order-2 md:order-1">
             <Image
               src="/MultipleBusiness.png"
               alt="Business management dashboard interface"
@@ -376,53 +376,48 @@ export default function landing() {
             />
           </div>
 
-          <div className="space-y-10">
-            <h2 className="text-3xl font-bold tracking-tight lg:text-4xl">
+          <div className="space-y-8 md:space-y-10 order-1 md:order-2 text-center md:text-left">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight lg:text-4xl">
               Manage multiple businesses on a single platform
             </h2>
 
-            <div className="space-y-8">
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-                  <span className="text-emerald-500 font-semibold text-xl">1</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">
-                    Easy Login{" "}
-                    <span className="font-normal text-gray-600">
-                      — Securely access your account with a simple login steps.
-                    </span>
-                  </h3>
-                </div>
-              </div>
+            <div className="space-y-10">
+              {[
+                {
+                  number: 1,
+                  title: "Easy Login",
+                  description: "Securely access your account with a simple login steps.",
+                },
+                {
+                  number: 2,
+                  title: "Create Businesses",
+                  description: "Set up new business profiles quickly and effortlessly.",
+                },
+                {
+                  number: 3,
+                  title: "Manage Multiple Businesses",
+                  description: "Seamlessly switch between businesses and manage all in one app.",
+                },
+              ].map((step, index) => (
+                <div key={index} className="flex items-start gap-6 relative">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center relative z-10">
+                    <span className="text-emerald-500 font-semibold text-xl animate-pulse">{step.number}</span>
+                  </div>
 
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-                  <span className="text-emerald-500 font-semibold text-xl">2</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">
-                    Create Businesses{" "}
-                    <span className="font-normal text-gray-600">
-                      — Set up new business profiles quickly and effortlessly.
-                    </span>
-                  </h3>
-                </div>
-              </div>
+                  {/* Animated vertical line connecting steps */}
+                  {index < 2 && (
+                    <div className="absolute left-6 top-12 w-0.5 h-10 bg-gradient-to-b from-emerald-500 to-emerald-100 transform -translate-x-1/2">
+                      <div className="absolute w-full h-1/2 bg-emerald-500 animate-pulse"></div>
+                    </div>
+                  )}
 
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-                  <span className="text-emerald-500 font-semibold text-xl">3</span>
+                  <div className="pt-2">
+                    <h3 className="text-xl font-semibold mb-1">
+                      {step.title} <span className="font-normal text-gray-600">— {step.description}</span>
+                    </h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">
-                    Manage Multiple Businesses{" "}
-                    <span className="font-normal text-gray-600">
-                      — Seamlessly switch between businesses and manage all in one app.
-                    </span>
-                  </h3>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -433,17 +428,20 @@ export default function landing() {
           <h2 className="text-lg font-medium text-gray-600 mb-2">CLIENT TESTIMONIALS</h2>
           <h3 className="text-4xl font-bold text-gray-900 mb-12">What our users are saying</h3>
 
-          <div className="relative">
+          <div className="relative px-4">
             <div className="overflow-hidden">
               <div
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
                 {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                  <div key={slideIndex} className="w-full flex-shrink-0 flex gap-6 justify-center px-4">
+                  <div
+                    key={slideIndex}
+                    className="w-full flex-shrink-0 flex flex-col sm:flex-row gap-6 justify-center px-0 sm:px-4"
+                  >
                     {testimonials.slice(slideIndex * 2, slideIndex * 2 + 2).map((testimonial) => (
-                      <div key={testimonial.id} className="w-full max-w-md">
-                        <div className="bg-white rounded-lg p-8 shadow-sm border h-full">
+                      <div key={testimonial.id} className="w-full max-w-md mb-6 sm:mb-0">
+                        <div className="bg-white rounded-lg p-4 sm:p-8 shadow-sm border h-full">
                           <div className="flex items-center gap-3 mb-6">
                             <Image
                               src={testimonial.image || "/placeholder.svg"}
@@ -461,7 +459,9 @@ export default function landing() {
                             </div>
                           </div>
                           <div className="border-[1px] border-dashed mb-4"></div>
-                          <blockquote className="text-gray-700 text-lg text-left">"{testimonial.quote}"</blockquote>
+                          <blockquote className="text-gray-700 text-base sm:text-lg text-left">
+                            "{testimonial.quote}"
+                          </blockquote>
                         </div>
                       </div>
                     ))}
@@ -473,7 +473,7 @@ export default function landing() {
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-0 sm:-translate-x-4 bg-white"
               onClick={prevSlide}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -482,7 +482,7 @@ export default function landing() {
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-0 sm:translate-x-4 bg-white"
               onClick={nextSlide}
             >
               <ChevronRight className="h-4 w-4" />
@@ -506,7 +506,7 @@ export default function landing() {
       <footer className="bg-emerald-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="py-16 lg:py-24">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
                 <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
                   Start using Invoicify today
@@ -519,14 +519,14 @@ export default function landing() {
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
-              <div className="relative h-[300px] lg:h-[400px]">
+              <div className="relative h-[300px] lg:h-[400px] hidden sm:block">
                 <Image src="/cc.png" alt="Invoicify dashboard interface" fill className="object-contain" priority />
               </div>
             </div>
           </div>
 
           <div className="py-8 border-t border-gray-200">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-8">
               <div className="flex items-center gap-2">
                 <Image src="/Logo.png" alt="Invoicify" width={35} height={35} />
                 <span className="text-xl font-semibold">Invoicify</span>
@@ -557,7 +557,7 @@ export default function landing() {
                 </ul>
               </nav> */}
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mt-4 md:mt-0">
                 <Link
                   href="https://www.facebook.com/minesh.patel.146"
                   className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
