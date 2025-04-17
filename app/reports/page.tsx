@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 export default function Reports() {
   const [activeTab, setActiveTab] = useState("party")
@@ -212,6 +213,8 @@ export default function Reports() {
     link.click()
     document.body.removeChild(link)
   }
+
+  useUserCheck()
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 p-3 sm:p-6 bg-gray-50 min-h-screen">

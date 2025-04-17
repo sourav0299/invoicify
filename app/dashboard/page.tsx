@@ -13,39 +13,42 @@ import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
 import { useRouter } from "next/navigation"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
-async function checkUser() {
-  try {
-    const response = await fetch("/api/middleware/check-user", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
+// async function checkUser() {
+//   try {
+//     const response = await fetch("/api/middleware/check-user", {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       credentials: "include",
+//     })
 
-    const data = await response.json()
+//     const data = await response.json()
 
-    if (!response.ok) {
-      return {
-        error: data.error,
-        status: response.status,
-      }
-    }
+//     if (!response.ok) {
+//       return {
+//         error: data.error,
+//         status: response.status,
+//       }
+//     }
 
-    return {
-      user: data.user,
-      message: data.message,
-    }
-  } catch (error) {
-    return {
-      error: "Connection failed",
-      status: 500,
-    }
-  }
-}
+//     return {
+//       user: data.user,
+//       message: data.message,
+//     }
+//   } catch (error) {
+//     return {
+//       error: "Connection failed",
+//       status: 500,
+//     }
+//   }
+// }
+
+
 
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
@@ -71,33 +74,35 @@ export default function DashboardPage() {
     { name: "Profit", value: 500000000, color: "#40c79a" },
   ]
 
-  useEffect(() => {
-    const verifyUser = async () => {
-      try {
-        const result = await checkUser()
+  useUserCheck();
 
-        if (result.error) {
-          switch (result.status) {
-            case 401:
-              router.push("/login")
-              break
-            case 404:
-              router.push("/sync-user")
-              break
-            default:
-              router.push("/sync-user")
-              break
-          }
-          return
-        }
-      } catch (error) {
-        console.error("Verification error:", error)
-        router.push("/error")
-      }
-    }
+  // useEffect(() => {
+  //   const verifyUser = async () => {
+  //     try {
+  //       const result = await checkUser()
 
-    verifyUser()
-  }, [router])
+  //       if (result.error) {
+  //         switch (result.status) {
+  //           case 401:
+  //             router.push("/login")
+  //             break
+  //           case 404:
+  //             router.push("/sync-user")
+  //             break
+  //           default:
+  //             router.push("/sync-user")
+  //             break
+  //         }
+  //         return
+  //       }
+  //     } catch (error) {
+  //       console.error("Verification error:", error)
+  //       router.push("/error")
+  //     }
+  //   }
+
+  //   verifyUser()
+  // }, [router])
 
   // If showFullView is set, render only the corresponding detail view
   if (showFullView) {

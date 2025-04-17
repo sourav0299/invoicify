@@ -8,6 +8,7 @@ import axios from "axios"
 import { FaLocationCrosshairs } from "react-icons/fa6"
 import { ArrowUpFromLine } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 const PhotoIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -269,7 +270,7 @@ const BusinessSettings = () => {
     }
   }
 
-
+  useUserCheck()
   return (
     <div className="bg-universal_gray_background pb-10">
       <div className="px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">

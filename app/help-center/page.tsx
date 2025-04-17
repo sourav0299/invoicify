@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 
 const faqData = {
@@ -149,7 +150,8 @@ export default function HelpCenter() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  
+  useUserCheck()
+
   useEffect(() => {
     if (activeTab === "chat") {
       setTimeout(() => inputRef.current?.focus(), 100)
