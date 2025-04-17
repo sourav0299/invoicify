@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronDown, Download, Eye, Send, X } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 export default function InvoicePage() {
   const [showCreateInvoice, setShowCreateInvoice] = useState(false)
@@ -43,6 +44,8 @@ export default function InvoicePage() {
     setSortBy(option)
     setShowSortDropdown(false)
   }
+
+  useUserCheck();
 
   return (
     <div className="bg-universal_white_background min-h-screen">

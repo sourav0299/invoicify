@@ -8,6 +8,7 @@ import "../globals.css"
 import { Tooltip } from "react-tooltip"
 import "react-tooltip/dist/react-tooltip.css"
 import { ArrowUpDown, Trash2, CheckSquare, Square, ChevronDown, ChevronRight } from "lucide-react"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -158,6 +159,8 @@ const Modal: React.FC = () => {
     setProductToDelete(product)
     setShowDeleteConfirmation(true)
   }
+
+  useUserCheck()
 
   const handleDeleteConfirm = async () => {
     if (productToDelete) {

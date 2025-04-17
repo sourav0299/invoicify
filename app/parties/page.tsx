@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import "../globals.css"
 import "react-tooltip/dist/react-tooltip.css"
 import { Search, ChevronDown, ChevronRight } from "lucide-react"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -328,6 +329,8 @@ const Modal: React.FC = () => {
 
     return matchesSearch && matchesCategory
   })
+
+  useUserCheck()
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-3 sm:px-6 bg-universal_gray_background">

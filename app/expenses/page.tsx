@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import { useUser } from "@clerk/nextjs"
 import { ChevronDown, Search, Trash2, ChevronRight } from "lucide-react"
+import { useUserCheck } from "@/helper/useUserCheck"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -305,6 +306,8 @@ const ExpensesManager: React.FC = () => {
   useEffect(() => {
     fetchExpenseList()
   }, [])
+
+  useUserCheck()
 
   return (
     <div className="flex flex-col gap-3 pt-3 px-3 sm:px-6 bg-gray-50">
