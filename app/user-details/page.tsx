@@ -438,7 +438,7 @@ const UserDetails = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 mt-6">
+          <div className="flex gap-3 mt-6 lg:ml-72">
             <button
               className="bg-universal_white_background px-4 h-12 py-2 border border-business_settings_gray_border flex items-center justify-center rounded-lg flex-1 hover:bg-universal_gray_background/50 transition-colors duration-200 text-sm font-medium"
               onClick={() => fetchUserDetails()}
