@@ -268,3 +268,11 @@ export default function InvoicePage() {
     </div>
   )
 }
+function setSortBy(option: string) {
+  throw new Error("Function not implemented.")
+}
+
+function setShowSortDropdown(arg0: boolean) {
+  throw new Error("Function not implemented.")
+}
+
