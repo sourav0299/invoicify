@@ -149,7 +149,6 @@ const Modal: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
-  const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [expandedProducts, setExpandedProducts] = useState<string[]>([])
 
@@ -429,7 +428,6 @@ const Modal: React.FC = () => {
       setSelectedCategory(newCategoryName)
 
       setNewCategoryName("")
-      setShowCategoryForm(false)
     }
   }
 
@@ -1014,16 +1012,15 @@ const Modal: React.FC = () => {
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-w-[95%] mx-auto">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">Confirm Product Deletion</h3>
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <Trash2 className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Delete Item</h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">Are you sure you want to delete the following product?</p>
-                      {productToDelete && (
-                        <ul className="mt-2 list-disc">
-                          <li>Name: {productToDelete.itemName}</li>
-                          <li>Price: {productToDelete.salesPrice}</li>
-                        </ul>
-                      )}
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete this item? This action cannot be undone.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1104,41 +1101,34 @@ const Modal: React.FC = () => {
                     <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                       <div className="bg-transparent w-full text-xs text-sidebar_black_text text-start">Category</div>
                       <div className="flex flex-col w-full gap-2">
-                        <div className="flex gap-2">
-                          <div className="relative w-full">
-                            <select
-                              name="category"
-                              value={product.category}
-                              onChange={handleInputChange}
-                              className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 px-2 appearance-none"
-                            >
-                              <option value="">Select a category</option>
-                              {categories.map((category, index) => (
-                                <option key={index} value={category}>
-                                  {category}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                              <CaretIcon isOpen={isDropdownOpen} />
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <div className="relative w-full">
+                              <select
+                                name="category"
+                                value={product.category}
+                                onChange={handleInputChange}
+                                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1 px-2 appearance-none"
+                              >
+                                <option value="">Select a category</option>
+                                {categories.map((category, index) => (
+                                  <option key={index} value={category}>
+                                    {category}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <CaretIcon isOpen={isDropdownOpen} />
+                              </div>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => setShowCategoryForm(!showCategoryForm)}
-                            className="w-full max-w-[160px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold"
-                          >
-                            Create New Category
-                          </button>
-                        </div>
 
-                        {showCategoryForm && (
-                          <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-2 items-start sm:items-center">
+                          <div className="flex flex-col sm:flex-row flex-wrap gap-2 items-start sm:items-center">
                             <input
                               type="text"
                               value={newCategoryName}
                               onChange={(e) => setNewCategoryName(e.target.value)}
-                              placeholder="Enter category name"
+                              placeholder="Enter new category name"
                               className="bg-transparent border border-business_settings_gray_border border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
                             />
                             <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
@@ -1152,7 +1142,6 @@ const Modal: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setShowCategoryForm(false)
                                   setNewCategoryName("")
                                 }}
                                 className="border border-gray-300 bg-white text-gray-700 rounded text-sm font-semibold h-8 px-4"
@@ -1161,7 +1150,7 @@ const Modal: React.FC = () => {
                               </button>
                             </div>
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
