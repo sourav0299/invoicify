@@ -353,26 +353,33 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   }, [])
 
   return (
-    <div className="bg-white p-6 min-h-screen">
+    <div className="bg-white p-4 sm:p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
           <div>
-            <h1 className="text-[22px] font-semibold text-[#212626]">Create Invoice</h1>
-            <p className="text-[14px] text-[#667085] mt-1">An Overview of all your transactions over the year.</p>
+            <h1 className="text-xl sm:text-[22px] font-semibold text-[#212626]">Create Invoice</h1>
+            <p className="text-[13px] sm:text-[14px] text-[#667085] mt-1">
+              An Overview of all your transactions over the year.
+            </p>
           </div>
-          <div className="flex gap-3">
+          <div>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px]"
+              className="px-4 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px] w-full sm:w-auto"
             >
-              Preview Invoices
+              <span className="flex items-center justify-center">
+                <Eye className="mr-2 h-4 w-4" />
+                Preview Invoices
+              </span>
             </button>
           </div>
         </div>
 
-        <div className="bg-white border border-[#f0f1f3] rounded-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
-            <div className="">
+        {/* Invoice Details Form */}
+        <div className="bg-white border border-[#f0f1f3] rounded-md p-4 sm:p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-3">
+            <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Brand Name</h3>
               <input
                 type="text"
@@ -382,7 +389,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 placeholder="eg. Reliance"
               />
             </div>
-            <div className="">
+            <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Party Contact Email</h3>
               <input
                 type="text"
@@ -393,8 +400,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-3">
-            <div className="">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-3">
+            <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Party Contact Number</h3>
               <input
                 type="text"
@@ -404,7 +411,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 placeholder="eg. 9876543210"
               />
             </div>
-            <div className="">
+            <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Party GSTIN No:</h3>
               <input
                 type="text"
@@ -416,7 +423,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Billing Address</h3>
               <textarea
@@ -426,7 +433,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 className="border border-[#e0e2e7] rounded-md p-4 h-[72px] flex items-center justify-center w-full resize-none"
               ></textarea>
             </div>
-            <div className="">
+            <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Sales Invoice No:</h3>
               <input
                 type="text"
@@ -438,7 +445,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div></div>
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Payment Terms:</h3>
@@ -459,7 +466,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-[13px] text-[#667085]">Terms & Conditions</h3>
@@ -468,7 +475,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <p>Please pay within 30 days of receiving this invoice.</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <h3 className="text-[13px] text-[#667085] mb-2">Bill Date</h3>
                 <div className="relative">
@@ -581,41 +588,46 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-        <div className="overflow-x-auto mb-4">
+        {/* Products Table */}
+        <div className="overflow-x-auto mb-4 rounded-md border border-[#f0f1f3]">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
-                <th className="py-3 px-4 text-left font-medium w-16">NO.</th>
-                <th className="py-3 px-4 text-left font-medium">ARTICLE</th>
-                <th className="py-3 px-4 text-right font-medium">QUANTITY</th>
-                <th className="py-3 px-4 text-right font-medium">UNIT PRICE</th>
-                <th className="py-3 px-4 text-right font-medium">TAX</th>
-                <th className="py-3 px-4 text-right font-medium">AMOUNT</th>
-                <th className="py-3 px-4 text-right font-medium">FINAL AMOUNT</th>
+                <th className="py-3 px-2 sm:px-4 text-left font-medium w-12 sm:w-16">NO.</th>
+                <th className="py-3 px-2 sm:px-4 text-left font-medium">ARTICLE</th>
+                <th className="py-3 px-2 sm:px-4 text-right font-medium">QTY</th>
+                <th className="py-3 px-2 sm:px-4 text-right font-medium">PRICE</th>
+                <th className="py-3 px-2 sm:px-4 text-right font-medium">TAX</th>
+                <th className="py-3 px-2 sm:px-4 text-right font-medium hidden sm:table-cell">AMOUNT</th>
+                <th className="py-3 px-2 sm:px-4 text-right font-medium">TOTAL</th>
               </tr>
             </thead>
             <tbody>
               {results.map((result, index) => (
                 <tr key={index} className="border-b border-[#f0f1f3]">
-                  <td className="py-4 px-4 text-[14px] text-[#333843]">{index + 1}</td>
-                  <td className="py-4 px-4">
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-[13px] sm:text-[14px] text-[#333843]">{index + 1}</td>
+                  <td className="py-3 sm:py-4 px-2 sm:px-4">
                     <div>
-                      <p className="text-[14px] text-[#333843] font-medium">{result.itemName}</p>
-                      <p className="text-[13px] text-[#667085]">{result.itemCode}</p>
+                      <p className="text-[13px] sm:text-[14px] text-[#333843] font-medium">{result.itemName}</p>
+                      <p className="text-[12px] sm:text-[13px] text-[#667085]">{result.itemCode}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-right">
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-right">
                     <div>
-                      <p className="text-[14px] text-[#333843]">{result.inventory}</p>
-                      <p className="text-[13px] text-[#667085]">{result.measuringUnit}</p>
+                      <p className="text-[13px] sm:text-[14px] text-[#333843]">{result.inventory}</p>
+                      <p className="text-[12px] sm:text-[13px] text-[#667085]">{result.measuringUnit}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">₹{result.salesPrice}</td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">{result.taxRate}%</td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-right text-[13px] sm:text-[14px] text-[#333843]">
+                    ₹{result.salesPrice}
+                  </td>
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-right text-[13px] sm:text-[14px] text-[#333843]">
+                    {result.taxRate}%
+                  </td>
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-right text-[13px] sm:text-[14px] text-[#333843] hidden sm:table-cell">
                     ₹{Number(result.inventory) * Number(result.salesPrice)}
                   </td>
-                  <td className="py-4 px-4 text-right text-[14px] text-[#333843]">
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-right text-[13px] sm:text-[14px] text-[#333843]">
                     ₹
                     {(
                       Number(result.inventory) *
@@ -625,12 +637,20 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   </td>
                 </tr>
               ))}
+              {results.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-[#667085] text-[14px]">
+                    No items added to invoice yet. Search for products or scan a barcode to add items.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="flex justify-between mt-4 mb-6">
-          <div className="relative w-[800px] search-container">
+        {/* Search and Scan Section */}
+        <div className="flex flex-col sm:flex-row justify-between mt-4 mb-6 gap-4">
+          <div className="relative w-full sm:w-2/3 search-container">
             <div className="flex items-center border border-[#e0e2e7] rounded-md overflow-hidden">
               <input
                 type="text"
@@ -679,7 +699,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               setIsModalOpen(true)
               startScanning()
             }}
-            className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-[370px] justify-center"
+            className="flex items-center text-[#1eb386] border border-[#e0e2e7] rounded-md py-3 px-4 text-[14px] w-full sm:w-1/3 justify-center"
           >
             Scan Barcode
             <svg
@@ -700,6 +720,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </button>
         </div>
 
+        {/* QR Code Scanner Modal */}
         <Dialog
           open={isModalOpen}
           onClose={() => {
@@ -728,24 +749,27 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </Dialog>
 
+        {/* Totals and Action Buttons */}
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">
-            <div className="flex justify-between bg-[#f7f7f7] p-3 rounded-md font-semibold">
-              <span className="text-[14px] text-[#667085]">Subtotal</span>
-              <div className="flex gap-6">
+            <div className="flex flex-col sm:flex-row justify-between bg-[#f7f7f7] p-3 rounded-md font-semibold">
+              <span className="text-[14px] text-[#667085] mb-3 sm:mb-0">Subtotal</span>
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4 sm:gap-6">
                 <div className="text-right">
                   <p className="text-[14px] text-[#333843]">{calculateTotalQuantity()}</p>
                   <p className="text-[13px] text-[#667085]">Unit(s)</p>
                 </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">
-                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
+                <div className="text-right text-[14px] text-[#333843]">
+                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst().toFixed(2)}</p>
                   <p className="text-[13px] text-[#667085]">(IGST)</p>
                 </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">
-                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst()}</p>
+                <div className="text-right text-[14px] text-[#333843]">
+                  <p className="text-[14px] text-[#333843]">{calculateTotalIgst().toFixed(2)}</p>
                   <p className="text-[13px] text-[#667085]">(CGST)</p>
                 </div>
-                <div className="w-20 text-right text-[14px] text-[#333843]">{calculateTotalBeforeTax()}</div>
+                <div className="text-right text-[14px] text-[#333843] flex items-center justify-end">
+                  <span>₹{calculateTotalBeforeTax().toFixed(2)}</span>
+                </div>
               </div>
             </div>
 
@@ -773,6 +797,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
+        {/* Previous Invoices Section */}
         {showPreviousInvoices && (
           <div className="border border-[#e0e2e7] rounded-md p-4 mt-6 w-full transition-all duration-300">
             <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
@@ -785,7 +810,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   <tr className="bg-[#f7f7f7] text-[#667085] text-[13px]">
                     <th className="py-2 px-3 text-left font-medium">INVOICE #</th>
                     <th className="py-2 px-3 text-left font-medium">DATE</th>
-                    <th className="py-2 px-3 text-left font-medium">CUSTOMER</th>
+                    <th className="py-2 px-3 text-left font-medium hidden sm:table-cell">CUSTOMER</th>
                     <th className="py-2 px-3 text-right font-medium">AMOUNT</th>
                     <th className="py-2 px-3 text-center font-medium">ACTION</th>
                   </tr>
@@ -793,10 +818,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <tbody>
                   {previousInvoices.map((invoice) => (
                     <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.id}</td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.date}</td>
-                      <td className="py-3 px-3 text-[14px] text-[#333843]">{invoice.customer}</td>
-                      <td className="py-3 px-3 text-right text-[14px] text-[#333843]">{invoice.amount}</td>
+                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.id}</td>
+                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.date}</td>
+                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843] hidden sm:table-cell">
+                        {invoice.customer}
+                      </td>
+                      <td className="py-3 px-3 text-right text-[13px] sm:text-[14px] text-[#333843]">
+                        {invoice.amount}
+                      </td>
                       <td className="py-3 px-3 text-center">
                         <button className="text-[#1eb386] hover:text-[#40c79a]">
                           <Eye size={16} />
