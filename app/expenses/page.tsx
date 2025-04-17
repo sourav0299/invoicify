@@ -409,8 +409,8 @@ const ExpensesManager: React.FC = () => {
         <button
           className={`border rounded-lg py-2 px-3 flex items-center gap-2 ${
             selectedExpenses.length > 0
-              ? "bg-red-50 text-red-600 border-red-200"
-              : "bg-gray-100 text-gray-400 border-gray-200"
+              ? "bg-[#f44336] text-white" : "bg-gray-200 text-gray-500"
+              
           }`}
           onClick={() => {
             if (selectedExpenses.length > 0) {
@@ -718,7 +718,7 @@ const ExpensesManager: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setShowCategoryForm(!showCategoryForm)}
-                        className="w-full sm:max-w-[176px] border bg-green-50 border-green-600 text-green-600 rounded text-sm font-semibold py-1"
+                        className="w-full sm:max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold py-1"
                       >
                         Create New Category
                       </button>
@@ -736,7 +736,7 @@ const ExpensesManager: React.FC = () => {
                           <button
                             type="button"
                             onClick={handleCreateCategory}
-                            className="border bg-green-600 text-white rounded text-sm font-semibold h-8 px-4"
+                            className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
                           >
                             Add
                           </button>

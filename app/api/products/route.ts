@@ -1,32 +1,39 @@
-import { NextRequest, NextResponse } from "next/server";
-import { connectToDatabase } from "../../../utils/database";
+import { type NextRequest, NextResponse } from "next/server"
+import { connectToDatabase } from "../../../utils/database"
 
 export async function POST(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
-    const product = await req.json();
-    const result = await db.collection("products").insertOne(product);
-    return NextResponse.json(result, { status: 201 });
+    const { db } = await connectToDatabase()
+    const product = await req.json()
+    const result = await db.collection("products").insertOne(product)
+    return NextResponse.json(result, { status: 201 })
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error saving product" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error saving product" }, { status: 500 })
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const { db } = await connectToDatabase();
+    const { db } = await connectToDatabase()
+    const searchParams = req.nextUrl.searchParams
+    const search = searchParams.get("search")
 
-    const products = await db.collection("products").find().toArray();
+    let query = {}
+    if (search) {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { code: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
+      }
+    }
 
-    return NextResponse.json(products);
+    const products = await db.collection("products").find(query).limit(10).toArray()
+
+    return NextResponse.json(products)
   } catch (error) {
-    console.error("Error in GET /api/products:", error);
-    return NextResponse.json(
-      { error: "Error fetching products" },
-      { status: 500 }
-    );
+    console.error("Error in GET /api/products:", error)
+    return NextResponse.json({ error: "Error fetching products" }, { status: 500 })
   }
 }
