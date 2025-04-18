@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type SetStateAction,
   useState,
+  useEffect,
 } from "react"
 import { ChevronDown, Download, Filter, Search, ChevronRight, Calendar, ArrowRight } from "lucide-react"
 
@@ -17,6 +18,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useUserCheck } from "@/helper/useUserCheck"
 
+interface Invoice {
+  id: string
+  invoiceNumber: string
+  date: string
+  party: string
+  amount: string
+  status: string
+  category: string
+  item: string
+}
+
 export default function Reports() {
   const [activeTab, setActiveTab] = useState("party")
   const [selectedDate, setSelectedDate] = useState("")
@@ -24,55 +36,38 @@ export default function Reports() {
   const [selectedDateRange, setSelectedDateRange] = useState("")
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [invoices, setInvoices] = useState<Invoice[]>([])
 
-  // Sample data for reports
-  const transactions = [
-    {
-      id: "INV-001",
-      date: "2023-04-10",
-      party: "Acme Corp",
-      amount: 1250.0,
-      status: "Paid",
-      category: "Sales",
-      item: "Consulting Services",
-    },
-    {
-      id: "INV-002",
-      date: "2023-04-08",
-      party: "TechGiant Inc",
-      amount: 3450.75,
-      status: "Pending",
-      category: "Services",
-      item: "Web Development",
-    },
-    {
-      id: "INV-003",
-      date: "2023-04-05",
-      party: "Local Shop",
-      amount: 450.25,
-      status: "Paid",
-      category: "Supplies",
-      item: "Office Materials",
-    },
-    {
-      id: "INV-004",
-      date: "2023-04-01",
-      party: "Global Partners",
-      amount: 5000.0,
-      status: "Overdue",
-      category: "Consulting",
-      item: "Strategic Planning",
-    },
-    {
-      id: "INV-005",
-      date: "2023-03-28",
-      party: "City Services",
-      amount: 180.5,
-      status: "Paid",
-      category: "Utilities",
-      item: "Electricity Bill",
-    },
-  ]
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const response = await fetch('/api/invoices')
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        // Filter only pending invoices
+        const pendingInvoices = data.filter((invoice: Invoice) => invoice.status.toLowerCase() === 'pending')
+        setInvoices(pendingInvoices)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch invoices')
+        console.error('Error fetching invoices:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchInvoices()
+  }, [])
+
+  // Replace the static transactions array with the invoices state
+  const transactions = invoices
 
   // Summary data
   const summaryData = {
@@ -220,20 +215,10 @@ export default function Reports() {
     <div className="flex flex-col gap-4 sm:gap-6 p-3 sm:p-6 bg-gray-50 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Reports</h1>
-          <p className="text-sm sm:text-base text-gray-600">An overview of all your transactions over the year.</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Pending Invoices</h1>
+          <p className="text-sm sm:text-base text-gray-600">Overview of all pending transactions</p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="relative w-full sm:w-auto">
-            <div className="flex items-center">
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                className="w-full sm:w-[160px] bg-white"
-              />
-            </div>
-          </div>
           <Button
             variant="outline"
             onClick={exportToCSV}
@@ -296,297 +281,152 @@ export default function Reports() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input placeholder="Search transactions..." className="pl-10 w-full" />
           </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
       <div className="flex flex-col gap-4">
         <Tabs defaultValue="party" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Tabs with indicator for mobile scrolling */}
           <div className="relative">
             <div className="overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 sm:mx-0 sm:px-0">
-              <TabsList className="inline-flex min-w-max sm:grid sm:grid-cols-5 mb-3 sm:mb-4 bg-white border border-gray-200">
-                <TabsTrigger
-                  value="party"
-                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
-                >
-                  Party
-                </TabsTrigger>
-                <TabsTrigger
-                  value="payment"
-                  className="data-bg-gray-50 data-[state=active]:text-black-700 text-sm"
-                >
-                  Payment
-                </TabsTrigger>
-                <TabsTrigger
-                  value="item"
-                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
-                >
-                  Item
-                </TabsTrigger>
-                <TabsTrigger
-                  value="category"
-                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
-                >
-                  Category
-                </TabsTrigger>
-                <TabsTrigger
-                  value="summary"
-                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
-                >
-                  Summary
-                </TabsTrigger>
-              </TabsList>
             </div>
           </div>
 
           <TabsContent value="party" className="mt-0">
             <Card>
               <CardContent className="p-0">
-                {/* Desktop and Tablet Table View */}
-                <div className="hidden sm:block overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Invoice ID</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Party</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">{transaction.id}</TableCell>
-                          <TableCell>{transaction.date}</TableCell>
-                          <TableCell>{transaction.party}</TableCell>
-                          <TableCell>₹{transaction.amount.toFixed(2)}</TableCell>
-                          <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                          <TableCell>{transaction.category}</TableCell>
-                          <TableCell>
-                            <div className="relative inline-block text-left">
-                              <Button variant="ghost" size="sm">
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-64">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center h-64">
+                    <div className="text-red-500 text-center">
+                      <p className="text-lg font-medium">Error loading invoices</p>
+                      <p className="text-sm">{error}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop and Tablet Table View */}
+                    <div className="hidden sm:block overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Invoice Number</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Party</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {invoices.map((invoice) => (
+                            <TableRow key={invoice.id}>
+                              <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                              <TableCell>{invoice.date}</TableCell>
+                              <TableCell>{invoice.party}</TableCell>
+                              <TableCell>₹{invoice.amount}</TableCell>
+                              <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                              <TableCell>{invoice.category}</TableCell>
+                              <TableCell>
+                                <div className="relative inline-block text-left">
+                                  <Button variant="ghost" size="sm">
+                                    <ChevronDown className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
 
-                {/* Improved Mobile Card View */}
-                <div className="sm:hidden">
-                  {transactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="mb-3 rounded-lg overflow-hidden border border-gray-200 bg-white"
-                    >
-                      <div
-                        className={`p-3 flex justify-between items-start cursor-pointer ${
-                          expandedRow === transaction.id ? "border-b border-gray-100" : ""
-                        }`}
-                        onClick={() => toggleRowExpansion(transaction.id)}
-                      >
-                        <div className="flex-1 min-w-0 pr-2">
-                          <div className="flex items-center">
-                            <div
-                              className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${
-                                transaction.status === "Paid"
-                                  ? "bg-green-500"
-                                  : transaction.status === "Pending"
-                                    ? "bg-yellow-500"
-                                    : "bg-red-500"
-                              }`}
-                            ></div>
-                            <div className="font-medium text-gray-900 truncate">{transaction.id}</div>
-                          </div>
-                          <div className="text-sm font-medium text-gray-800 mt-1 truncate">{transaction.party}</div>
-                          <div className="flex items-center text-xs text-gray-500 mt-1">
-                            <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">{transaction.date}</span>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          <div className="flex items-center">
-                            <span className="text-gray-500 mr-1">₹</span>
-                            <div className="text-sm font-bold text-gray-900">{transaction.amount.toFixed(2)}</div>
-                          </div>
-                          <div>{getStatusBadge(transaction.status)}</div>
-                          <button
-                            className="mt-1 flex items-center justify-center bg-gray-50 rounded-full w-6 h-6"
-                            aria-label={expandedRow === transaction.id ? "Collapse details" : "Expand details"}
+                    {/* Mobile Card View */}
+                    <div className="sm:hidden">
+                      {invoices.map((invoice) => (
+                        <div
+                          key={invoice.id}
+                          className="mb-3 rounded-sm overflow-hidden border border-gray-200 bg-white"
+                        >
+                          <div
+                            className={`p-3 flex justify-between items-start cursor-pointer ${
+                              expandedRow === invoice.id ? "border-b border-gray-100" : ""
+                            }`}
+                            onClick={() => toggleRowExpansion(invoice.id)}
                           >
-                            {expandedRow === transaction.id ? (
-                              <ChevronDown className="h-4 w-4 text-gray-600" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 text-gray-600" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {expandedRow === transaction.id && (
-                        <div className="p-3 bg-gray-50 border-t border-gray-100">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-white p-2 rounded-md shadow-sm">
-                              <div className="text-xs font-medium text-gray-500 mb-1">Category</div>
-                              <div className="text-sm font-medium text-gray-900 truncate">{transaction.category}</div>
+                            <div className="flex-1 min-w-0 pr-2">
+                              <div className="flex items-center">
+                                <div className="w-2 h-2 rounded-full mr-2 flex-shrink-0 bg-yellow-500"></div>
+                                <div className="font-medium text-gray-900 truncate">{invoice.invoiceNumber}</div>
+                              </div>
+                              <div className="text-sm font-medium text-gray-800 mt-1 truncate">{invoice.party}</div>
+                              <div className="flex items-center text-xs text-gray-500 mt-1">
+                                <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="truncate">{invoice.date}</span>
+                              </div>
                             </div>
-                            <div className="bg-white p-2 rounded-md shadow-sm">
-                              <div className="text-xs font-medium text-gray-500 mb-1">Item</div>
-                              <div className="text-sm font-medium text-gray-900 truncate">{transaction.item}</div>
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                              <div className="flex items-center">
+                                <span className="text-gray-500 mr-1">₹</span>
+                                <div className="text-sm font-bold text-gray-900">{invoice.amount}</div>
+                              </div>
+                              <div>{getStatusBadge(invoice.status)}</div>
+                              <button
+                                className="mt-1 flex items-center justify-center bg-gray-50 rounded-full w-6 h-6"
+                                aria-label={expandedRow === invoice.id ? "Collapse details" : "Expand details"}
+                              >
+                                {expandedRow === invoice.id ? (
+                                  <ChevronDown className="h-4 w-4 text-gray-600" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 text-gray-600" />
+                                )}
+                              </button>
                             </div>
                           </div>
 
-                          <div className="mt-3 flex items-center justify-between">
-                            <div className="text-xs text-gray-500">#{transaction.id.split("-")[1]}</div>
-                            <Button
-                              size="sm"
-                              className="flex items-center bg-green-600 hover:bg-green-700 text-xs py-1 h-7"
-                            >
-                              View Details
-                              <ArrowRight className="ml-1 h-3 w-3" />
-                            </Button>
-                          </div>
+                          {expandedRow === invoice.id && (
+                            <div className="p-3 bg-gray-50 border-t border-gray-100">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-white p-2 rounded-md shadow-sm">
+                                  <div className="text-xs font-medium text-gray-500 mb-1">Category</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.category}</div>
+                                </div>
+                                <div className="bg-white p-2 rounded-md shadow-sm">
+                                  <div className="text-xs font-medium text-gray-500 mb-1">Item</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.item}</div>
+                                </div>
+                              </div>
+
+                              <div className="mt-3 flex items-center justify-between">
+                                <div className="text-xs text-gray-500">#{invoice.id}</div>
+                                <Button
+                                  size="sm"
+                                  className="flex items-center bg-green-600 hover:bg-green-700 text-xs py-1 h-7"
+                                >
+                                  View Details
+                                  <ArrowRight className="ml-1 h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="payment" className="mt-0">
-            <Card>
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg font-medium mb-4">Payment Collection Reports</h3>
-                <p className="text-gray-600">Filter and view reports based on payment methods and collection status.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="item" className="mt-0">
-            <Card>
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg font-medium mb-4">Item-wise Reports</h3>
-                <p className="text-gray-600">View reports categorized by products and services.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="category" className="mt-0">
-            <Card>
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg font-medium mb-4">Category Reports</h3>
-                <p className="text-gray-600">Analyze transactions by business categories.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="summary" className="mt-0">
-            <Card>
-              <CardContent className="p-0">
-                {/* Desktop Summary View */}
-                <div className="hidden sm:block p-6">
-                  <h3 className="text-lg font-medium mb-4">Summary Reports</h3>
-                  <p className="text-gray-600 mb-6">
-                    Get an overview of your business performance across different time periods.
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-6">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                      <h4 className="text-sm font-medium text-gray-500 mb-2">Total Revenue</h4>
-                      <p className="text-2xl font-bold text-gray-900">₹{summaryData.totalRevenue.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                      <h4 className="text-sm font-medium text-gray-500 mb-2">Total Expenses</h4>
-                      <p className="text-2xl font-bold text-gray-900">₹{summaryData.totalExpenses.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                      <h4 className="text-sm font-medium text-gray-500 mb-2">Net Profit</h4>
-                      <p className="text-2xl font-bold text-green-600">₹{summaryData.netProfit.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mobile Summary View */}
-                <div className="sm:hidden p-3">
-                  <h3 className="text-base font-medium mb-3">Summary Reports</h3>
-
-                  <div className="space-y-3">
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-gray-500">Total Revenue</h4>
-                        <p className="text-sm font-bold text-gray-900">₹{summaryData.totalRevenue.toLocaleString()}</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-gray-500">Total Expenses</h4>
-                        <p className="text-sm font-bold text-gray-900">₹{summaryData.totalExpenses.toLocaleString()}</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-gray-500">Net Profit</h4>
-                        <p className="text-sm font-bold text-green-600">₹{summaryData.netProfit.toLocaleString()}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <div className="text-xs text-gray-500 mb-1">Pending</div>
-                        <div className="text-sm font-bold text-yellow-600 truncate">
-                          ₹{summaryData.pendingAmount.toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <div className="text-xs text-gray-500 mb-1">Overdue</div>
-                        <div className="text-sm font-bold text-red-600 truncate">
-                          ₹{summaryData.overdueAmount.toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Button className="w-full bg-green-600 hover:bg-green-700">Generate Detailed Report</Button>
-                  </div>
-                </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Improved Mobile Pagination */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-3">
-        <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1">Showing 5 of 24 transactions</div>
-
-        <div className="flex items-center gap-1 order-1 sm:order-2 w-full sm:w-auto justify-center sm:justify-end bg-white p-2 rounded-lg shadow-sm border border-gray-200">
-          <Button variant="outline" size="sm" disabled className="px-1 sm:px-3 text-xs">
-            Previous
-          </Button>
-          <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-200 w-7 h-7 p-0">
-            1
-          </Button>
-          <Button variant="outline" size="sm" className="w-7 h-7 p-0">
-            2
-          </Button>
-          <Button variant="outline" size="sm" className="w-7 h-7 p-0">
-            3
-          </Button>
-          <Button variant="outline" size="sm" className="px-1 sm:px-3 text-xs">
-            Next
-          </Button>
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 sm:mt-6">
+        <div className="text-sm text-gray-600 order-2 sm:order-1">
+          Showing <span className="font-medium">{invoices.length}</span> pending{" "}
+          <span className="font-medium">invoices</span>
         </div>
       </div>
     </div>

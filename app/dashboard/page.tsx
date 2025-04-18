@@ -18,6 +18,14 @@ import { useUser } from "@clerk/nextjs"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
+interface Invoice {
+  id: string
+  invoiceNumber: string
+  billDate: string
+  totalPayableAmount: number
+  status: string
+}
+
 // async function checkUser() {
 //   try {
 //     const response = await fetch("/api/middleware/check-user", {
@@ -54,6 +62,8 @@ type DetailViewType = "sales" | "expenses" | "payments" | null
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
   const [showFullView, setShowFullView] = useState<DetailViewType>(null)
+  const [pendingInvoices, setPendingInvoices] = useState<Invoice[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const { user } = useUser()
 
@@ -77,6 +87,27 @@ export default function DashboardPage() {
   ]
 
   useUserCheck();
+
+  useEffect(() => {
+    const fetchPendingInvoices = async () => {
+      try {
+        const response = await fetch('/api/invoices')
+        if (!response.ok) {
+          throw new Error('Failed to fetch invoices')
+        }
+        const data = await response.json()
+        // Filter for pending invoices only
+        const pending = data.filter((invoice: Invoice) => invoice.status === 'PENDING')
+        setPendingInvoices(pending)
+      } catch (error) {
+        console.error('Error fetching pending invoices:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPendingInvoices()
+  }, [])
 
   // useEffect(() => {
   //   const verifyUser = async () => {
@@ -518,7 +549,12 @@ export default function DashboardPage() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
               <CardTitle>Pending Invoices</CardTitle>
-              <Button variant="ghost" size="sm" className="gap-1 text-[#3a8bff] mt-2 sm:mt-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-1 text-[#3a8bff] mt-2 sm:mt-0"
+                onClick={() => router.push('/invoice-management')}
+              >
                 View All
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -537,22 +573,41 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {[1, 2, 3].map((_, i) => (
-                        <tr key={i} className="border-b last:border-0">
-                          <td className="py-3 pl-6">
-                            <div className="h-4 w-4 rounded border border-gray-300"></div>
-                          </td>
-                          <td className="py-3 text-sm font-medium">AS_PUBLISHER</td>
-                          <td className="py-3 text-sm">12/06/24</td>
-                          <td className="py-3 text-sm">₹78,00,028</td>
-                          <td className="py-3 pr-6 text-right">
-                            <Button variant="outline" size="sm" className="h-8 gap-1 text-[#3a8bff]">
-                              <Eye className="h-4 w-4" />
-                              <span className="hidden sm:inline">View Invoice</span>
-                            </Button>
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                            Loading invoices...
                           </td>
                         </tr>
-                      ))}
+                      ) : pendingInvoices.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                            No pending invoices found
+                          </td>
+                        </tr>
+                      ) : (
+                        pendingInvoices.map((invoice) => (
+                          <tr key={invoice.id} className="border-b last:border-0">
+                            <td className="py-3 pl-6">
+                              <div className="h-4 w-4 rounded border border-gray-300"></div>
+                            </td>
+                            <td className="py-3 text-sm font-medium">{invoice.invoiceNumber}</td>
+                            <td className="py-3 text-sm">{new Date(invoice.billDate).toLocaleDateString()}</td>
+                            <td className="py-3 text-sm">₹{invoice.totalPayableAmount.toLocaleString('en-IN')}</td>
+                            <td className="py-3 pr-6 text-right">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 gap-1 text-[#3a8bff]"
+                                onClick={() => router.push(`/invoice-management/${invoice.id}`)}
+                              >
+                                <Eye className="h-4 w-4" />
+                                <span className="hidden sm:inline">View Invoice</span>
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
