@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronDown, Eye } from "lucide-react"
+import { ChevronDown, Eye, MoreVertical } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
 import { useUserCheck } from "@/helper/useUserCheck"
@@ -14,12 +14,27 @@ interface Invoice {
   paymentDeadline: string
   brandName: string
   totalPayableAmount: number
-  status?: string
+  status: string
   items: Array<{
     itemName: string
     quantity: number
     unitPrice: number
   }>
+}
+
+const getStatusColor = (status: string) => {
+  switch (status.toUpperCase()) {
+    case 'PAID':
+      return 'bg-change_password_green_background text-chart-profit'
+    case 'PENDING':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'OVERDUE':
+      return 'bg-red-100 text-red-800'
+    case 'CANCELLED':
+      return 'bg-gray-100 text-gray-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
 }
 
 export default function InvoicePage() {
@@ -29,6 +44,8 @@ export default function InvoicePage() {
   const [selectAll, setSelectAll] = useState(false)
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null)
+  const [showStatusMenu, setShowStatusMenu] = useState<string | null>(null)
 
   const itemsPerPage = 10
   const totalItems = invoices.length
@@ -52,6 +69,34 @@ export default function InvoicePage() {
       setSelectedInvoices(selectedInvoices.filter((i) => i !== id))
     } else {
       setSelectedInvoices([...selectedInvoices, id])
+    }
+  }
+
+  const handleStatusChange = async (invoiceId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (response.ok) {
+        // Update the local state
+        setInvoices(invoices.map(invoice => 
+          invoice.id === invoiceId ? { ...invoice, status: newStatus } : invoice
+        ))
+        toast.success('Invoice status updated successfully')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to update invoice status')
+      }
+    } catch (error) {
+      console.error('Error updating invoice status:', error)
+      toast.error('Failed to update invoice status')
+    } finally {
+      setShowStatusMenu(null)
     }
   }
 
@@ -120,71 +165,105 @@ export default function InvoicePage() {
           ) : (
             <>
               {/* Desktop and Tablet Table View */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-sidebar_gray_border">
-                      <th className="py-3 px-4 text-left">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="mr-3 h-4 w-4 rounded border-sidebar_gray_border"
-                            checked={selectAll}
-                            onChange={handleSelectAll}
-                          />
-                          <span className="text-[14px] font-medium text-sidebar_black_text">Invoice ID</span>
-                        </div>
-                      </th>
-                      <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Invoice Date</th>
-                      <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Payout Date</th>
-                      <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Customer</th>
-                      <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Amount</th>
-                      <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentPageInvoices.map((invoice) => (
-                      <tr key={invoice.id} className="border-b border-sidebar_gray_border hover:bg-universal_gray_background">
-                        <td className="py-4 px-4">
+              <div className="hidden md:block relative">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-sidebar_gray_border">
+                        <th className="py-3 px-4 text-left">
                           <div className="flex items-center">
                             <input
                               type="checkbox"
                               className="mr-3 h-4 w-4 rounded border-sidebar_gray_border"
-                              checked={selectedInvoices.includes(invoice.id)}
-                              onChange={() => handleSelectInvoice(invoice.id)}
+                              checked={selectAll}
+                              onChange={handleSelectAll}
                             />
-                            <div>
-                              <div className="text-[14px] font-medium text-business_settings_black_text">{invoice.invoiceNumber}</div>
-                            </div>
+                            <span className="text-[14px] font-medium text-sidebar_black_text">Invoice ID</span>
                           </div>
-                        </td>
-                        <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                          {new Date(invoice.billDate).toLocaleDateString('en-GB')}
-                        </td>
-                        <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                          {new Date(invoice.paymentDeadline).toLocaleDateString('en-GB')}
-                        </td>
-                        <td className="py-4 px-4 text-[14px] text-business_settings_black_text">{invoice.brandName}</td>
-                        <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                          ₹{invoice.totalPayableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-4 px-4">
-                          <button className="flex items-center gap-1 text-download_purple_text text-[14px]">
-                            <Eye className="h-4 w-4" />
-                            View Invoice
-                          </button>
-                        </td>
+                        </th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Invoice Date</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Payout Date</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Customer</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Amount</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Status</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Action</th>
                       </tr>
-                    ))}
-                    {currentPageInvoices.length === 0 && (
-                      <tr>
-                        <td colSpan={6} className="py-8 text-center text-sidebar_black_text">
-                          No invoices found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {currentPageInvoices.map((invoice) => (
+                        <tr key={invoice.id} className="border-b border-sidebar_gray_border hover:bg-universal_gray_background">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                className="mr-3 h-4 w-4 rounded border-sidebar_gray_border"
+                                checked={selectedInvoices.includes(invoice.id)}
+                                onChange={() => handleSelectInvoice(invoice.id)}
+                              />
+                              <div>
+                                <div className="text-[14px] font-medium text-business_settings_black_text">{invoice.invoiceNumber}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
+                            {new Date(invoice.billDate).toLocaleDateString('en-GB')}
+                          </td>
+                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
+                            {new Date(invoice.paymentDeadline).toLocaleDateString('en-GB')}
+                          </td>
+                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">{invoice.brandName}</td>
+                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
+                            ₹{invoice.totalPayableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="relative">
+                              <button 
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] cursor-pointer ${getStatusColor(invoice.status)}`}
+                                onClick={() => setShowStatusMenu(showStatusMenu === invoice.id ? null : invoice.id)}
+                              >
+                                {invoice.status}
+                                <ChevronDown className="h-4 w-4 ml-1" />
+                              </button>
+                              {showStatusMenu === invoice.id && (
+                                <div className="fixed transform translate-y-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                  <div className="py-1" role="menu">
+                                    {['PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map((status) => (
+                                      <button
+                                        key={status}
+                                        className={`block w-full text-left px-4 py-2 text-sm ${
+                                          invoice.status === status 
+                                            ? 'bg-gray-100 font-medium' 
+                                            : 'hover:bg-gray-50'
+                                        }`}
+                                        onClick={() => handleStatusChange(invoice.id, status)}
+                                      >
+                                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}></span>
+                                        {status}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <button className="flex items-center gap-1 text-download_purple_text text-[14px]">
+                              <Eye className="h-4 w-4" />
+                              View Invoice
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {currentPageInvoices.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-sidebar_black_text">
+                            No invoices found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               {/* Mobile Card View */}
@@ -214,6 +293,35 @@ export default function InvoicePage() {
                         <div>
                           <div className="text-[14px] font-medium text-business_settings_black_text">{invoice.invoiceNumber}</div>
                         </div>
+                      </div>
+                      <div className="relative">
+                        <button 
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] cursor-pointer ${getStatusColor(invoice.status)}`}
+                          onClick={() => setShowStatusMenu(showStatusMenu === invoice.id ? null : invoice.id)}
+                        >
+                          {invoice.status}
+                          <ChevronDown className="h-4 w-4 ml-1" />
+                        </button>
+                        {showStatusMenu === invoice.id && (
+                          <div className="absolute right-0 z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div className="py-1" role="menu">
+                              {['PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map((status) => (
+                                <button
+                                  key={status}
+                                  className={`block w-full text-left px-4 py-2 text-sm ${
+                                    invoice.status === status 
+                                      ? 'bg-gray-100 font-medium' 
+                                      : 'hover:bg-gray-50'
+                                  }`}
+                                  onClick={() => handleStatusChange(invoice.id, status)}
+                                >
+                                  <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}></span>
+                                  {status}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 

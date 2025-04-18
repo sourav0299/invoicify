@@ -90,6 +90,7 @@ model Invoice {
   roundOff            Float            @default(0)
   discount            Float            @default(0)
   totalPayableAmount  Float
+  status              String           @default("PENDING")
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
   userId              Int
