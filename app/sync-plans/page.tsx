@@ -8,16 +8,29 @@ import {
   checkUserSubscription,
 } from "./createSubscription";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 export default function PricingPage() {
   const router = useRouter();
+  const { userId: clerkUserId } = useAuth();
   const [loading, setLoading] = useState<number | null>(null);
 
   const handlePurchase = async (planId: number) => {
     try {
       setLoading(planId);
-      const userId = 1;
-      const hasSubscription = await checkUserSubscription(userId);
+      const clerkUser = await fetch(`https://api.clerk.dev/v1/users/${clerkUserId}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}`
+        }
+      }).then(res => res.json());
+
+      if (!clerkUser.email_addresses?.[0]?.email_address) {
+        toast.error("User email not found");
+        return;
+      }
+
+      const userEmail = clerkUser.email_addresses[0].email_address;
+      const hasSubscription = await checkUserSubscription(userEmail);
 
       if (hasSubscription) {
         router.push("/dashboard");
@@ -25,7 +38,7 @@ export default function PricingPage() {
       }
 
       const orderId = `ORDER_${Date.now()}`;
-      const result = await createSubscription(userId, planId, orderId);
+      const result = await createSubscription(userEmail, planId, orderId);
       toast.success(`Subscription created successfully for plan ${planId}`);
     } catch (error) {
       console.error("Error creating subscription:", error);
