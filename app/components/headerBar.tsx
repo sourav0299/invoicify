@@ -69,8 +69,7 @@ const HeaderBar = () => {
 
     const fetchCredits = async () => {
       try {
-        // This would be replaced with an actual API call in production
-        // Simulating credit data for demonstration
+      
         const mockCredits = 2500
         setCredits(mockCredits)
       } catch (error) {
@@ -78,13 +77,12 @@ const HeaderBar = () => {
       }
     }
 
-    // Call the function
+    
     fetchCredits()
 
     const fetchNotifications = async () => {
       try {
-        // This would be replaced with an actual API call in production
-        // Simulating notification data for demonstration
+
         const mockNotifications: Notification[] = [
           {
             id: "1",
@@ -208,24 +206,13 @@ const HeaderBar = () => {
             />
           </div>
         )}
-        {/* Credit Display */}
-        <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 text-sm">
-          <div className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-600 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="font-medium text-gray-800">₹{credits.toLocaleString()}</span>
+      
+        <div className="flex items-center bg-gradient-to-r from-green-50 to-green-100 rounded-lg px-3 py-1.5 border border-green-200 shadow-sm hover:shadow-md transition-all duration-300 group">
+          <div className="flex items-center space-x-1.5">
+            <span className="text-green-600 font-bold text-lg group-hover:scale-105 transition-transform">₹</span>
+            <span className="font-semibold text-gray-800 text-base md:text-lg tracking-tight group-hover:text-green-700 transition-colors">
+              {credits.toLocaleString()}
+            </span>
           </div>
         </div>
         <div

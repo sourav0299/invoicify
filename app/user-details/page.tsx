@@ -253,14 +253,14 @@ const UserDetails = () => {
   useUserCheck()
 
   return (
-    <div className="bg-universal_gray_background min-h-screen pb-24 sm:pb-16 overflow-x-hidden w-full">
-      <div className="px-3 sm:px-4 md:px-6 gap-3 max-w-7xl mx-auto w-full box-border">
-        <div className="py-4 sm:py-5 md:py-6 gap-1">
+    <div className="bg-universal_gray_background max-h-[70svh]  pb-24 sm:pb-16 w-full">
+      <div className="px-3 sm:px-4 md:px-6  gap-3 max-w-7xl mx-auto w-full box-border">
+        <div className="py-4 sm:py-5 md:py-2 gap-1">
           <div className="flex items-center mb-3 sm:mb-4">
             <Link href="/dashboard">
               <Button
                 variant="ghost"
-                className="gap-1 sm:gap-2 pl-0 text-gray-600 hover:text-gray-900 text-sm sm:text-base"
+                className="gap-1 sm:gap-2 pl-0 text-gray-600 hover:text-gray-900 text-sm  sm:text-base"
               >
                 <ArrowLeft size={16} />
                 Back to Dashboard
@@ -292,7 +292,7 @@ const UserDetails = () => {
               )}
             </div>
             <div className="flex flex-col w-full gap-4 sm:gap-5 md:gap-6">
-              {/* First Name and Last Name - Side by side on all screens except mobile */}
+              
               <div className="flex flex-col sm:flex-row w-full gap-3">
                 <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-4 md:p-5 rounded-lg gap-1 shadow-sm">
                   <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
@@ -338,20 +338,23 @@ const UserDetails = () => {
                   <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
                     Mobile Number
                   </div>
-                  <div className="flex flex-row gap-2 relative w-full overflow-hidden">
-                    <div className="relative country-dropdown-container w-[90px] flex-shrink-0 ">
+                  <div className="flex flex-row gap-2 relative w-full ">
+                    <div className="relative country-dropdown-container w-[90px] flex-shrink-0">
                       <button
                         type="button"
                         onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                        
                         className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background hover:border-sidebar_green_button_background px-1 flex items-center justify-between transition-colors duration-200"
                       >
                         <span className="flex px-1 items-center">
-                          <img
-                            src={`https://flagcdn.com/w20/${selectedCountry?.iso}.png`}
-                            alt={selectedCountry?.name}
-                            className="mr-1 h-3 w-auto object-contain"
-                          />
-                          <span className="text-sm">{selectedCountry?.code}</span>
+                          {selectedCountry && (
+                            <img
+                              src={`https://flagcdn.com/w20/${selectedCountry.iso}.png`}
+                              alt={selectedCountry.name}
+                              className="mr-1 h-3 w-auto object-contain"
+                            />
+                          )}
+                          <span className="text-sm">{countryCode}</span>
                         </span>
                         <ChevronDown
                           size={14}
@@ -360,11 +363,8 @@ const UserDetails = () => {
                       </button>
 
                       {showCountryDropdown && (
-                        <div
-                          className="absolute z-10 mt-1 w-[280px] max-h-[200px] overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg"
-                          style={{ maxWidth: "calc(100vw - 40px)", right: 0 }}
-                        >
-                          <div className="p-2 sticky top-0 bg-white border-b">
+                        <div className="absolute z-50 mt-1 w-[280px] max-h-[200px] overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg left-0">
+                          <div className="p-2 sticky top-0 bg-white border-b z-10">
                             <input
                               type="text"
                               placeholder="Search countries..."
@@ -437,7 +437,7 @@ const UserDetails = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+            
               <div className="flex gap-3 mt-6 md:justify-end">
                 <button
                   className="bg-universal_white_background px-4 h-12 py-2 border border-business_settings_gray_border flex items-center justify-center rounded-lg md:w-32 hover:bg-universal_gray_background/50 transition-colors duration-200 text-sm font-medium"

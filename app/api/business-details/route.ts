@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     let businessLogoUrl: string | undefined;
     let signatureUrl: string | undefined;
 
+
     if (formData.has('businessLogo')) { 
       const businessLogo = formData.get('businessLogo') as File;
       businessLogoUrl = await saveFile(businessLogo);
