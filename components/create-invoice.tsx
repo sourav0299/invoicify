@@ -98,47 +98,69 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
       try {
         setIsSearching(true)
-        console.log("Searching for:", query)
-        const response = await fetch(`/api/products?search=${encodeURIComponent(query)}`)
-        console.log("Search response status:", response.status)
+        const searchUrl = `/api/products?search=${encodeURIComponent(query)}`
+        console.log("Making API request to:", searchUrl)
 
+        const response = await fetch(searchUrl)
+        console.log("API Response Status:", response.status)
+        
         if (response.ok) {
           const data = await response.json()
-          console.log("Search results:", data)
-          setSearchResults(data)
+          console.log("API Response Data:", data)
+          if (Array.isArray(data)) {
+            setSearchResults(data)
+            console.log("Search results set:", data.length, "items")
+          } else {
+            console.error("Unexpected API response format:", data)
+            setSearchResults([])
+          }
         } else {
           const errorData = await response.json().catch(() => ({}))
-          console.error("Failed to fetch products:", response.status, errorData)
+          console.error("API Error Response:", response.status, errorData)
           toast.error("Failed to search products")
+          setSearchResults([])
         }
       } catch (error) {
-        console.error("Error searching products:", error)
+        console.error("Search Error Details:", error)
         toast.error("Error searching products")
+        setSearchResults([])
       } finally {
         setIsSearching(false)
       }
-    }, 500),
+    }, 300),
     [],
   )
 
   const addProductToInvoice = (product: any) => {
-    const newItem: ScanData = {
-      userEmail: "",
-      itemName: product.name || "Product",
-      itemType: "Product",
-      itemCode: product._id || "",
-      inventory: "1",
-      measuringUnit: product.unit || "Piece",
-      salesPrice: product.price?.toString() || "0",
-      taxIncluded: false,
-      taxRate: product.taxRate?.toString() || "18",
-    }
+    console.log("Adding product to invoice:", product)
+    try {
+      const newItem: ScanData = {
+        userEmail: product.userEmail || "",
+        itemName: product.itemName || "Product",
+        itemType: "Product",
+        itemCode: product.itemCode || "",
+        inventory: product.inventory || "1",
+        measuringUnit: product.measuringUnit || "Piece",
+        salesPrice: product.salesPrice?.toString() || "0",
+        taxIncluded: product.taxIncluded || false,
+        taxRate: product.taxRate?.toString() || "18",
+      }
+      console.log("Created new item:", newItem)
 
-    setResults([...results, newItem])
-    setSearchQuery("")
-    setSearchResults([])
-    setShowSearchResults(false)
-    toast.success("Item added successfully!")
+      setResults(prevResults => {
+        const newResults = [...prevResults, newItem]
+        console.log("Updated results array:", newResults)
+        return newResults
+      })
+      
+      setSearchQuery("")
+      setSearchResults([])
+      setShowSearchResults(false)
+      toast.success(`Added ${product.itemName} to invoice`)
+    } catch (error) {
+      console.error("Error adding product to invoice:", error)
+      toast.error("Failed to add product to invoice")
+    }
   }
 
   const months = [
@@ -659,8 +681,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   searchProducts(e.target.value)
                   setShowSearchResults(true)
                 }}
-                onFocus={() => setShowSearchResults(true)}
-                placeholder="Search for products..."
+                onFocus={() => {
+                  setShowSearchResults(true)
+                  if (searchQuery.trim()) {
+                    searchProducts(searchQuery)
+                  }
+                }}
+                placeholder="Search for products by name or code..."
                 className="py-3 px-4 text-[14px] w-full outline-none"
               />
               <div className="px-3 text-[#667085]">
@@ -679,10 +706,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       onClick={() => addProductToInvoice(product)}
                       className="p-3 hover:bg-[#f7f7f7] cursor-pointer border-b border-[#f0f1f3] last:border-b-0"
                     >
-                      <div className="text-[14px] font-medium text-[#333843]">{product.name}</div>
+                      <div className="text-[14px] font-medium text-[#333843]">{product.itemName}</div>
                       <div className="flex justify-between mt-1">
-                        <span className="text-[13px] text-[#667085]">{product.code || "No code"}</span>
-                        <span className="text-[13px] font-medium text-[#333843]">₹{product.price || "0"}</span>
+                        <span className="text-[13px] text-[#667085]">Code: {product.itemCode || "No code"}</span>
+                        <span className="text-[13px] font-medium text-[#333843]">₹{product.salesPrice || "0"}</span>
                       </div>
                     </div>
                   ))
