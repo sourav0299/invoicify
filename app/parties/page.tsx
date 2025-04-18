@@ -4,7 +4,7 @@ import type React from "react"
 import { useUser } from "@clerk/nextjs"
 import "../globals.css"
 import "react-tooltip/dist/react-tooltip.css"
-import { Search, ChevronDown, ChevronRight } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, Trash2 } from "lucide-react"
 import { useUserCheck } from "@/helper/useUserCheck"
 
 interface CaretIconProps {
@@ -107,13 +107,17 @@ const Modal: React.FC = () => {
   const [lowStockCount, setLowStockCount] = useState(0)
   const [inStockCount, setInStockCount] = useState(0)
   const [categories, setCategories] = useState<string[]>(["Customer", "Supplier"])
-  const [showInlineCategoryForm, setShowInlineCategoryForm] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedParties, setExpandedParties] = useState<string[]>([])
+  // Add selectedParties state to track selected items
+  const [selectedParties, setSelectedParties] = useState<string[]>([])
 
   const handleDeleteCancel = () => {
     setShowDeleteConfirmation(false)
+    // Optionally clear selections when canceling delete
+    // If you want to clear selections on cancel, uncomment the next line:
+    // setSelectedParties([])
   }
 
   const handleOpenModal = () => {
@@ -250,7 +254,6 @@ const Modal: React.FC = () => {
         setParties((prev) => ({ ...prev, partyType: newCategory.name }))
 
         setNewCategoryName("")
-        setShowInlineCategoryForm(false)
       } else {
         const error = await response.json()
         console.error("Error creating category:", error)
@@ -290,6 +293,39 @@ const Modal: React.FC = () => {
     setExpandedParties((prev) => (prev.includes(partyId) ? prev.filter((id) => id !== partyId) : [...prev, partyId]))
   }
 
+  // Add this function after the togglePartyExpand function
+  const togglePartySelection = (partyId: string | undefined) => {
+    if (!partyId) return
+
+    setSelectedParties((prev) => (prev.includes(partyId) ? prev.filter((id) => id !== partyId) : [...prev, partyId]))
+  }
+
+  // Add this function to handle bulk delete
+  const handleBulkDelete = () => {
+    if (selectedParties.length > 0) {
+      setShowDeleteConfirmation(true)
+    }
+  }
+
+  // Add this function to perform the actual deletion
+  const confirmBulkDelete = async () => {
+    try {
+      // Delete each selected party
+      for (const partyId of selectedParties) {
+        await fetch(`/api/parties/${partyId}`, {
+          method: "DELETE",
+        })
+      }
+
+      // Clear selections and refresh the list
+      setSelectedParties([])
+      setShowDeleteConfirmation(false)
+      fetchPartiesList()
+    } catch (error) {
+      console.error("Error deleting parties:", error)
+    }
+  }
+
   useEffect(() => {
     fetchCategories()
   }, [])
@@ -306,7 +342,7 @@ const Modal: React.FC = () => {
           : partiesList.filter((party) => party.partyType === selectedCategory)
 
       const customerCount = filteredList.filter((party) => party.partyType === "Customer").length
-      const supplierCount = filteredList.filter((party) => party.partyType === "Supplier").length
+      const supplierCount = filteredList.filter((party: PartiesProp) => party.partyType === "Supplier").length
 
       setInStockCount(supplierCount)
     }
@@ -451,6 +487,25 @@ const Modal: React.FC = () => {
         </button>
       </div>
 
+      {/* Add this between the search/filter controls and the table */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <button
+            className={`rounded-md py-2 px-4 flex items-center justify-between ${
+              selectedParties.length > 0 ? "bg-[#f44336] text-white" : "bg-gray-200 text-gray-500"
+            }`}
+            onClick={handleBulkDelete}
+            disabled={selectedParties.length === 0}
+          >
+            <div className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Selected</span>
+            </div>
+            <span className="ml-2">{`(${selectedParties.length})`}</span>
+          </button>
+        </div>
+      </div>
+
       {(selectedCategory !== "Select Categories" || searchQuery) && (
         <div className="flex justify-between items-center mb-2">
           <div className="text-sm text-business_settings_gray_text">
@@ -474,6 +529,20 @@ const Modal: React.FC = () => {
           <table className="w-full bg-universal_gray_background">
             <thead>
               <tr className="">
+                <th className="py-6 px-4 border-b text-left">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={selectedParties.length === filteredPartiesList.length && filteredPartiesList.length > 0}
+                    onChange={() => {
+                      if (selectedParties.length === filteredPartiesList.length) {
+                        setSelectedParties([])
+                      } else {
+                        setSelectedParties(filteredPartiesList.map((party) => party._id || "").filter(Boolean))
+                      }
+                    }}
+                  />
+                </th>
                 <th className="py-6 px-4 border-b text-left">Name</th>
                 <th className="py-6 px-4 border-b text-left">Category</th>
                 <th className="py-6 px-4 border-b text-left">Type</th>
@@ -485,6 +554,14 @@ const Modal: React.FC = () => {
             <tbody>
               {filteredPartiesList.map((party, index) => (
                 <tr key={index} className="bg-white hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={party._id ? selectedParties.includes(party._id) : false}
+                      onChange={() => togglePartySelection(party._id)}
+                    />
+                  </td>
                   <td className="py-2 px-4 border-b">{party.partyName}</td>
                   <td className="py-2 px-4 border-b">{party.partyType}</td>
                   <td className="py-2 px-4 border-b">{party.partyType}</td>
@@ -495,7 +572,7 @@ const Modal: React.FC = () => {
               ))}
               {filteredPartiesList.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-business_settings_gray_text">
+                  <td colSpan={7} className="py-8 text-center text-business_settings_gray_text">
                     No parties found matching your filters.
                   </td>
                 </tr>
@@ -515,7 +592,15 @@ const Modal: React.FC = () => {
               <div key={index} className="border-b border-gray-200">
                 <div className="p-4 bg-white">
                   <div className="flex justify-between items-start mb-3">
-                    <div className="font-medium text-lg">{party.partyName}</div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 mr-3"
+                        checked={party._id ? selectedParties.includes(party._id) : false}
+                        onChange={() => togglePartySelection(party._id)}
+                      />
+                      <div className="font-medium text-lg">{party.partyName}</div>
+                    </div>
                     <button onClick={() => togglePartyExpand(party._id)} className="text-gray-500 focus:outline-none">
                       {expandedParties.includes(party._id || "") ? (
                         <ChevronDown className="h-5 w-5" />
@@ -642,55 +727,41 @@ const Modal: React.FC = () => {
                           <CaretIcon isOpen={isDropdownOpen} />
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="w-full sm:max-w-[176px] border g-change_password_green_background border-sidebar_green_button_background  text-sidebar_green_button_background rounded text-sm font-semibold py-1"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setShowInlineCategoryForm(!showInlineCategoryForm)
-                        }}
-                      >
-                        Create New Category
-                      </button>
                     </div>
-                    {showInlineCategoryForm && (
-                      <div className="mt-2 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          placeholder="Enter category name"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                        />
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              if (newCategoryName.trim()) {
-                                handleCreateCategory(newCategoryName)
-                                setNewCategoryName("")
-                                setShowInlineCategoryForm(false)
-                              }
-                            }}
-                            className="px-3 bg-sidebar_green_button_background text-white rounded h-8"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              setShowInlineCategoryForm(false)
+                    <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Enter new category name"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <div className="flex gap-2 mt-2 sm:mt-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            if (newCategoryName.trim()) {
+                              handleCreateCategory(newCategoryName)
                               setNewCategoryName("")
-                            }}
-                            className="px-3 border border-gray-300 rounded h-8"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                            }
+                          }}
+                          className="px-3 bg-sidebar_green_button_background text-white rounded h-8"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setNewCategoryName("")
+                          }}
+                          className="px-3 border border-gray-300 rounded h-8"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -882,7 +953,10 @@ const Modal: React.FC = () => {
                   <div className="mt-3 text-center sm:mt-0 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900">Confirm Party Deletion</h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">Are you sure you want to delete this party?</p>
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete {selectedParties.length} selected{" "}
+                        {selectedParties.length === 1 ? "party" : "parties"}?
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -891,6 +965,7 @@ const Modal: React.FC = () => {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={confirmBulkDelete}
                 >
                   Delete
                 </button>
