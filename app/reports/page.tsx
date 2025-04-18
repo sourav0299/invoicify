@@ -286,56 +286,6 @@ export default function Reports() {
             <Filter className="h-4 w-4" />
           </Button>
         </div>
-
-        {showMobileFilters && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-3 animate-in slide-in-from-top duration-300">
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Filter Type</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  value={selectedFilter}
-                  onChange={handleFilterChange}
-                >
-                  <option value="" disabled>
-                    Select filter
-                  </option>
-                  {getFilterOptions().map((option, index) => (
-                    <option key={index} value={option.toLowerCase().replace(/\s+/g, "-")}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Date Range</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  value={selectedDateRange}
-                  onChange={handleDateRangeChange}
-                >
-                  <option value="" disabled>
-                    Date range
-                  </option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="this-week">This Week</option>
-                  <option value="this-month">This Month</option>
-                  <option value="last-month">Last Month</option>
-                  <option value="custom">Custom Range</option>
-                </select>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700">Apply</Button>
-                <Button variant="outline" className="flex-1">
-                  Clear
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Desktop/Tablet Search and Filter */}
@@ -360,82 +310,35 @@ export default function Reports() {
               <TabsList className="inline-flex min-w-max sm:grid sm:grid-cols-5 mb-3 sm:mb-4 bg-white border border-gray-200">
                 <TabsTrigger
                   value="party"
-                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-sm"
+                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
                 >
                   Party
                 </TabsTrigger>
                 <TabsTrigger
                   value="payment"
-                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-sm"
+                  className="data-bg-gray-50 data-[state=active]:text-black-700 text-sm"
                 >
                   Payment
                 </TabsTrigger>
                 <TabsTrigger
                   value="item"
-                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-sm"
+                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
                 >
                   Item
                 </TabsTrigger>
                 <TabsTrigger
                   value="category"
-                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-sm"
+                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
                 >
                   Category
                 </TabsTrigger>
                 <TabsTrigger
                   value="summary"
-                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-sm"
+                  className="data-[state=active]:bg-gray-50 data-[state=active]:text-black-700 text-sm"
                 >
                   Summary
                 </TabsTrigger>
               </TabsList>
-            </div>
-          </div>
-
-          {/* Desktop/Tablet Filter Options */}
-          <div className="hidden sm:flex sm:flex-row flex-wrap gap-2 mb-6">
-            <div className="w-full sm:w-[180px]">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                value={selectedFilter}
-                onChange={handleFilterChange}
-              >
-                <option value="" disabled>
-                  Select filter
-                </option>
-                {getFilterOptions().map((option, index) => (
-                  <option key={index} value={option.toLowerCase().replace(/\s+/g, "-")}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="w-full sm:w-[180px]">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                value={selectedDateRange}
-                onChange={handleDateRangeChange}
-              >
-                <option value="" disabled>
-                  Date range
-                </option>
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="this-week">This Week</option>
-                <option value="this-month">This Month</option>
-                <option value="last-month">Last Month</option>
-                <option value="custom">Custom Range</option>
-              </select>
-            </div>
-
-            <div className="flex flex-wrap gap-2 w-full">
-              <Button variant="outline" className="flex-1 sm:flex-none">
-                Apply Filters
-              </Button>
-              <Button variant="ghost" className="flex-1 sm:flex-none">
-                Clear
-              </Button>
             </div>
           </div>
 
@@ -483,9 +386,7 @@ export default function Reports() {
                   {transactions.map((transaction) => (
                     <div
                       key={transaction.id}
-                      className={`mb-3 rounded-lg overflow-hidden shadow-sm border border-gray-200 ${
-                        expandedRow === transaction.id ? "bg-white" : "bg-white"
-                      }`}
+                      className="mb-3 rounded-lg overflow-hidden border border-gray-200 bg-white"
                     >
                       <div
                         className={`p-3 flex justify-between items-start cursor-pointer ${

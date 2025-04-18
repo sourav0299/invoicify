@@ -46,7 +46,7 @@ const ExpensesManager: React.FC = () => {
     taxIncluded: true,
     taxRate: 0,
   })
-  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [showCategoryForm, setShowCategoryForm] = useState(true)
   const [errors, setErrors] = useState<{ [K in keyof Expense]?: string }>({})
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
@@ -408,9 +408,7 @@ const ExpensesManager: React.FC = () => {
       <div className="mt-4 mb-2">
         <button
           className={`border rounded-lg py-2 px-3 flex items-center gap-2 ${
-            selectedExpenses.length > 0
-              ? "bg-[#f44336] text-white" : "bg-gray-200 text-gray-500"
-              
+            selectedExpenses.length > 0 ? "bg-[#f44336] text-white" : "bg-gray-200 text-gray-500"
           }`}
           onClick={() => {
             if (selectedExpenses.length > 0) {
@@ -715,44 +713,35 @@ const ExpensesManager: React.FC = () => {
                           <CaretIcon isOpen={false} />
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowCategoryForm(!showCategoryForm)}
-                        className="w-full sm:max-w-[176px] border bg-change_password_green_background border-sidebar_green_button_background text-sidebar_green_button_background rounded text-sm font-semibold py-1"
-                      >
-                        Create New Category
-                      </button>
                     </div>
-                    {showCategoryForm && (
-                      <div className="flex flex-col sm:flex-row gap-2 mt-2 items-start sm:items-center">
-                        <input
-                          type="text"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          placeholder="Enter category name"
-                          className="bg-transparent border border-gray-300 border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
-                        />
-                        <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                          <button
-                            type="button"
-                            onClick={handleCreateCategory}
-                            className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
-                          >
-                            Add
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowCategoryForm(false)
-                              setNewCategoryName("")
-                            }}
-                            className="border border-gray-300 bg-white text-gray-700 rounded text-sm font-semibold h-8 px-4"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2 items-start sm:items-center">
+                      <input
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Enter category name"
+                        className="bg-transparent border border-gray-300 border-dashed flex-1 min-w-[200px] h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <button
+                          type="button"
+                          onClick={handleCreateCategory}
+                          className="border bg-sidebar_green_button_background text-white rounded text-sm font-semibold h-8 px-4"
+                        >
+                          Add
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCategoryForm(false)
+                            setNewCategoryName("")
+                          }}
+                          className="border border-gray-300 bg-white text-gray-700 rounded text-sm font-semibold h-8 px-4"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3 flex-col md:flex-row">

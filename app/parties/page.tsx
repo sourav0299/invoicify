@@ -107,7 +107,6 @@ const Modal: React.FC = () => {
   const [lowStockCount, setLowStockCount] = useState(0)
   const [inStockCount, setInStockCount] = useState(0)
   const [categories, setCategories] = useState<string[]>(["Customer", "Supplier"])
-  const [showInlineCategoryForm, setShowInlineCategoryForm] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedParties, setExpandedParties] = useState<string[]>([])
@@ -255,7 +254,6 @@ const Modal: React.FC = () => {
         setParties((prev) => ({ ...prev, partyType: newCategory.name }))
 
         setNewCategoryName("")
-        setShowInlineCategoryForm(false)
       } else {
         const error = await response.json()
         console.error("Error creating category:", error)
@@ -729,55 +727,41 @@ const Modal: React.FC = () => {
                           <CaretIcon isOpen={isDropdownOpen} />
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="w-full sm:max-w-[176px] border g-change_password_green_background border-sidebar_green_button_background  text-sidebar_green_button_background rounded text-sm font-semibold py-1"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setShowInlineCategoryForm(!showInlineCategoryForm)
-                        }}
-                      >
-                        Create New Category
-                      </button>
                     </div>
-                    {showInlineCategoryForm && (
-                      <div className="mt-2 flex flex-col sm:flex-row gap-2">
-                        <input
-                          type="text"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          placeholder="Enter category name"
-                          className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
-                        />
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              if (newCategoryName.trim()) {
-                                handleCreateCategory(newCategoryName)
-                                setNewCategoryName("")
-                                setShowInlineCategoryForm(false)
-                              }
-                            }}
-                            className="px-3 bg-sidebar_green_button_background text-white rounded h-8"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              setShowInlineCategoryForm(false)
+                    <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Enter new category name"
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
+                      />
+                      <div className="flex gap-2 mt-2 sm:mt-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            if (newCategoryName.trim()) {
+                              handleCreateCategory(newCategoryName)
                               setNewCategoryName("")
-                            }}
-                            className="px-3 border border-gray-300 rounded h-8"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                            }
+                          }}
+                          className="px-3 bg-sidebar_green_button_background text-white rounded h-8"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setNewCategoryName("")
+                          }}
+                          className="px-3 border border-gray-300 rounded h-8"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">

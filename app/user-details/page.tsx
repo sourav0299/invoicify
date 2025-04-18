@@ -253,8 +253,8 @@ const UserDetails = () => {
   useUserCheck()
 
   return (
-    <div className="bg-universal_gray_background min-h-screen pb-24 sm:pb-16">
-      <div className="px-3 sm:px-4 md:px-6 gap-3 max-w-7xl mx-auto">
+    <div className="bg-universal_gray_background min-h-screen pb-24 sm:pb-16 overflow-x-hidden w-full">
+      <div className="px-3 sm:px-4 md:px-6 gap-3 max-w-7xl mx-auto w-full box-border">
         <div className="py-4 sm:py-5 md:py-6 gap-1">
           <div className="flex items-center mb-3 sm:mb-4">
             <Link href="/dashboard">
@@ -274,9 +274,9 @@ const UserDetails = () => {
             Manage your personal information and account settings
           </div>
         </div>
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-4 sm:p-5 md:p-6 h-auto gap-4 shadow-sm mb-16 sm:mb-8">
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-4 sm:p-5 md:p-6 h-auto gap-4 shadow-sm mb-16 sm:mb-8 w-full box-border">
           <div className="flex flex-col md:flex-row gap-5 md:gap-6">
-            <div className="flex items-center justify-center w-full md:max-w-[260px]">
+            <div className="flex items-center justify-center w-full md:max-w-[260px] md:-mt-4">
               {imageUrl ? (
                 <Image
                   src={imageUrl || "/placeholder.svg"}
@@ -318,139 +318,141 @@ const UserDetails = () => {
                 </div>
               </div>
 
-              {/* Email - Full width on all screens */}
-              <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-4 md:p-5 rounded-lg gap-1 shadow-sm">
-                <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">E-mail</div>
-                <input
-                  type="email"
-                  className={`bg-transparent border ${emailError ? "border-red-500" : "border-business_settings_gray_border border-dashed"} w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200`}
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    if (emailError) validateEmail(e.target.value)
-                  }}
-                  onBlur={() => validateEmail(email)}
-                />
-                {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
-              </div>
-
-              {/* Mobile Number - Full width on all screens */}
-              <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-4 md:p-5 rounded-lg gap-1 shadow-sm">
-                <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
-                  Mobile Number
-                </div>
-                <div className="flex flex-row gap-2 relative">
-                  <div className="relative country-dropdown-container w-[120px] flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                      className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background hover:border-sidebar_green_button_background px-2 flex items-center justify-between transition-colors duration-200"
-                    >
-                      <span className="flex items-center">
-                        <img
-                          src={`https://flagcdn.com/w20/${selectedCountry?.iso}.png`}
-                          alt={selectedCountry?.name}
-                          className="mr-1 sm:mr-2 h-3 w-auto object-contain"
-                        />
-                        <span className="text-sm">{selectedCountry?.code}</span>
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        className={`ml-0.5 text-sidebar_green_button_background transition-transform duration-300 ease-in-out ${showCountryDropdown ? "transform rotate-180" : ""}`}
-                      />
-                    </button>
-
-                    {showCountryDropdown && (
-                      <div className="absolute z-10 mt-1 w-[280px] max-h-[200px] overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
-                        <div className="p-2 sticky top-0 bg-white border-b">
-                          <input
-                            type="text"
-                            placeholder="Search countries..."
-                            className="w-full p-2 border rounded-md text-sm"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          {filteredCountries.map((country) => (
-                            <button
-                              key={country.code}
-                              type="button"
-                              className="w-full text-left px-3 sm:px-4 py-2 hover:bg-gray-100 flex items-center text-sm"
-                              onClick={() => {
-                                setCountryCode(country.code)
-                                setShowCountryDropdown(false)
-                                setSearchQuery("")
-                              }}
-                            >
-                              <img
-                                src={`https://flagcdn.com/w20/${country.iso}.png`}
-                                alt={country.name}
-                                className="mr-2 h-3 w-auto object-contain"
-                              />
-                              <span>{country.name}</span>
-                              <span className="ml-2 text-gray-500">{country.code}</span>
-                            </button>
-                          ))}
-                          {filteredCountries.length === 0 && (
-                            <div className="px-4 py-2 text-gray-500 text-sm">No countries found</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+              <div className="flex flex-col sm:flex-row w-full gap-3">
+                <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-4 md:p-5 rounded-lg gap-1 shadow-sm">
+                  <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">E-mail</div>
                   <input
-                    type="tel"
-                    value={contactNumber}
+                    type="email"
+                    className={`bg-transparent border ${emailError ? "border-red-500" : "border-business_settings_gray_border border-dashed"} w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200`}
+                    value={email}
                     onChange={(e) => {
-                      setContactNumber(e.target.value)
-                      if (phoneError) validatePhone(e.target.value)
+                      setEmail(e.target.value)
+                      if (emailError) validateEmail(e.target.value)
                     }}
-                    onBlur={() => validatePhone(contactNumber)}
-                    className={`bg-transparent border ${phoneError ? "border-red-500" : "border-business_settings_gray_border border-dashed"} w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200`}
-                    placeholder="Phone number"
+                    onBlur={() => validateEmail(email)}
+                  />
+                  {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
+                </div>
+
+                <div className="flex flex-col w-full bg-universal_gray_background p-3 sm:p-4 md:p-5 rounded-lg gap-1 shadow-sm mt-3 sm:mt-0">
+                  <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">
+                    Mobile Number
+                  </div>
+                  <div className="flex flex-row gap-2 relative w-full overflow-hidden">
+                    <div className="relative country-dropdown-container w-[90px] flex-shrink-0 ">
+                      <button
+                        type="button"
+                        onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                        className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background hover:border-sidebar_green_button_background px-1 flex items-center justify-between transition-colors duration-200"
+                      >
+                        <span className="flex px-1 items-center">
+                          <img
+                            src={`https://flagcdn.com/w20/${selectedCountry?.iso}.png`}
+                            alt={selectedCountry?.name}
+                            className="mr-1 h-3 w-auto object-contain"
+                          />
+                          <span className="text-sm">{selectedCountry?.code}</span>
+                        </span>
+                        <ChevronDown
+                          size={14}
+                          className={`text-sidebar_green_button_background transition-transform duration-300 ease-in-out ${showCountryDropdown ? "transform rotate-180" : ""}`}
+                        />
+                      </button>
+
+                      {showCountryDropdown && (
+                        <div
+                          className="absolute z-10 mt-1 w-[280px] max-h-[200px] overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg"
+                          style={{ maxWidth: "calc(100vw - 40px)", right: 0 }}
+                        >
+                          <div className="p-2 sticky top-0 bg-white border-b">
+                            <input
+                              type="text"
+                              placeholder="Search countries..."
+                              className="w-full p-2 border rounded-md text-sm"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            {filteredCountries.map((country) => (
+                              <button
+                                key={country.code}
+                                type="button"
+                                className="w-full text-left px-3 sm:px-4 py-2 hover:bg-gray-100 flex items-center text-sm"
+                                onClick={() => {
+                                  setCountryCode(country.code)
+                                  setShowCountryDropdown(false)
+                                  setSearchQuery("")
+                                }}
+                              >
+                                <img
+                                  src={`https://flagcdn.com/w20/${country.iso}.png`}
+                                  alt={country.name}
+                                  className="mr-2 h-3 w-auto object-contain"
+                                />
+                                <span>{country.name}</span>
+                                <span className="ml-2 text-gray-500">{country.code}</span>
+                              </button>
+                            ))}
+                            {filteredCountries.length === 0 && (
+                              <div className="px-4 py-2 text-gray-500 text-sm">No countries found</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="tel"
+                      value={contactNumber}
+                      onChange={(e) => {
+                        setContactNumber(e.target.value)
+                        if (phoneError) validatePhone(e.target.value)
+                      }}
+                      onBlur={() => validatePhone(contactNumber)}
+                      className={`bg-transparent border ${phoneError ? "border-red-500" : "border-business_settings_gray_border border-dashed"} w-full h-10 rounded-md focus:outline-none focus:border-sidebar_green_button_background focus:border-solid p-2 transition-colors duration-200`}
+                      placeholder="Phone number"
+                    />
+                  </div>
+                  {phoneError && <p className="text-xs text-red-500 mt-1">{phoneError}</p>}
+                </div>
+              </div>
+              {/* Password Section */}
+              <div className="flex flex-col md:flex-row gap-3 mt-1">
+                <div className="p-3 sm:p-4 md:p-5 bg-universal_gray_background rounded-lg w-full md:w-3/5 gap-1 shadow-sm">
+                  <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">Password</div>
+                  <input
+                    type="password"
+                    className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none p-2"
+                    value={"••••••••••••••••"}
+                    readOnly
                   />
                 </div>
-                {phoneError && <p className="text-xs text-red-500 mt-1">{phoneError}</p>}
+                <div className="w-full md:w-2/5 flex items-center pb-1 mt-3 md:mt-0">
+                  <button
+                    className="w-full text-sm font-semibold bg-change_password_green_background text-sidebar_green_button_background border border-sidebar_green_button_background rounded-md py-1 px-2 h-10 hover:bg-sidebar_green_button_background/10 transition-colors duration-200"
+                    onClick={() => openUserProfile()}
+                  >
+                    Change Password
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-6 md:justify-end">
+                <button
+                  className="bg-universal_white_background px-4 h-12 py-2 border border-business_settings_gray_border flex items-center justify-center rounded-lg md:w-32 hover:bg-universal_gray_background/50 transition-colors duration-200 text-sm font-medium"
+                  onClick={() => fetchUserDetails()}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-2 flex items-center justify-center rounded-lg md:w-32 focus:outline-none hover:bg-sidebar_green_button_background/90 transition-colors duration-200 text-sm font-medium"
+                >
+                  Save
+                </button>
               </div>
             </div>
-          </div>
-
-          {/* Password Section */}
-          <div className="flex flex-col md:flex-row justify-end gap-3 mt-1">
-            <div className="p-3 sm:p-4 md:p-5 bg-universal_gray_background rounded-lg w-full gap-1 max-w-full md:max-w-[607px] shadow-sm">
-              <div className="bg-transparent w-full text-xs font-medium text-sidebar_black_text mb-1">Password</div>
-              <input
-                type="password"
-                className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-10 rounded-md focus:outline-none p-2"
-                value={"••••••••••••••••"}
-                readOnly
-              />
-            </div>
-            <div className="w-full flex items-center max-w-full md:max-w-[271px] pb-1 mt-3 md:mt-0">
-              <button
-                className="w-full text-sm font-semibold bg-change_password_green_background text-sidebar_green_button_background border border-sidebar_green_button_background rounded-md py-1 px-2 h-10 hover:bg-sidebar_green_button_background/10 transition-colors duration-200"
-                onClick={() => openUserProfile()}
-              >
-                Change Password
-              </button>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 mt-6">
-            <button
-              className="bg-universal_white_background px-4 h-12 py-2 border border-business_settings_gray_border flex items-center justify-center rounded-lg flex-1 hover:bg-universal_gray_background/50 transition-colors duration-200 text-sm font-medium"
-              onClick={() => fetchUserDetails()}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-2 flex items-center justify-center rounded-lg flex-1 focus:outline-none hover:bg-sidebar_green_button_background/90 transition-colors duration-200 text-sm font-medium"
-            >
-              Save
-            </button>
           </div>
         </div>
       </div>
