@@ -14,6 +14,7 @@ import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
 import { useRouter } from "next/navigation"
 import { useUserCheck } from "@/helper/useUserCheck"
+import { useUser } from "@clerk/nextjs"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
@@ -54,6 +55,7 @@ export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
   const [showFullView, setShowFullView] = useState<DetailViewType>(null)
   const router = useRouter()
+  const { user } = useUser()
 
   const handleCardClick = (view: DetailViewType) => {
     setShowFullView(view)
@@ -150,8 +152,8 @@ export default function DashboardPage() {
     <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 md:p-8 bg-[#FAFAFA] pb-16 sm:pb-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-semibold">Hi Minesh,</h1>
-        <Button className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto">
+        <h1 className="text-xl sm:text-2xl font-semibold">Hi {user?.firstName || "there"},</h1>
+        <Button onClick={() => router.push("/invoice-management")} className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto">
           <svg
             className="mr-2 h-4 w-4"
             fill="none"

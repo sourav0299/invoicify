@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useCallback, useEffect } from "react"
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search } from "lucide-react"
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search, X } from "lucide-react"
 import { BrowserQRCodeReader } from "@zxing/browser"
 import { Dialog } from "@headlessui/react"
 import toast from "react-hot-toast"
@@ -15,9 +15,14 @@ interface CreateInvoiceProps {
 
 interface Invoice {
   id: string
-  date: string
-  customer: string
-  amount: string
+  billDate: string
+  brandName: string
+  totalPayableAmount: number
+  items: Array<{
+    itemName: string
+    quantity: number
+    unitPrice: number
+  }>
 }
 
 interface ScanData {
@@ -46,37 +51,17 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [partyContactEmail, setPartyContactEmail] = useState("")
   const [partyContactNumber, setPartyContactNumber] = useState("")
   const [partyGST, setPartyGst] = useState("")
-  const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([
-    {
-      id: "INV-001",
-      date: "01/04/2025",
-      customer: "ABC Corp",
-      amount: "₹8,500",
-    },
-    {
-      id: "INV-002",
-      date: "15/03/2025",
-      customer: "XYZ Ltd",
-      amount: "₹12,300",
-    },
-    {
-      id: "INV-003",
-      date: "28/02/2025",
-      customer: "123 Industries",
-      amount: "₹5,750",
-    },
-    {
-      id: "INV-004",
-      date: "10/02/2025",
-      customer: "Tech Solutions",
-      amount: "₹9,200",
-    },
-  ])
+  const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([])
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
+
+  const [businessSearchQuery, setBusinessSearchQuery] = useState("")
+  const [businessSearchResults, setBusinessSearchResults] = useState<any[]>([])
+  const [isBusinessSearching, setIsBusinessSearching] = useState(false)
+  const [showBusinessSearchResults, setShowBusinessSearchResults] = useState(false)
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout
@@ -98,48 +83,131 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
       try {
         setIsSearching(true)
-        console.log("Searching for:", query)
+        const searchUrl = `/api/products?search=${encodeURIComponent(query)}`
+        console.log("Making API request to:", searchUrl)
 
-        const response = await fetch(`/api/products?search=${encodeURIComponent(query)}`)
-        console.log("Search response status:", response.status)
-
+        const response = await fetch(searchUrl)
+        console.log("API Response Status:", response.status)
+        
         if (response.ok) {
           const data = await response.json()
-          console.log("Search results:", data)
-          setSearchResults(data)
+          console.log("API Response Data:", data)
+          if (Array.isArray(data)) {
+            setSearchResults(data)
+            console.log("Search results set:", data.length, "items")
+          } else {
+            console.error("Unexpected API response format:", data)
+            setSearchResults([])
+          }
         } else {
           const errorData = await response.json().catch(() => ({}))
-          console.error("Failed to fetch products:", response.status, errorData)
+          console.error("API Error Response:", response.status, errorData)
           toast.error("Failed to search products")
+          setSearchResults([])
         }
       } catch (error) {
-        console.error("Error searching products:", error)
+        console.error("Search Error Details:", error)
         toast.error("Error searching products")
+        setSearchResults([])
       } finally {
         setIsSearching(false)
       }
-    }, 500),
+    }, 300),
+    [],
+  )
+
+  const searchBusinesses = useCallback(
+    debounce(async (query: string) => {
+      if (!query.trim()) {
+        setBusinessSearchResults([])
+        setIsBusinessSearching(false)
+        return
+      }
+
+      try {
+        setIsBusinessSearching(true)
+        const searchUrl = `/api/business-search?search=${encodeURIComponent(query)}`
+        console.log("Making API request to:", searchUrl)
+
+        const response = await fetch(searchUrl)
+        console.log("API Response Status:", response.status)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log("API Response Data:", data)
+          if (Array.isArray(data)) {
+            setBusinessSearchResults(data)
+            console.log("Search results set:", data.length, "items")
+          } else {
+            console.error("Unexpected API response format:", data)
+            setBusinessSearchResults([])
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          console.error("API Error Response:", response.status, errorData)
+          toast.error("Failed to search businesses")
+          setBusinessSearchResults([])
+        }
+      } catch (error) {
+        console.error("Search Error Details:", error)
+        toast.error("Error searching businesses")
+        setBusinessSearchResults([])
+      } finally {
+        setIsBusinessSearching(false)
+      }
+    }, 300),
     [],
   )
 
   const addProductToInvoice = (product: any) => {
-    const newItem: ScanData = {
-      userEmail: "",
-      itemName: product.name || "Product",
-      itemType: "Product",
-      itemCode: product._id || "",
-      inventory: "1",
-      measuringUnit: product.unit || "Piece",
-      salesPrice: product.price?.toString() || "0",
-      taxIncluded: false,
-      taxRate: product.taxRate?.toString() || "18",
-    }
+    console.log("Adding product to invoice:", product)
+    try {
+      const newItem: ScanData = {
+        userEmail: product.userEmail || "",
+        itemName: product.itemName || "Product",
+        itemType: "Product",
+        itemCode: product.itemCode || "",
+        inventory: product.inventory || "1",
+        measuringUnit: product.measuringUnit || "Piece",
+        salesPrice: product.salesPrice?.toString() || "0",
+        taxIncluded: product.taxIncluded || false,
+        taxRate: product.taxRate?.toString() || "18",
+      }
+      console.log("Created new item:", newItem)
 
-    setResults([...results, newItem])
-    setSearchQuery("")
-    setSearchResults([])
-    setShowSearchResults(false)
-    toast.success("Item added successfully!")
+      setResults(prevResults => {
+        const newResults = [...prevResults, newItem]
+        console.log("Updated results array:", newResults)
+        return newResults
+      })
+      
+      setSearchQuery("")
+      setSearchResults([])
+      setShowSearchResults(false)
+      toast.success(`Added ${product.itemName} to invoice`)
+    } catch (error) {
+      console.error("Error adding product to invoice:", error)
+      toast.error("Failed to add product to invoice")
+    }
+  }
+
+  const selectBusiness = (business: any) => {
+    console.log("Selected business:", business)
+    try {
+      setBrandName(business.businessName || "")
+      setPartyContactEmail(business.companyEmail || "")
+      setPartyContactNumber(business.companyNumber || "")
+      setPartyGst(business.gstNumber || "")
+      setBillingAddress(business.billingAddress || "")
+      
+      setBusinessSearchQuery("")
+      setBusinessSearchResults([])
+      setShowBusinessSearchResults(false)
+      toast.success(`Selected ${business.businessName}`)
+    } catch (error) {
+      console.error("Error selecting business:", error)
+      toast.error("Failed to select business")
+    }
   }
 
   const months = [
@@ -287,8 +355,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
   const calculateTotalIgst = () => {
     return results.reduce((total, item) => {
-      const igst = Number(item.salesPrice) * Number(item.inventory) * 0.09
-      return total + igst
+      const igst = (Number(item.salesPrice) * Number(item.inventory) * (1 + Number(item.taxRate)/100)) - (Number(item.salesPrice) * Number(item.inventory))
+      return  igst/2
     }, 0)
   }
 
@@ -299,9 +367,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     }
 
     try {
-      // Convert Clerk userId string to integer
-      const numericUserId = Number.parseInt(userId.replace(/\D/g, ""), 10)
-
       const response = await fetch("/api/create-invoice", {
         method: "POST",
         headers: {
@@ -330,12 +395,30 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       if (response.ok) {
         const data = await response.json()
         toast.success("Invoice Generated Successfully")
+        // Refresh the previous invoices list
+        const updatedResponse = await fetch('/api/invoices')
+        if (updatedResponse.ok) {
+          const updatedData = await updatedResponse.json()
+          setPreviousInvoices(updatedData.map((invoice: any) => ({
+            id: invoice.invoiceNumber,
+            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
+            brandName: invoice.brandName,
+            totalPayableAmount: invoice.totalPayableAmount,
+          })))
+        }
       } else {
-        toast.error("Something went wrong")
+        const error = await response.json()
+        toast.error(error.error || "Failed to generate invoice")
       }
     } catch (error) {
-      toast.error("Something went wrong")
+      console.error('Error saving invoice:', error)
+      toast.error("Failed to generate invoice")
     }
+  }
+
+  const handleDeleteItem = (index: number) => {
+    setResults(prevResults => prevResults.filter((_, i) => i !== index))
+    toast.success("Item removed successfully!")
   }
 
   useEffect(() => {
@@ -350,6 +433,33 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
+  }, [])
+
+  // Fetch previous invoices
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const response = await fetch('/api/invoices')
+        if (response.ok) {
+          const data = await response.json()
+          setPreviousInvoices(data.map((invoice: any) => ({
+            id: invoice.invoiceNumber,
+            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
+            brandName: invoice.brandName,
+            totalPayableAmount: invoice.totalPayableAmount,
+          })))
+        } else {
+          const error = await response.json()
+          console.error('Failed to fetch invoices:', error)
+          toast.error(error.error || 'Failed to fetch invoices')
+        }
+      } catch (error) {
+        console.error('Error fetching invoices:', error)
+        toast.error('Failed to fetch invoices')
+      }
+    }
+
+    fetchInvoices()
   }, [])
 
   return (
@@ -378,6 +488,54 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
         {/* Invoice Details Form */}
         <div className="bg-white border border-[#f0f1f3] rounded-md p-4 sm:p-6 mb-6">
+          <div className="relative">
+            <div className="flex items-center border border-[#e0e2e7] rounded-md overflow-hidden mb-3">
+              <input
+                type="text"
+                value={businessSearchQuery}
+                onChange={(e) => {
+                  setBusinessSearchQuery(e.target.value)
+                  searchBusinesses(e.target.value)
+                  setShowBusinessSearchResults(true)
+                }}
+                onFocus={() => {
+                  setShowBusinessSearchResults(true)
+                  if (businessSearchQuery.trim()) {
+                    searchBusinesses(businessSearchQuery)
+                  }
+                }}
+                placeholder="Search for party who are already part of invoicify..."
+                className="py-3 px-4 text-[14px] w-full outline-none"
+              />
+              <div className="px-3 text-[#667085]">
+                <Search size={18} />
+              </div>
+            </div>
+
+            {showBusinessSearchResults && (businessSearchResults.length > 0 || isBusinessSearching) && (
+              <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e0e2e7] rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                {isBusinessSearching ? (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">Searching...</div>
+                ) : businessSearchResults.length > 0 ? (
+                  businessSearchResults.map((business, index) => (
+                    <div
+                      key={index}
+                      onClick={() => selectBusiness(business)}
+                      className="p-3 hover:bg-[#f7f7f7] cursor-pointer border-b border-[#f0f1f3] last:border-b-0"
+                    >
+                      <div className="text-[14px] font-medium text-[#333843]">{business.businessName}</div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-[13px] text-[#667085]">GST: {business.gstNumber || "No GST"}</span>
+                        <span className="text-[13px] text-[#667085]">{business.companyNumber || "No phone"}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">No businesses found</div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-3">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Brand Name</h3>
@@ -600,6 +758,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <th className="py-3 px-2 sm:px-4 text-right font-medium">TAX</th>
                 <th className="py-3 px-2 sm:px-4 text-right font-medium hidden sm:table-cell">AMOUNT</th>
                 <th className="py-3 px-2 sm:px-4 text-right font-medium">TOTAL</th>
+                <th className="py-3 px-2 sm:px-4 text-center font-medium">ACTION</th>
               </tr>
             </thead>
             <tbody>
@@ -635,6 +794,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       (1 + Number(result.taxRate) / 100)
                     ).toFixed(2)}
                   </td>
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
+                    <button 
+                      onClick={() => handleDeleteItem(index)}
+                      className="text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {results.length === 0 && (
@@ -660,8 +827,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   searchProducts(e.target.value)
                   setShowSearchResults(true)
                 }}
-                onFocus={() => setShowSearchResults(true)}
-                placeholder="Search for products..."
+                onFocus={() => {
+                  setShowSearchResults(true)
+                  if (searchQuery.trim()) {
+                    searchProducts(searchQuery)
+                  }
+                }}
+                placeholder="Search for products by name or code..."
                 className="py-3 px-4 text-[14px] w-full outline-none"
               />
               <div className="px-3 text-[#667085]">
@@ -680,10 +852,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       onClick={() => addProductToInvoice(product)}
                       className="p-3 hover:bg-[#f7f7f7] cursor-pointer border-b border-[#f0f1f3] last:border-b-0"
                     >
-                      <div className="text-[14px] font-medium text-[#333843]">{product.name}</div>
+                      <div className="text-[14px] font-medium text-[#333843]">{product.itemName}</div>
                       <div className="flex justify-between mt-1">
-                        <span className="text-[13px] text-[#667085]">{product.code || "No code"}</span>
-                        <span className="text-[13px] font-medium text-[#333843]">₹{product.price || "0"}</span>
+                        <span className="text-[13px] text-[#667085]">Code: {product.itemCode || "No code"}</span>
+                        <span className="text-[13px] font-medium text-[#333843]">₹{product.salesPrice || "0"}</span>
                       </div>
                     </div>
                   ))
@@ -767,8 +939,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   <p className="text-[14px] text-[#333843]">{calculateTotalIgst().toFixed(2)}</p>
                   <p className="text-[13px] text-[#667085]">(CGST)</p>
                 </div>
-                <div className="text-right text-[14px] text-[#333843] flex items-center justify-end">
-                  <span>₹{calculateTotalBeforeTax().toFixed(2)}</span>
+                <div className="text-right text-[14px] text-[#333843]">
+                  <p className="text-[14px] text-[#333843]">₹{calculateTotalBeforeTax().toFixed(2)}</p>
+                  <p className="text-[13px] text-[#667085]">(Before tax amount)</p>
                 </div>
               </div>
             </div>
@@ -819,12 +992,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   {previousInvoices.map((invoice) => (
                     <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
                       <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.id}</td>
-                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.date}</td>
+                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.billDate}</td>
                       <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843] hidden sm:table-cell">
-                        {invoice.customer}
+                        {invoice.brandName}
                       </td>
                       <td className="py-3 px-3 text-right text-[13px] sm:text-[14px] text-[#333843]">
-                        {invoice.amount}
+                        ₹{invoice.totalPayableAmount.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-center">
                         <button className="text-[#1eb386] hover:text-[#40c79a]">
@@ -833,6 +1006,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       </td>
                     </tr>
                   ))}
+                  {previousInvoices.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-4 text-center text-[#667085] text-[14px]">
+                        No previous invoices found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
