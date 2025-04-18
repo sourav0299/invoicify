@@ -15,9 +15,14 @@ interface CreateInvoiceProps {
 
 interface Invoice {
   id: string
-  date: string
-  customer: string
-  amount: string
+  billDate: string
+  brandName: string
+  totalPayableAmount: number
+  items: Array<{
+    itemName: string
+    quantity: number
+    unitPrice: number
+  }>
 }
 
 interface ScanData {
@@ -46,32 +51,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [partyContactEmail, setPartyContactEmail] = useState("")
   const [partyContactNumber, setPartyContactNumber] = useState("")
   const [partyGST, setPartyGst] = useState("")
-  const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([
-    {
-      id: "INV-001",
-      date: "01/04/2025",
-      customer: "ABC Corp",
-      amount: "₹8,500",
-    },
-    {
-      id: "INV-002",
-      date: "15/03/2025",
-      customer: "XYZ Ltd",
-      amount: "₹12,300",
-    },
-    {
-      id: "INV-003",
-      date: "28/02/2025",
-      customer: "123 Industries",
-      amount: "₹5,750",
-    },
-    {
-      id: "INV-004",
-      date: "10/02/2025",
-      customer: "Tech Solutions",
-      amount: "₹9,200",
-    },
-  ])
+  const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([])
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -387,9 +367,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     }
 
     try {
-      // Convert Clerk userId string to integer
-      const numericUserId = Number.parseInt(userId.replace(/\D/g, ""), 10)
-
       const response = await fetch("/api/create-invoice", {
         method: "POST",
         headers: {
@@ -418,11 +395,24 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       if (response.ok) {
         const data = await response.json()
         toast.success("Invoice Generated Successfully")
+        // Refresh the previous invoices list
+        const updatedResponse = await fetch('/api/invoices')
+        if (updatedResponse.ok) {
+          const updatedData = await updatedResponse.json()
+          setPreviousInvoices(updatedData.map((invoice: any) => ({
+            id: invoice.invoiceNumber,
+            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
+            brandName: invoice.brandName,
+            totalPayableAmount: invoice.totalPayableAmount,
+          })))
+        }
       } else {
-        toast.error("Something went wrong")
+        const error = await response.json()
+        toast.error(error.error || "Failed to generate invoice")
       }
     } catch (error) {
-      toast.error("Something went wrong")
+      console.error('Error saving invoice:', error)
+      toast.error("Failed to generate invoice")
     }
   }
 
@@ -443,6 +433,33 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
+  }, [])
+
+  // Fetch previous invoices
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const response = await fetch('/api/invoices')
+        if (response.ok) {
+          const data = await response.json()
+          setPreviousInvoices(data.map((invoice: any) => ({
+            id: invoice.invoiceNumber,
+            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
+            brandName: invoice.brandName,
+            totalPayableAmount: invoice.totalPayableAmount,
+          })))
+        } else {
+          const error = await response.json()
+          console.error('Failed to fetch invoices:', error)
+          toast.error(error.error || 'Failed to fetch invoices')
+        }
+      } catch (error) {
+        console.error('Error fetching invoices:', error)
+        toast.error('Failed to fetch invoices')
+      }
+    }
+
+    fetchInvoices()
   }, [])
 
   return (
@@ -975,12 +992,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   {previousInvoices.map((invoice) => (
                     <tr key={invoice.id} className="border-b border-[#f0f1f3] hover:bg-[#f9f9f9]">
                       <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.id}</td>
-                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.date}</td>
+                      <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843]">{invoice.billDate}</td>
                       <td className="py-3 px-3 text-[13px] sm:text-[14px] text-[#333843] hidden sm:table-cell">
-                        {invoice.customer}
+                        {invoice.brandName}
                       </td>
                       <td className="py-3 px-3 text-right text-[13px] sm:text-[14px] text-[#333843]">
-                        {invoice.amount}
+                        ₹{invoice.totalPayableAmount.toFixed(2)}
                       </td>
                       <td className="py-3 px-3 text-center">
                         <button className="text-[#1eb386] hover:text-[#40c79a]">
@@ -989,6 +1006,13 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       </td>
                     </tr>
                   ))}
+                  {previousInvoices.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-4 text-center text-[#667085] text-[14px]">
+                        No previous invoices found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
