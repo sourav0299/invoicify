@@ -23,7 +23,7 @@ interface Invoice {
   invoiceNumber: string
   date: string
   party: string
-  amount: number
+  amount: string
   status: string
   category: string
   item: string
@@ -52,7 +52,9 @@ export default function Reports() {
         }
         
         const data = await response.json()
-        setInvoices(data)
+        // Filter only pending invoices
+        const pendingInvoices = data.filter((invoice: Invoice) => invoice.status.toLowerCase() === 'pending')
+        setInvoices(pendingInvoices)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch invoices')
         console.error('Error fetching invoices:', err)
@@ -213,8 +215,8 @@ export default function Reports() {
     <div className="flex flex-col gap-4 sm:gap-6 p-3 sm:p-6 bg-gray-50 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Reports</h1>
-          <p className="text-sm sm:text-base text-gray-600">An overview of all your transactions over the year.</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Pending Invoices</h1>
+          <p className="text-sm sm:text-base text-gray-600">Overview of all pending transactions</p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <Button
@@ -310,7 +312,7 @@ export default function Reports() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Invoice ID</TableHead>
+                            <TableHead>Invoice Number</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Party</TableHead>
                             <TableHead>Amount</TableHead>
@@ -320,14 +322,14 @@ export default function Reports() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {transactions.map((transaction) => (
-                            <TableRow key={transaction.id}>
-                              <TableCell className="font-medium">{transaction.id}</TableCell>
-                              <TableCell>{transaction.date}</TableCell>
-                              <TableCell>{transaction.party}</TableCell>
-                              <TableCell>₹{transaction.amount}</TableCell>
-                              <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                              <TableCell>{transaction.category}</TableCell>
+                          {invoices.map((invoice) => (
+                            <TableRow key={invoice.id}>
+                              <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                              <TableCell>{invoice.date}</TableCell>
+                              <TableCell>{invoice.party}</TableCell>
+                              <TableCell>₹{invoice.amount}</TableCell>
+                              <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                              <TableCell>{invoice.category}</TableCell>
                               <TableCell>
                                 <div className="relative inline-block text-left">
                                   <Button variant="ghost" size="sm">
@@ -343,47 +345,39 @@ export default function Reports() {
 
                     {/* Mobile Card View */}
                     <div className="sm:hidden">
-                      {transactions.map((transaction) => (
+                      {invoices.map((invoice) => (
                         <div
-                          key={transaction.id}
+                          key={invoice.id}
                           className="mb-3 rounded-sm overflow-hidden border border-gray-200 bg-white"
                         >
                           <div
                             className={`p-3 flex justify-between items-start cursor-pointer ${
-                              expandedRow === transaction.id ? "border-b border-gray-100" : ""
+                              expandedRow === invoice.id ? "border-b border-gray-100" : ""
                             }`}
-                            onClick={() => toggleRowExpansion(transaction.id)}
+                            onClick={() => toggleRowExpansion(invoice.id)}
                           >
                             <div className="flex-1 min-w-0 pr-2">
                               <div className="flex items-center">
-                                <div
-                                  className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${
-                                    transaction.status === "Paid"
-                                      ? "bg-green-500"
-                                      : transaction.status === "Pending"
-                                        ? "bg-yellow-500"
-                                        : "bg-red-500"
-                                  }`}
-                                ></div>
-                                <div className="font-medium text-gray-900 truncate">{transaction.id}</div>
+                                <div className="w-2 h-2 rounded-full mr-2 flex-shrink-0 bg-yellow-500"></div>
+                                <div className="font-medium text-gray-900 truncate">{invoice.invoiceNumber}</div>
                               </div>
-                              <div className="text-sm font-medium text-gray-800 mt-1 truncate">{transaction.party}</div>
+                              <div className="text-sm font-medium text-gray-800 mt-1 truncate">{invoice.party}</div>
                               <div className="flex items-center text-xs text-gray-500 mt-1">
                                 <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
-                                <span className="truncate">{transaction.date}</span>
+                                <span className="truncate">{invoice.date}</span>
                               </div>
                             </div>
                             <div className="flex flex-col items-end gap-1 flex-shrink-0">
                               <div className="flex items-center">
                                 <span className="text-gray-500 mr-1">₹</span>
-                                <div className="text-sm font-bold text-gray-900">{transaction.amount}</div>
+                                <div className="text-sm font-bold text-gray-900">{invoice.amount}</div>
                               </div>
-                              <div>{getStatusBadge(transaction.status)}</div>
+                              <div>{getStatusBadge(invoice.status)}</div>
                               <button
                                 className="mt-1 flex items-center justify-center bg-gray-50 rounded-full w-6 h-6"
-                                aria-label={expandedRow === transaction.id ? "Collapse details" : "Expand details"}
+                                aria-label={expandedRow === invoice.id ? "Collapse details" : "Expand details"}
                               >
-                                {expandedRow === transaction.id ? (
+                                {expandedRow === invoice.id ? (
                                   <ChevronDown className="h-4 w-4 text-gray-600" />
                                 ) : (
                                   <ChevronRight className="h-4 w-4 text-gray-600" />
@@ -392,21 +386,21 @@ export default function Reports() {
                             </div>
                           </div>
 
-                          {expandedRow === transaction.id && (
+                          {expandedRow === invoice.id && (
                             <div className="p-3 bg-gray-50 border-t border-gray-100">
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-white p-2 rounded-md shadow-sm">
                                   <div className="text-xs font-medium text-gray-500 mb-1">Category</div>
-                                  <div className="text-sm font-medium text-gray-900 truncate">{transaction.category}</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.category}</div>
                                 </div>
                                 <div className="bg-white p-2 rounded-md shadow-sm">
                                   <div className="text-xs font-medium text-gray-500 mb-1">Item</div>
-                                  <div className="text-sm font-medium text-gray-900 truncate">{transaction.item}</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.item}</div>
                                 </div>
                               </div>
 
                               <div className="mt-3 flex items-center justify-between">
-                                <div className="text-xs text-gray-500">#{transaction.id.split("-")[1]}</div>
+                                <div className="text-xs text-gray-500">#{invoice.id}</div>
                                 <Button
                                   size="sm"
                                   className="flex items-center bg-green-600 hover:bg-green-700 text-xs py-1 h-7"
@@ -431,8 +425,8 @@ export default function Reports() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 sm:mt-6">
         <div className="text-sm text-gray-600 order-2 sm:order-1">
-          Showing <span className="font-medium">{transactions.length}</span> of{" "}
-          <span className="font-medium">{transactions.length}</span> transactions
+          Showing <span className="font-medium">{invoices.length}</span> pending{" "}
+          <span className="font-medium">invoices</span>
         </div>
       </div>
     </div>
