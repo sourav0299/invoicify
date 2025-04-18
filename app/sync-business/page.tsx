@@ -5,8 +5,6 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { toast } from "react-hot-toast"
 import axios from "axios"
-import { FaLocationCrosshairs } from "react-icons/fa6"
-import { ArrowUpFromLine } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUserCheck } from "@/helper/useUserCheck"
 
@@ -258,7 +256,7 @@ const BusinessSettings = () => {
 
       if (response.ok) {
         toast.success("form Submitted succesfully")
-        window.location.href = '/sync-plans'
+        window.location.href = "/sync-plans"
         // Optionally, you can refresh the data here
         await fetchBusinessDetails()
       } else {
@@ -273,7 +271,7 @@ const BusinessSettings = () => {
   useUserCheck()
   return (
     <div className="bg-universal_gray_background pb-10">
-      <div className="px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
+      <div className="px-4 sm:px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
         <div className="flex flex-col items-center py-4">
           {/* Logo and heading area */}
           <div className="flex items-center justify-center mb-4">
@@ -295,8 +293,8 @@ const BusinessSettings = () => {
           </div>
         </div>
 
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-6 h-auto gap-4">
-          <div className="flex gap-6">
+        <div className="rounded-lg bg-universal_white_background flex flex-col p-3 sm:p-6 h-auto gap-4">
+          <div className="flex flex-col sm:flex-row gap-6">
             {/* Business Logo Upload Section */}
             <div className="flex flex-col items-center">
               <div
@@ -392,7 +390,7 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg">
               <div className="text-sidebar_black_text text-xs">Gst Registered?</div>
               <div className="flex gap-10">
@@ -456,7 +454,7 @@ const BusinessSettings = () => {
               {errors.panNumber && <p className="text-xs text-red-500 mt-1">{errors.panNumber}</p>}
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg w-full max-w-[365px] gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Company E-mail</div>
               <input
@@ -489,10 +487,13 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
-          <Button className="flex justify-end items-center gap-4 ml-[88%]" onClick={getlocation}>
-            Get Location 
+          <Button
+            className="flex justify-end items-center gap-4 ml-auto sm:ml-[88%] w-auto sm:w-auto"
+            onClick={getlocation}
+          >
+            Get Location
           </Button>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">State</div>
               <input
@@ -524,10 +525,10 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
-          <div className="flex">
+          <div className="flex flex-col sm:flex-row">
             <div className="p-5 bg-universal_gray_background rounded-lg w-full gap-1">
               <div className="bg-transparent w-full text-xs text-sidebar_black_text">Terms & Conditions</div>
-              <div className="flex gap-8">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
                 <textarea
                   name="termsAndConditions"
                   value={formData.termsAndConditions}
@@ -535,7 +536,7 @@ const BusinessSettings = () => {
                   className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
                 />
                 <div
-                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1"
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full sm:max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1 mt-3 sm:mt-0"
                   onClick={() => signatureRef.current?.click()}
                 >
                   {signaturePreview ? (
@@ -560,16 +561,16 @@ const BusinessSettings = () => {
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
             <button
-              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full sm:max-w-[190px]"
               onClick={() => fetchBusinessDetails()}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full max-w-[190px]"
+              className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] mt-2 sm:mt-0"
             >
               Save
             </button>
@@ -581,4 +582,3 @@ const BusinessSettings = () => {
 }
 
 export default BusinessSettings
-
