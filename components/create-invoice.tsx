@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useCallback, useEffect } from "react"
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search } from "lucide-react"
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search, X } from "lucide-react"
 import { BrowserQRCodeReader } from "@zxing/browser"
 import { Dialog } from "@headlessui/react"
 import toast from "react-hot-toast"
@@ -375,8 +375,8 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
   const calculateTotalIgst = () => {
     return results.reduce((total, item) => {
-      const igst = Number(item.salesPrice) * Number(item.inventory) * 0.09
-      return total + igst
+      const igst = (Number(item.salesPrice) * Number(item.inventory) * (1 + Number(item.taxRate)/100)) - (Number(item.salesPrice) * Number(item.inventory))
+      return  igst/2
     }, 0)
   }
 
@@ -424,6 +424,11 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     } catch (error) {
       toast.error("Something went wrong")
     }
+  }
+
+  const handleDeleteItem = (index: number) => {
+    setResults(prevResults => prevResults.filter((_, i) => i !== index))
+    toast.success("Item removed successfully!")
   }
 
   useEffect(() => {
@@ -736,6 +741,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <th className="py-3 px-2 sm:px-4 text-right font-medium">TAX</th>
                 <th className="py-3 px-2 sm:px-4 text-right font-medium hidden sm:table-cell">AMOUNT</th>
                 <th className="py-3 px-2 sm:px-4 text-right font-medium">TOTAL</th>
+                <th className="py-3 px-2 sm:px-4 text-center font-medium">ACTION</th>
               </tr>
             </thead>
             <tbody>
@@ -770,6 +776,14 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                       Number(result.salesPrice) *
                       (1 + Number(result.taxRate) / 100)
                     ).toFixed(2)}
+                  </td>
+                  <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
+                    <button 
+                      onClick={() => handleDeleteItem(index)}
+                      className="text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -908,8 +922,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                   <p className="text-[14px] text-[#333843]">{calculateTotalIgst().toFixed(2)}</p>
                   <p className="text-[13px] text-[#667085]">(CGST)</p>
                 </div>
-                <div className="text-right text-[14px] text-[#333843] flex items-center justify-end">
-                  <span>₹{calculateTotalBeforeTax().toFixed(2)}</span>
+                <div className="text-right text-[14px] text-[#333843]">
+                  <p className="text-[14px] text-[#333843]">₹{calculateTotalBeforeTax().toFixed(2)}</p>
+                  <p className="text-[13px] text-[#667085]">(Before tax amount)</p>
                 </div>
               </div>
             </div>
