@@ -3,7 +3,7 @@
 type SubscriptionResponse = {
     subscription: {
         id: number;
-        userId: number;
+        email: String;
         planId: number;
         pluralOrderId: string;
         status: string;
@@ -11,7 +11,7 @@ type SubscriptionResponse = {
     };
 };
 
-export async function createSubscription(userId: number, planId: number, orderId: string) {
+export async function createSubscription(email: string, planId: number, orderId: string) {
     try {
         const response = await fetch('/api/subscribe', {
             method: 'POST',
@@ -19,7 +19,7 @@ export async function createSubscription(userId: number, planId: number, orderId
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                userId,
+                email,
                 planId,
                 pluralOrderId: orderId,
             }),
