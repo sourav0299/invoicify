@@ -454,22 +454,6 @@ const UserDetails = () => {
               </div>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 mt-6 lg:ml-72">
-            <button
-              className="bg-universal_white_background px-4 h-12 py-2 border border-business_settings_gray_border flex items-center justify-center rounded-lg flex-1 hover:bg-universal_gray_background/50 transition-colors duration-200 text-sm font-medium"
-              onClick={() => fetchUserDetails()}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-2 flex items-center justify-center rounded-lg flex-1 focus:outline-none hover:bg-sidebar_green_button_background/90 transition-colors duration-200 text-sm font-medium"
-            >
-              Save
-            </button>
-          </div>
         </div>
       </div>
     </div>

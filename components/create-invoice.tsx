@@ -99,7 +99,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       try {
         setIsSearching(true)
         console.log("Searching for:", query)
-
         const response = await fetch(`/api/products?search=${encodeURIComponent(query)}`)
         console.log("Search response status:", response.status)
 
