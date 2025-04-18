@@ -78,6 +78,11 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
 
+  const [businessSearchQuery, setBusinessSearchQuery] = useState("")
+  const [businessSearchResults, setBusinessSearchResults] = useState<any[]>([])
+  const [isBusinessSearching, setIsBusinessSearching] = useState(false)
+  const [showBusinessSearchResults, setShowBusinessSearchResults] = useState(false)
+
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout
     return (...args: any[]) => {
@@ -131,6 +136,49 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     [],
   )
 
+  const searchBusinesses = useCallback(
+    debounce(async (query: string) => {
+      if (!query.trim()) {
+        setBusinessSearchResults([])
+        setIsBusinessSearching(false)
+        return
+      }
+
+      try {
+        setIsBusinessSearching(true)
+        const searchUrl = `/api/business-search?search=${encodeURIComponent(query)}`
+        console.log("Making API request to:", searchUrl)
+
+        const response = await fetch(searchUrl)
+        console.log("API Response Status:", response.status)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log("API Response Data:", data)
+          if (Array.isArray(data)) {
+            setBusinessSearchResults(data)
+            console.log("Search results set:", data.length, "items")
+          } else {
+            console.error("Unexpected API response format:", data)
+            setBusinessSearchResults([])
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          console.error("API Error Response:", response.status, errorData)
+          toast.error("Failed to search businesses")
+          setBusinessSearchResults([])
+        }
+      } catch (error) {
+        console.error("Search Error Details:", error)
+        toast.error("Error searching businesses")
+        setBusinessSearchResults([])
+      } finally {
+        setIsBusinessSearching(false)
+      }
+    }, 300),
+    [],
+  )
+
   const addProductToInvoice = (product: any) => {
     console.log("Adding product to invoice:", product)
     try {
@@ -160,6 +208,25 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     } catch (error) {
       console.error("Error adding product to invoice:", error)
       toast.error("Failed to add product to invoice")
+    }
+  }
+
+  const selectBusiness = (business: any) => {
+    console.log("Selected business:", business)
+    try {
+      setBrandName(business.businessName || "")
+      setPartyContactEmail(business.companyEmail || "")
+      setPartyContactNumber(business.companyNumber || "")
+      setPartyGst(business.gstNumber || "")
+      setBillingAddress(business.billingAddress || "")
+      
+      setBusinessSearchQuery("")
+      setBusinessSearchResults([])
+      setShowBusinessSearchResults(false)
+      toast.success(`Selected ${business.businessName}`)
+    } catch (error) {
+      console.error("Error selecting business:", error)
+      toast.error("Failed to select business")
     }
   }
 
@@ -399,6 +466,54 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
         {/* Invoice Details Form */}
         <div className="bg-white border border-[#f0f1f3] rounded-md p-4 sm:p-6 mb-6">
+          <div className="relative">
+            <div className="flex items-center border border-[#e0e2e7] rounded-md overflow-hidden mb-3">
+              <input
+                type="text"
+                value={businessSearchQuery}
+                onChange={(e) => {
+                  setBusinessSearchQuery(e.target.value)
+                  searchBusinesses(e.target.value)
+                  setShowBusinessSearchResults(true)
+                }}
+                onFocus={() => {
+                  setShowBusinessSearchResults(true)
+                  if (businessSearchQuery.trim()) {
+                    searchBusinesses(businessSearchQuery)
+                  }
+                }}
+                placeholder="Search for party who are already part of invoicify..."
+                className="py-3 px-4 text-[14px] w-full outline-none"
+              />
+              <div className="px-3 text-[#667085]">
+                <Search size={18} />
+              </div>
+            </div>
+
+            {showBusinessSearchResults && (businessSearchResults.length > 0 || isBusinessSearching) && (
+              <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e0e2e7] rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                {isBusinessSearching ? (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">Searching...</div>
+                ) : businessSearchResults.length > 0 ? (
+                  businessSearchResults.map((business, index) => (
+                    <div
+                      key={index}
+                      onClick={() => selectBusiness(business)}
+                      className="p-3 hover:bg-[#f7f7f7] cursor-pointer border-b border-[#f0f1f3] last:border-b-0"
+                    >
+                      <div className="text-[14px] font-medium text-[#333843]">{business.businessName}</div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-[13px] text-[#667085]">GST: {business.gstNumber || "No GST"}</span>
+                        <span className="text-[13px] text-[#667085]">{business.companyNumber || "No phone"}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-[14px] text-[#667085]">No businesses found</div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-3">
             <div>
               <h3 className="text-[13px] text-[#667085] mb-2">Brand Name</h3>
