@@ -67,12 +67,16 @@ export default function InvoiceSettingsPage() {
   }
 
   const handleSaveTemplate = () => {
-    // Save template settings to backend or local storage
-    console.log("Saving template settings:", {
+    // Create settings object
+    const settings = {
       templateId: selectedTemplate,
       color: selectedColor,
-      invoiceDetails,
-    })
+      invoiceDetails: invoiceDetails
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('invoiceTemplateSettings', JSON.stringify(settings))
+    
     // Show success message
     alert("Invoice template settings saved successfully!")
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, X } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Eye, X, FileDown } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,6 +15,8 @@ import { PaymentsDetailView } from "@/components/payments-detail-view"
 import { useRouter } from "next/navigation"
 import { useUserCheck } from "@/helper/useUserCheck"
 import { useUser } from "@clerk/nextjs"
+import InvoicePDF from "@/components/invoice-pdf"
+import InvoiceModal from "@/components/invoice-modal"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
 
@@ -22,6 +24,29 @@ interface Invoice {
   id: string
   invoiceNumber: string
   billDate: string
+  paymentDeadline: string
+  billingAddress: string
+  brandName: string
+  partyContactEmail: string
+  partyContactNumber: string
+  partyGst: string
+  items: Array<{
+    itemName: string
+    itemType: string
+    itemCode: string
+    quantity: number
+    measuringUnit: string
+    unitPrice: number
+    tax: number
+    beforeTaxAmount: number
+    afterTaxAmount: number
+  }>
+  totalTax: number
+  totalBeforeTax: number
+  totalAfterTax: number
+  additionalCharges: number
+  roundOff: number
+  discount: number
   totalPayableAmount: number
   status: string
 }
@@ -64,6 +89,9 @@ export default function DashboardPage() {
   const [showFullView, setShowFullView] = useState<DetailViewType>(null)
   const [pendingInvoices, setPendingInvoices] = useState<Invoice[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [showPdfPreview, setShowPdfPreview] = useState(false)
   const router = useRouter()
   const { user } = useUser()
 
@@ -136,6 +164,25 @@ export default function DashboardPage() {
 
   //   verifyUser()
   // }, [router])
+
+  // Add these functions for modal handling
+  const handleViewInvoice = (invoice: Invoice) => {
+    setSelectedInvoice(invoice)
+    setShowPdfPreview(false)
+    setShowInvoiceModal(true)
+  }
+
+  const handlePdfPreview = (invoice: Invoice) => {
+    setSelectedInvoice(invoice)
+    setShowPdfPreview(true)
+    setShowInvoiceModal(true)
+  }
+
+  const closeInvoiceModal = () => {
+    setShowInvoiceModal(false)
+    setSelectedInvoice(null)
+    setShowPdfPreview(false)
+  }
 
   // If showFullView is set, render only the corresponding detail view
   if (showFullView) {
@@ -595,15 +642,26 @@ export default function DashboardPage() {
                             <td className="py-3 text-sm">{new Date(invoice.billDate).toLocaleDateString()}</td>
                             <td className="py-3 text-sm">₹{invoice.totalPayableAmount.toLocaleString('en-IN')}</td>
                             <td className="py-3 pr-6 text-right">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="h-8 gap-1 text-[#3a8bff]"
-                                onClick={() => router.push(`/invoice-management/${invoice.id}`)}
-                              >
-                                <Eye className="h-4 w-4" />
-                                <span className="hidden sm:inline">View Invoice</span>
-                              </Button>
+                              <div className="flex gap-2 justify-end">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="h-8 gap-1 text-[#3a8bff]"
+                                  onClick={() => handleViewInvoice(invoice)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  <span className="hidden sm:inline">View</span>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 gap-1 text-[#3a8bff]"
+                                  onClick={() => handlePdfPreview(invoice)}
+                                >
+                                  <FileDown className="h-4 w-4" />
+                                  <span className="hidden sm:inline">PDF</span>
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -660,6 +718,16 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+       {selectedInvoice && (
+       <InvoiceModal
+         isOpen={showInvoiceModal}
+         onClose={closeInvoiceModal}
+        invoice={selectedInvoice}
+         showPdfPreview={showPdfPreview}
+      />
+     )}
     </div>
+
+    
   )
 }
