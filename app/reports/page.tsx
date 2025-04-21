@@ -20,17 +20,43 @@ import { useUserCheck } from "@/helper/useUserCheck"
 
 interface Invoice {
   id: string
+  billingAddress: string
+  brandName: string
+  partyContactEmail: string
+  partyContactNumber: string
+  partyGst: string
   invoiceNumber: string
-  date: string
-  party: string
-  amount: string
+  billDate: string
+  paymentDeadline: string
+  totalTax: number
+  totalBeforeTax: number
+  totalAfterTax: number
+  additionalCharges: number
+  roundOff: number
+  discount: number
+  totalPayableAmount: number
   status: string
-  category: string
-  item: string
+  createdAt: string
+  updatedAt: string
+  userId: number
+  items: Array<{
+    id: string
+    invoiceId: string
+    itemName: string
+    itemType: string
+    itemCode: string
+    quantity: number
+    measuringUnit: string
+    unitPrice: number
+    tax: number
+    beforeTaxAmount: number
+    afterTaxAmount: number
+  }>
 }
 
 export default function Reports() {
   const [activeTab, setActiveTab] = useState("party")
+  const [searchQuery, setSearchQuery] = useState("")
   const [selectedDate, setSelectedDate] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
   const [selectedDateRange, setSelectedDateRange] = useState("")
@@ -53,7 +79,7 @@ export default function Reports() {
         
         const data = await response.json()
         // Filter only pending invoices
-        const pendingInvoices = data.filter((invoice: Invoice) => invoice.status.toLowerCase() === 'pending')
+        const pendingInvoices = data.filter((invoice: Invoice) => invoice.status === 'PENDING')
         setInvoices(pendingInvoices)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch invoices')
@@ -65,6 +91,13 @@ export default function Reports() {
 
     fetchInvoices()
   }, [])
+
+  // Filter invoices based on search query
+  const filteredInvoices = invoices.filter(invoice => 
+    invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    invoice.brandName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    invoice.items.some(item => item.itemName.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
 
   // Replace the static transactions array with the invoices state
   const transactions = invoices
@@ -112,15 +145,15 @@ export default function Reports() {
     let textColor = "text-gray-800"
 
     switch (status) {
-      case "Paid":
+      case "PAID":
         bgColor = "bg-green-100"
         textColor = "text-green-800"
         break
-      case "Pending":
+      case "PENDING":
         bgColor = "bg-yellow-100"
         textColor = "text-yellow-800"
         break
-      case "Overdue":
+      case "OVERDUE":
         bgColor = "bg-red-100"
         textColor = "text-red-800"
         break
@@ -159,15 +192,36 @@ export default function Reports() {
     switch (activeTab) {
       case "party":
         headers = ["Invoice ID", "Date", "Party", "Amount", "Status", "Category", "Item"]
-        data = transactions.map((t) => [t.id, t.date, t.party, t.amount, t.status, t.category, t.item])
+        data = transactions.map((t) => [
+          t.id,
+          new Date(t.billDate).toLocaleDateString(),
+          t.brandName,
+          t.totalAfterTax,
+          t.status,
+          t.items[0]?.itemType || 'N/A',
+          t.items[0]?.itemName || 'N/A'
+        ])
         break
       case "payment":
         headers = ["Invoice ID", "Date", "Party", "Amount", "Payment Method", "Status"]
-        data = transactions.map((t) => [t.id, t.date, t.party, t.amount, "Bank Transfer", t.status])
+        data = transactions.map((t) => [
+          t.id,
+          new Date(t.billDate).toLocaleDateString(),
+          t.brandName,
+          t.totalAfterTax,
+          "Bank Transfer",
+          t.status
+        ])
         break
       case "item":
         headers = ["Item", "Quantity", "Unit Price", "Total Amount", "Category"]
-        data = transactions.map((t) => [t.item, "1", t.amount, t.amount, t.category])
+        data = transactions.map((t) => [
+          t.items[0]?.itemName || 'N/A',
+          t.items[0]?.quantity || 0,
+          t.items[0]?.unitPrice || 0,
+          t.totalAfterTax,
+          t.items[0]?.itemType || 'N/A'
+        ])
         break
       case "category":
         headers = ["Category", "Total Amount", "Number of Transactions"]
@@ -190,7 +244,15 @@ export default function Reports() {
         break
       default:
         headers = ["Invoice ID", "Date", "Party", "Amount", "Status", "Category", "Item"]
-        data = transactions.map((t) => [t.id, t.date, t.party, t.amount, t.status, t.category, t.item])
+        data = transactions.map((t) => [
+          t.id,
+          new Date(t.billDate).toLocaleDateString(),
+          t.brandName,
+          t.totalAfterTax,
+          t.status,
+          t.items[0]?.itemType || 'N/A',
+          t.items[0]?.itemName || 'N/A'
+        ])
     }
 
     const csvContent = [headers.join(","), ...data.map((row) => row.join(","))].join("\n")
@@ -260,7 +322,12 @@ export default function Reports() {
         <div className="flex items-center gap-2 mb-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input placeholder="Search transactions..." className="pl-10 w-full bg-white" />
+            <Input 
+              placeholder="Search invoices..." 
+              className="pl-10 w-full bg-white" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
           <Button
             variant="outline"
@@ -276,10 +343,15 @@ export default function Reports() {
       {/* Desktop/Tablet Search and Filter */}
       <div className="hidden sm:flex sm:flex-row items-center justify-between gap-3">
         <h2 className="text-base sm:text-lg font-medium text-gray-800">Filter by:</h2>
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input placeholder="Search transactions..." className="pl-10 w-full" />
+            <Input 
+              placeholder="Search invoices..." 
+              className="pl-10 w-full" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -292,7 +364,7 @@ export default function Reports() {
           </div>
 
           <TabsContent value="party" className="mt-0">
-            <Card>
+            <Card className="border-1 rounded-sm shadow-sm px-5">
               <CardContent className="p-0">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-64">
@@ -308,7 +380,7 @@ export default function Reports() {
                 ) : (
                   <>
                     {/* Desktop and Tablet Table View */}
-                    <div className="hidden sm:block overflow-x-auto">
+                    <div className="hidden sm:block overflow-x-auto py-2">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -318,25 +390,17 @@ export default function Reports() {
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Category</TableHead>
-                            <TableHead>Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {invoices.map((invoice) => (
+                          {filteredInvoices.map((invoice) => (
                             <TableRow key={invoice.id}>
                               <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                              <TableCell>{invoice.date}</TableCell>
-                              <TableCell>{invoice.party}</TableCell>
-                              <TableCell>₹{invoice.amount}</TableCell>
+                              <TableCell>{new Date(invoice.billDate).toLocaleDateString()}</TableCell>
+                              <TableCell>{invoice.brandName}</TableCell>
+                              <TableCell>₹{invoice.totalAfterTax}</TableCell>
                               <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                              <TableCell>{invoice.category}</TableCell>
-                              <TableCell>
-                                <div className="relative inline-block text-left">
-                                  <Button variant="ghost" size="sm">
-                                    <ChevronDown className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
+                              <TableCell>{invoice.items[0]?.itemType || 'N/A'}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -345,7 +409,7 @@ export default function Reports() {
 
                     {/* Mobile Card View */}
                     <div className="sm:hidden">
-                      {invoices.map((invoice) => (
+                      {filteredInvoices.map((invoice) => (
                         <div
                           key={invoice.id}
                           className="mb-3 rounded-sm overflow-hidden border border-gray-200 bg-white"
@@ -361,16 +425,16 @@ export default function Reports() {
                                 <div className="w-2 h-2 rounded-full mr-2 flex-shrink-0 bg-yellow-500"></div>
                                 <div className="font-medium text-gray-900 truncate">{invoice.invoiceNumber}</div>
                               </div>
-                              <div className="text-sm font-medium text-gray-800 mt-1 truncate">{invoice.party}</div>
+                              <div className="text-sm font-medium text-gray-800 mt-1 truncate">{invoice.brandName}</div>
                               <div className="flex items-center text-xs text-gray-500 mt-1">
                                 <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
-                                <span className="truncate">{invoice.date}</span>
+                                <span className="truncate">{new Date(invoice.billDate).toLocaleDateString()}</span>
                               </div>
                             </div>
                             <div className="flex flex-col items-end gap-1 flex-shrink-0">
                               <div className="flex items-center">
                                 <span className="text-gray-500 mr-1">₹</span>
-                                <div className="text-sm font-bold text-gray-900">{invoice.amount}</div>
+                                <div className="text-sm font-bold text-gray-900">{invoice.totalAfterTax}</div>
                               </div>
                               <div>{getStatusBadge(invoice.status)}</div>
                               <button
@@ -391,11 +455,11 @@ export default function Reports() {
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-white p-2 rounded-md shadow-sm">
                                   <div className="text-xs font-medium text-gray-500 mb-1">Category</div>
-                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.category}</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.items[0]?.itemType || 'N/A'}</div>
                                 </div>
                                 <div className="bg-white p-2 rounded-md shadow-sm">
                                   <div className="text-xs font-medium text-gray-500 mb-1">Item</div>
-                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.item}</div>
+                                  <div className="text-sm font-medium text-gray-900 truncate">{invoice.items[0]?.itemName || 'N/A'}</div>
                                 </div>
                               </div>
 
@@ -425,7 +489,7 @@ export default function Reports() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 sm:mt-6">
         <div className="text-sm text-gray-600 order-2 sm:order-1">
-          Showing <span className="font-medium">{invoices.length}</span> pending{" "}
+          Showing <span className="font-medium">{filteredInvoices.length}</span> pending{" "}
           <span className="font-medium">invoices</span>
         </div>
       </div>
