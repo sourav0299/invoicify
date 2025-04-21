@@ -45,7 +45,8 @@ const HeaderBar = () => {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const notificationRef = useRef<HTMLDivElement>(null)
-  const [credits, setCredits] = useState<number>(0)
+  const [currentLimit, setCurrentLimit] = useState<number>(25)
+  const maxLimit = 50
 
   useEffect(() => {
     const fetchBusinessDetails = async () => {
@@ -67,22 +68,20 @@ const HeaderBar = () => {
 
     fetchBusinessDetails()
 
-    const fetchCredits = async () => {
+    const fetchLimit = async () => {
       try {
-      
-        const mockCredits = 2500
-        setCredits(mockCredits)
+        // Mock data - in a real app, this would come from an API
+        const mockLimit = 25
+        setCurrentLimit(mockLimit)
       } catch (error) {
-        console.log("Error fetching credits:", error)
+        console.log("Error fetching limit:", error)
       }
     }
 
-    
-    fetchCredits()
+    fetchLimit()
 
     const fetchNotifications = async () => {
       try {
-
         const mockNotifications: Notification[] = [
           {
             id: "1",
@@ -206,12 +205,11 @@ const HeaderBar = () => {
             />
           </div>
         )}
-      
-        <div className="flex items-center bg-gradient-to-r from-green-50 to-green-100 rounded-lg px-3 py-1.5 border border-green-200 shadow-sm hover:shadow-md transition-all duration-300 group">
+
+        <div className="flex items-center bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-3 py-1.5 border border-gray-200 transition-all duration-300">
           <div className="flex items-center space-x-1.5">
-            <span className="text-green-600 font-bold text-lg group-hover:scale-105 transition-transform">₹</span>
-            <span className="font-semibold text-gray-800 text-base md:text-lg tracking-tight group-hover:text-green-700 transition-colors">
-              {credits.toLocaleString()}
+            <span className="font-semibold text-gray-800 text-base md:text-lg tracking-tight">
+              {currentLimit}/{maxLimit}
             </span>
           </div>
         </div>
