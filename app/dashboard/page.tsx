@@ -596,15 +596,7 @@ export default function DashboardPage() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
               <CardTitle>Pending Invoices</CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="gap-1 text-[#3a8bff] mt-2 sm:mt-0"
-                onClick={() => router.push('/invoice-management')}
-              >
-                View All
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+             
             </CardHeader>
             <CardContent>
               <div className="rounded-lg border border-gray-100 overflow-x-auto">
