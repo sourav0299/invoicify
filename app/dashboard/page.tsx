@@ -479,7 +479,7 @@ export default function DashboardPage() {
       {/* Main Content Grid - First Row */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 auto-rows-auto">
         {/* Expense Distribution */}
-        <Card className="shadow-sm h-auto">
+        {/* <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>Expense Distribution</CardTitle>
           </CardHeader>
@@ -506,10 +506,10 @@ export default function DashboardPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Net Profit - Updated with RadialChart */}
-        <Card className="shadow-sm h-auto">
+        {/* <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Net Profit</CardTitle>
             <Button variant="outline" size="sm" className="h-8 gap-1 mt-2 sm:mt-0">
@@ -537,7 +537,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Top Performers */}
         <Card className="shadow-sm h-auto">

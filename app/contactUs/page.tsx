@@ -1,12 +1,45 @@
+"use client"
+
+import type React from "react"
+
 import Link from "next/link"
 import { Mail, Phone } from "lucide-react"
+import { useRef, useState } from "react"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    // Simulate form submission
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    toast.success("Message sent successfully!", {
+      duration: 5000,
+      position: "top-center",
+      style: {
+        background: "#ffffff",
+        color: "#000000",
+        // border: "1px solid #10b981",
+      },
+    })
+
+    
+    if (formRef.current) {
+      formRef.current.reset()
+    }
+    setIsSubmitting(false)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50">
- 
+      <Toaster />
       <header className="flex h-20 w-full items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 px-9">
           <svg width="36" height="40" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect y="16" width="7.99999" height="7.99999" fill="#1EB386" />
             <rect x="24" y="24" width="8" height="7.99999" transform="rotate(180 24 24)" fill="#1EB386" />
@@ -18,24 +51,12 @@ export default function ContactPage() {
 
           <span className="text-xl font-semibold">Invoicify</span>
         </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-emerald-600">
-            Log In
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
-          >
-            sign up
-          </Link>
-        </div>
       </header>
-  
+
       <main className="container mx-auto px-4 py-6 md:py-8 lg:py-10">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-2">
-          
-            <div className="flex flex-col justify-between gap-8">
+            <div className="flex flex-col justify-between gap-8 ">
               <div>
                 <h2 className="text-2xl font-semibold text-gray-900">Get in Touch</h2>
 
@@ -48,7 +69,7 @@ export default function ContactPage() {
                     <div className="mt-3 flex items-center">
                       <Mail className="h-5 w-5 text-emerald-500" />
                       <a href="mailto:info@invoicify.in" className="ml-2 text-emerald-600 hover:underline">
-                        info@invoicify.in
+                        mineshpatel029@gmail.com
                       </a>
                     </div>
                     <p className="mt-2 text-gray-600">or call us at:</p>
@@ -63,14 +84,13 @@ export default function ContactPage() {
               </div>
             </div>
 
-        
-            <div className="rounded-xl bg-white p-8 shadow-md w-auto">
+            <div className="rounded-xl bg-white p-8 w-auto border border-gray-200">
               <h2 className="text-2xl font-semibold text-gray-900">Personal details</h2>
               <p className="mt-2 text-gray-600">
                 Fill out the form below and our team will get back to you as soon as possible.
               </p>
 
-              <form className="mt-8 space-y-6">
+              <form ref={formRef} className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
@@ -79,6 +99,7 @@ export default function ContactPage() {
                     <input
                       type="text"
                       id="first-name"
+                      required
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500"
                     />
                   </div>
@@ -89,6 +110,7 @@ export default function ContactPage() {
                     <input
                       type="text"
                       id="last-name"
+                      required
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500"
                     />
                   </div>
@@ -101,6 +123,7 @@ export default function ContactPage() {
                   <input
                     type="email"
                     id="email"
+                    required
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500"
                   />
                 </div>
@@ -111,6 +134,7 @@ export default function ContactPage() {
                   </label>
                   <select
                     id="subject"
+                    required
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500"
                   >
                     <option value="">Select a subject</option>
@@ -130,6 +154,7 @@ export default function ContactPage() {
                   <textarea
                     id="message"
                     rows={4}
+                    required
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500"
                     placeholder="How can we help you?"
                   />
@@ -138,9 +163,10 @@ export default function ContactPage() {
                 <div>
                   <button
                     type="submit"
-                    className="inline-flex w-full justify-center rounded-md bg-emerald-500 px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    disabled={isSubmitting}
+                    className="inline-flex w-full justify-center rounded-md bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-3 text-sm font-medium shadow-sm  focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </button>
                 </div>
               </form>
@@ -148,8 +174,6 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
-
-    
     </div>
   )
 }
