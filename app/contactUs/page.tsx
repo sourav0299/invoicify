@@ -30,10 +30,9 @@ export default function ContactPage() {
           </Link>
         </div>
       </header>
-
   
       <main className="container mx-auto px-4 py-6 md:py-8 lg:py-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-2">
           
             <div className="flex flex-col justify-between gap-8">
@@ -55,7 +54,7 @@ export default function ContactPage() {
                     <p className="mt-2 text-gray-600">or call us at:</p>
                     <div className="mt-1 flex items-center">
                       <Phone className="h-5 w-5 text-emerald-500" />
-                      <a href="tel:+18001234567" className="ml-2 text-emerald-600 hover:underline">
+                      <a href="tel:7619351868" className="ml-2 text-emerald-600 hover:underline">
                         +91 7619351868
                       </a>
                     </div>
@@ -65,7 +64,7 @@ export default function ContactPage() {
             </div>
 
         
-            <div className="rounded-xl bg-white p-8 shadow-md">
+            <div className="rounded-xl bg-white p-8 shadow-md w-auto">
               <h2 className="text-2xl font-semibold text-gray-900">Personal details</h2>
               <p className="mt-2 text-gray-600">
                 Fill out the form below and our team will get back to you as soon as possible.
