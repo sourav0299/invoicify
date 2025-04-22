@@ -88,7 +88,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
         const response = await fetch(searchUrl)
         console.log("API Response Status:", response.status)
-        
+
         if (response.ok) {
           const data = await response.json()
           console.log("API Response Data:", data)
@@ -131,7 +131,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
         const response = await fetch(searchUrl)
         console.log("API Response Status:", response.status)
-        
+
         if (response.ok) {
           const data = await response.json()
           console.log("API Response Data:", data)
@@ -175,12 +175,12 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       }
       console.log("Created new item:", newItem)
 
-      setResults(prevResults => {
+      setResults((prevResults) => {
         const newResults = [...prevResults, newItem]
         console.log("Updated results array:", newResults)
         return newResults
       })
-      
+
       setSearchQuery("")
       setSearchResults([])
       setShowSearchResults(false)
@@ -199,7 +199,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       setPartyContactNumber(business.companyNumber || "")
       setPartyGst(business.gstNumber || "")
       setBillingAddress(business.billingAddress || "")
-      
+
       setBusinessSearchQuery("")
       setBusinessSearchResults([])
       setShowBusinessSearchResults(false)
@@ -355,8 +355,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
   const calculateTotalIgst = () => {
     return results.reduce((total, item) => {
-      const igst = (Number(item.salesPrice) * Number(item.inventory) * (1 + Number(item.taxRate)/100)) - (Number(item.salesPrice) * Number(item.inventory))
-      return  igst/2
+      const igst =
+        Number(item.salesPrice) * Number(item.inventory) * (1 + Number(item.taxRate) / 100) -
+        Number(item.salesPrice) * Number(item.inventory)
+      return igst / 2
     }, 0)
   }
 
@@ -396,28 +398,30 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         const data = await response.json()
         toast.success("Invoice Generated Successfully")
         // Refresh the previous invoices list
-        const updatedResponse = await fetch('/api/invoices')
+        const updatedResponse = await fetch("/api/invoices")
         if (updatedResponse.ok) {
           const updatedData = await updatedResponse.json()
-          setPreviousInvoices(updatedData.map((invoice: any) => ({
-            id: invoice.invoiceNumber,
-            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
-            brandName: invoice.brandName,
-            totalPayableAmount: invoice.totalPayableAmount,
-          })))
+          setPreviousInvoices(
+            updatedData.map((invoice: any) => ({
+              id: invoice.invoiceNumber,
+              billDate: new Date(invoice.billDate).toLocaleDateString("en-GB"),
+              brandName: invoice.brandName,
+              totalPayableAmount: invoice.totalPayableAmount,
+            })),
+          )
         }
       } else {
         const error = await response.json()
         toast.error(error.error || "Failed to generate invoice")
       }
     } catch (error) {
-      console.error('Error saving invoice:', error)
+      console.error("Error saving invoice:", error)
       toast.error("Failed to generate invoice")
     }
   }
 
   const handleDeleteItem = (index: number) => {
-    setResults(prevResults => prevResults.filter((_, i) => i !== index))
+    setResults((prevResults) => prevResults.filter((_, i) => i !== index))
     toast.success("Item removed successfully!")
   }
 
@@ -439,23 +443,25 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await fetch('/api/invoices')
+        const response = await fetch("/api/invoices")
         if (response.ok) {
           const data = await response.json()
-          setPreviousInvoices(data.map((invoice: any) => ({
-            id: invoice.invoiceNumber,
-            billDate: new Date(invoice.billDate).toLocaleDateString('en-GB'),
-            brandName: invoice.brandName,
-            totalPayableAmount: invoice.totalPayableAmount,
-          })))
+          setPreviousInvoices(
+            data.map((invoice: any) => ({
+              id: invoice.invoiceNumber,
+              billDate: new Date(invoice.billDate).toLocaleDateString("en-GB"),
+              brandName: invoice.brandName,
+              totalPayableAmount: invoice.totalPayableAmount,
+            })),
+          )
         } else {
           const error = await response.json()
-          console.error('Failed to fetch invoices:', error)
-          toast.error(error.error || 'Failed to fetch invoices')
+          console.error("Failed to fetch invoices:", error)
+          toast.error(error.error || "Failed to fetch invoices")
         }
       } catch (error) {
-        console.error('Error fetching invoices:', error)
-        toast.error('Failed to fetch invoices')
+        console.error("Error fetching invoices:", error)
+        toast.error("Failed to fetch invoices")
       }
     }
 
@@ -643,7 +649,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     value={billDate}
                     onChange={(e) => {
                       const value = e.target.value
-                      // Basic date format validation (DD/MM/YYYY)
+                      
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
                         setBillDate(value)
                       }
@@ -697,7 +703,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     value={paymentDate}
                     onChange={(e) => {
                       const value = e.target.value
-                      // Basic date format validation (DD/MM/YYYY)
+                     
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
                         setPaymentDate(value)
                       }
@@ -746,7 +752,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-        {/* Products Table */}
+        
         <div className="overflow-x-auto mb-4 rounded-md border border-[#f0f1f3]">
           <table className="w-full border-collapse">
             <thead>
@@ -795,7 +801,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     ).toFixed(2)}
                   </td>
                   <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
-                    <button 
+                    <button
                       onClick={() => handleDeleteItem(index)}
                       className="text-red-500 hover:text-red-700 transition-colors"
                     >
@@ -901,27 +907,60 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           }}
           className="relative z-50"
         >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-md rounded bg-white p-4">
-              <Dialog.Title className="text-lg font-bold mb-4">Scan QR Code</Dialog.Title>
+            <Dialog.Panel className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-xl w-full">
+              <div className="flex items-center justify-between mb-4">
+                <Dialog.Title className="text-xl font-semibold text-[#333843]">Scan Barcode</Dialog.Title>
+                <button className="text-[#667085] hover:text-[#333843] transition-colors" onClick={stopScanning}>
+                  <X size={20} />
+                </button>
+              </div>
 
-              <div className="relative">
-                <video id="preview" className="w-full rounded" style={{ maxWidth: "400px" }}></video>
+              <div className="text-[#667085] text-sm mb-4">
+                Position the barcode within the scanner frame to automatically capture it.
+              </div>
 
+              <div className="relative rounded-lg overflow-hidden border-4 border-[#1eb386] mb-4">
+                <video id="preview" className="w-full h-64 object-cover bg-black"></video>
+
+               
+                
+
+                {scanning && (
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-xs py-1 px-3 rounded-full flex items-center">
+                    <div className="w-2 h-2 bg-[#1eb386] rounded-full mr-2 animate-pulse"></div>
+                    Scanning...
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between gap-4">
                 <button
-                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                  className="flex-1 py-2.5 border border-[#e0e2e7] rounded-md bg-white text-[#333843] text-[14px] hover:bg-gray-50 transition-colors"
                   onClick={stopScanning}
                 >
-                  Close
+                  Cancel
+                </button>
+                <button
+                  className="flex-1 py-2.5 bg-[#1eb386] text-white rounded-md text-[14px] hover:bg-[#40c79a] transition-colors"
+                  onClick={() => {
+                    if (!scanning) {
+                      startScanning()
+                    } else {
+                      stopScanning()
+                    }
+                  }}
+                >
+                  {scanning ? "Stop Scanning" : "Start Scanning"}
                 </button>
               </div>
             </Dialog.Panel>
           </div>
         </Dialog>
 
-        {/* Totals and Action Buttons */}
+       
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between bg-[#f7f7f7] p-3 rounded-md font-semibold">
@@ -970,7 +1009,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-        {/* Previous Invoices Section */}
+      
         {showPreviousInvoices && (
           <div className="border border-[#e0e2e7] rounded-md p-4 mt-6 w-full transition-all duration-300">
             <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">

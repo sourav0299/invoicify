@@ -15,7 +15,7 @@ export default function ContactPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
+   
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     toast.success("Message sent successfully!", {
@@ -24,7 +24,7 @@ export default function ContactPage() {
       style: {
         background: "#ffffff",
         color: "#000000",
-        // border: "1px solid #10b981",
+        
       },
     })
 
