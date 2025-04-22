@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { createContext, useContext, useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, Menu, X } from "lucide-react"
 
-// Create context for navbar collapsed state
+
 export const NavbarContext = createContext({
   collapsed: false,
   setCollapsed: (value: boolean) => {},

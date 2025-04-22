@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalesSummaryChart } from "@/components/ui/sales-summary-chart"
 import { CashflowChart } from "@/components/ui/cashflow-char"
-import { ExpenseDistributionChart } from "@/components/ui/expense-distribution-chart"
-import { RadialChart } from "@/components/ui/radial-chart"
 import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
@@ -82,8 +80,6 @@ interface Invoice {
 //   }
 // }
 
-
-
 export default function DashboardPage() {
   const [activeDetailView, setActiveDetailView] = useState<DetailViewType>(null)
   const [showFullView, setShowFullView] = useState<DetailViewType>(null)
@@ -114,21 +110,21 @@ export default function DashboardPage() {
     { name: "Profit", value: 500000000, color: "#40c79a" },
   ]
 
-  useUserCheck();
+  useUserCheck()
 
   useEffect(() => {
     const fetchPendingInvoices = async () => {
       try {
-        const response = await fetch('/api/invoices')
+        const response = await fetch("/api/invoices")
         if (!response.ok) {
-          throw new Error('Failed to fetch invoices')
+          throw new Error("Failed to fetch invoices")
         }
         const data = await response.json()
         // Filter for pending invoices only
-        const pending = data.filter((invoice: Invoice) => invoice.status === 'PENDING')
+        const pending = data.filter((invoice: Invoice) => invoice.status === "PENDING")
         setPendingInvoices(pending)
       } catch (error) {
-        console.error('Error fetching pending invoices:', error)
+        console.error("Error fetching pending invoices:", error)
       } finally {
         setIsLoading(false)
       }
@@ -231,7 +227,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h1 className="text-xl sm:text-2xl font-semibold">Hi {user?.firstName || "there"},</h1>
-        <Button onClick={() => router.push("/invoice-management")} className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto">
+        <Button
+          onClick={() => router.push("/invoice-management")}
+          className="bg-[#1eb386] hover:bg-[#1eb386]/90 text-white w-full sm:w-auto"
+        >
           <svg
             className="mr-2 h-4 w-4"
             fill="none"
@@ -479,7 +478,7 @@ export default function DashboardPage() {
       {/* Main Content Grid - First Row */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 auto-rows-auto">
         {/* Expense Distribution */}
-        <Card className="shadow-sm h-auto">
+        {/* <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle>Expense Distribution</CardTitle>
           </CardHeader>
@@ -506,10 +505,10 @@ export default function DashboardPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Net Profit - Updated with RadialChart */}
-        <Card className="shadow-sm h-auto">
+        {/* <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Net Profit</CardTitle>
             <Button variant="outline" size="sm" className="h-8 gap-1 mt-2 sm:mt-0">
@@ -537,7 +536,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Top Performers */}
         <Card className="shadow-sm h-auto">
@@ -587,86 +586,6 @@ export default function DashboardPage() {
             ))}
           </CardContent>
         </Card>
-      </div>
-
-      {/* Main Content Grid - Second Row */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
-        {/* Pending Invoices - Takes 2 columns */}
-        <div className="md:col-span-2">
-          <Card className="shadow-sm">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
-              <CardTitle>Pending Invoices</CardTitle>
-             
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-lg border border-gray-100 overflow-x-auto">
-                <div className="min-w-[600px]">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b bg-muted/40">
-                        <th className="py-3 pl-6 text-left text-sm font-medium w-12"></th>
-                        <th className="py-3 text-left text-sm font-medium">Invoice ID</th>
-                        <th className="py-3 text-left text-sm font-medium">Invoice Date</th>
-                        <th className="py-3 text-left text-sm font-medium">Amount</th>
-                        <th className="py-3 pr-6 text-right text-sm font-medium">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {isLoading ? (
-                        <tr>
-                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                            Loading invoices...
-                          </td>
-                        </tr>
-                      ) : pendingInvoices.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                            No pending invoices found
-                          </td>
-                        </tr>
-                      ) : (
-                        pendingInvoices.map((invoice) => (
-                          <tr key={invoice.id} className="border-b last:border-0">
-                            <td className="py-3 pl-6">
-                              <div className="h-4 w-4 rounded border border-gray-300"></div>
-                            </td>
-                            <td className="py-3 text-sm font-medium">{invoice.invoiceNumber}</td>
-                            <td className="py-3 text-sm">{new Date(invoice.billDate).toLocaleDateString()}</td>
-                            <td className="py-3 text-sm">₹{invoice.totalPayableAmount.toLocaleString('en-IN')}</td>
-                            <td className="py-3 pr-6 text-right">
-                              <div className="flex gap-2 justify-end">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="h-8 gap-1 text-[#3a8bff]"
-                                  onClick={() => handleViewInvoice(invoice)}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  <span className="hidden sm:inline">View</span>
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 gap-1 text-[#3a8bff]"
-                                  onClick={() => handlePdfPreview(invoice)}
-                                >
-                                  <FileDown className="h-4 w-4" />
-                                  <span className="hidden sm:inline">PDF</span>
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Top Parties */}
         <div className="md:col-span-1">
           <Card className="shadow-sm">
             <CardHeader className="pb-2">
@@ -710,16 +629,100 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-       {selectedInvoice && (
-       <InvoiceModal
-         isOpen={showInvoiceModal}
-         onClose={closeInvoiceModal}
-        invoice={selectedInvoice}
-         showPdfPreview={showPdfPreview}
-      />
-     )}
-    </div>
 
-    
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3 ">
+        <div className="md:col-span-3">
+          <Card className="shadow-sm ">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 ">
+              <CardTitle>Pending Invoices</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border border-gray-100 overflow-hidden">
+                <div className="w-full">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-muted/40">
+                        <th className="py-3 pl-4 sm:pl-6 text-left text-xs sm:text-sm font-medium w-8 sm:w-12"></th>
+                        <th className="py-3 text-left text-xs sm:text-sm font-medium">Invoice ID</th>
+                        <th className="py-3 text-left text-xs sm:text-sm font-medium hidden sm:table-cell">
+                          Invoice Date
+                        </th>
+                        <th className="py-3 text-left text-xs sm:text-sm font-medium">Amount</th>
+                        <th className="py-3 px-4 sm:pr-6 text-right text-xs sm:text-sm font-medium">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                            Loading invoices...
+                          </td>
+                        </tr>
+                      ) : pendingInvoices.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                            No pending invoices found
+                          </td>
+                        </tr>
+                      ) : (
+                        pendingInvoices.map((invoice) => (
+                          <tr key={invoice.id} className="border-b last:border-0">
+                            <td className="py-3 pl-4 sm:pl-6">
+                              <div className="h-3 w-3 sm:h-4 sm:w-4 rounded border border-gray-300"></div>
+                            </td>
+                            <td className="py-3 text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-none">
+                              {invoice.invoiceNumber}
+                              <div className="text-xs text-muted-foreground sm:hidden">
+                                {new Date(invoice.billDate).toLocaleDateString()}
+                              </div>
+                            </td>
+                            <td className="py-3 text-xs sm:text-sm hidden sm:table-cell">
+                              {new Date(invoice.billDate).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 text-xs sm:text-sm">
+                              ₹{invoice.totalPayableAmount.toLocaleString("en-IN")}
+                            </td>
+                            <td className="py-3 pr-4 sm:pr-6 text-right">
+                              <div className="flex gap-1 sm:gap-2 justify-end">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 sm:h-8 px-2 sm:px-3 text-[#3a8bff]"
+                                  onClick={() => handleViewInvoice(invoice)}
+                                >
+                                  <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  <span className="hidden sm:inline ml-1">View</span>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 sm:h-8 px-2 sm:px-3 text-[#3a8bff]"
+                                  onClick={() => handlePdfPreview(invoice)}
+                                >
+                                  <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  <span className="hidden sm:inline ml-1">PDF</span>
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      {selectedInvoice && (
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          onClose={closeInvoiceModal}
+          invoice={selectedInvoice}
+          showPdfPreview={showPdfPreview}
+        />
+      )}
+    </div>
   )
 }
