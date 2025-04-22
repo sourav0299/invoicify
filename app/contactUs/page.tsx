@@ -28,7 +28,6 @@ export default function ContactPage() {
       },
     })
 
-    
     if (formRef.current) {
       formRef.current.reset()
     }
@@ -39,7 +38,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gradient-to-br from-white to-green-50">
       <Toaster />
       <header className="flex h-20 w-full items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 px-9">
+        <Link href="/" className="flex items-center gap-2 pl-2 sm:pl-4 md:px-9">
           <svg width="36" height="40" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect y="16" width="7.99999" height="7.99999" fill="#1EB386" />
             <rect x="24" y="24" width="8" height="7.99999" transform="rotate(180 24 24)" fill="#1EB386" />
@@ -53,15 +52,15 @@ export default function ContactPage() {
         </Link>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8 lg:py-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-2">
-            <div className="flex flex-col justify-between gap-8 ">
-              <div>
+      <main className="container mx-auto px-2 sm:px-4 py-6 md:py-8 lg:py-10">
+        <div className="w-full">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="flex flex-col justify-between gap-6 px-0 sm:px-4 md:px-12">
+              <div className="w-full">
                 <h2 className="text-2xl font-semibold text-gray-900">Get in Touch</h2>
 
-                <div className="mt-8 space-y-8">
-                  <div className="rounded-lg border border-gray-200 bg-white p-6 ">
+                <div className="mt-6 space-y-6">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 w-full">
                     <h3 className="text-lg font-medium text-gray-900">Customer Support:</h3>
                     <p className="mt-2 text-gray-600">
                       For assistance with your account, billing, or technical issues, please email us at:
@@ -84,14 +83,14 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="rounded-xl bg-white p-8 w-auto border border-gray-200">
+            <div className="rounded-xl bg-white p-4 sm:p-8 w-full border border-gray-200">
               <h2 className="text-2xl font-semibold text-gray-900">Personal details</h2>
               <p className="mt-2 text-gray-600">
                 Fill out the form below and our team will get back to you as soon as possible.
               </p>
 
-              <form ref={formRef} className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                <div className="grid gap-6 md:grid-cols-2">
+              <form ref={formRef} className="mt-6 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                   <div>
                     <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
                       First Name
@@ -164,7 +163,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex w-full justify-center rounded-md bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-3 text-sm font-medium shadow-sm  focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="inline-flex w-full justify-center rounded-md bg-sidebar_green_button_background h-12 text-universal_white_background px-4 py-3 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? "Sending..." : "Send Message"}
                   </button>
