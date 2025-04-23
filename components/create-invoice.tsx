@@ -3,7 +3,19 @@
 import type React from "react"
 
 import { useState, useCallback, useEffect } from "react"
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Search, X } from "lucide-react"
+import {
+  CalendarIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  FileText,
+  Mail,
+  MessageSquare,
+  Phone,
+  Search,
+  X,
+} from "lucide-react"
 import { BrowserQRCodeReader } from "@zxing/browser"
 import { Dialog } from "@headlessui/react"
 import toast from "react-hot-toast"
@@ -62,6 +74,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [businessSearchResults, setBusinessSearchResults] = useState<any[]>([])
   const [isBusinessSearching, setIsBusinessSearching] = useState(false)
   const [showBusinessSearchResults, setShowBusinessSearchResults] = useState(false)
+
+  // New state for invoice preview
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false)
+  const [currentInvoice, setCurrentInvoice] = useState<any>(null)
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout
@@ -362,12 +378,40 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     }, 0)
   }
 
+  // Function to show invoice preview
+  const showInvoicePreviewModal = () => {
+    const invoiceData = {
+      invoiceNumber: invoiceNumber || `INV-${Math.floor(Math.random() * 10000)}`,
+      billDate,
+      paymentDate,
+      brandName,
+      partyContactEmail,
+      partyContactNumber,
+      partyGST,
+      billingAddress,
+      items: results,
+      totalBeforeTax: calculateTotalBeforeTax(),
+      totalTax: calculateTotalTax(),
+      totalAfterTax: calculateTotalAfterTax(),
+      totalQuantity: calculateTotalQuantity(),
+      totalIgst: calculateTotalIgst(),
+    }
+
+    setCurrentInvoice(invoiceData)
+    setShowInvoicePreview(true)
+  }
+
   const handleSaveInvoice = async () => {
     if (!userId) {
       toast.error("You must be logged in to create an invoice")
       return
     }
 
+    // Show preview first
+    showInvoicePreviewModal()
+  }
+
+  const handleConfirmSaveInvoice = async () => {
     try {
       const response = await fetch("/api/create-invoice", {
         method: "POST",
@@ -397,6 +441,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       if (response.ok) {
         const data = await response.json()
         toast.success("Invoice Generated Successfully")
+        setShowInvoicePreview(false)
         // Refresh the previous invoices list
         const updatedResponse = await fetch("/api/invoices")
         if (updatedResponse.ok) {
@@ -418,6 +463,26 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       console.error("Error saving invoice:", error)
       toast.error("Failed to generate invoice")
     }
+  }
+
+  const handleSendInvoice = (method: "email" | "sms" | "whatsapp") => {
+    // Placeholder for sending invoice via different methods
+    let message = ""
+
+    switch (method) {
+      case "email":
+        message = `Invoice sent via email to ${partyContactEmail}`
+        break
+      case "sms":
+        message = `Invoice sent via SMS to ${partyContactNumber}`
+        break
+      case "whatsapp":
+        message = `Invoice sent via WhatsApp to ${partyContactNumber}`
+        break
+    }
+
+    toast.success(message)
+    // In a real implementation, you would call an API to send the invoice
   }
 
   const handleDeleteItem = (index: number) => {
@@ -649,7 +714,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     value={billDate}
                     onChange={(e) => {
                       const value = e.target.value
-                      
+
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
                         setBillDate(value)
                       }
@@ -703,7 +768,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                     value={paymentDate}
                     onChange={(e) => {
                       const value = e.target.value
-                     
+
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
                         setPaymentDate(value)
                       }
@@ -752,7 +817,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-        
         <div className="overflow-x-auto mb-4 rounded-md border border-[#f0f1f3]">
           <table className="w-full border-collapse">
             <thead>
@@ -925,9 +989,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               <div className="relative rounded-lg overflow-hidden border-4 border-[#1eb386] mb-4">
                 <video id="preview" className="w-full h-64 object-cover bg-black"></video>
 
-               
-                
-
                 {scanning && (
                   <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-xs py-1 px-3 rounded-full flex items-center">
                     <div className="w-2 h-2 bg-[#1eb386] rounded-full mr-2 animate-pulse"></div>
@@ -960,7 +1021,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </Dialog>
 
-       
         <div className="flex flex-col md:flex-row justify-end gap-6 mt-4">
           <div className="w-full md:w-1/2 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between bg-[#f7f7f7] p-3 rounded-md font-semibold">
@@ -1009,7 +1069,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         </div>
 
-      
         {showPreviousInvoices && (
           <div className="border border-[#e0e2e7] rounded-md p-4 mt-6 w-full transition-all duration-300">
             <h4 className="text-[15px] font-medium text-[#333843] mb-3 flex items-center">
@@ -1058,6 +1117,158 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
           </div>
         )}
       </div>
+
+      {/* Invoice Preview Modal */}
+      <Dialog open={showInvoicePreview} onClose={() => setShowInvoicePreview(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
+
+        <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
+          <Dialog.Panel className="mx-auto max-w-4xl rounded-lg bg-white p-6 shadow-xl w-full">
+            <div className="flex items-center justify-between mb-4">
+              <Dialog.Title className="text-xl font-semibold text-[#333843]">Invoice Preview</Dialog.Title>
+              <button
+                className="text-[#667085] hover:text-[#333843] transition-colors"
+                onClick={() => setShowInvoicePreview(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {currentInvoice && (
+              <div className="bg-white p-6 rounded-md border border-[#e0e2e7]">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#333843]">INVOICE</h2>
+                    <p className="text-[#667085] mt-1">#{currentInvoice.invoiceNumber}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-[#333843]">Invoice Date: {currentInvoice.billDate}</p>
+                    <p className="text-[#667085] mt-1">Due Date: {currentInvoice.paymentDate}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div>
+                    <h3 className="font-medium text-[#333843] mb-2">From:</h3>
+                    <p className="text-[#333843]">Your Company Name</p>
+                    <p className="text-[#667085]">Your Address</p>
+                    <p className="text-[#667085]">Your City, State, ZIP</p>
+                    <p className="text-[#667085]">Your GST: XXXXXXXXXXXX</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[#333843] mb-2">To:</h3>
+                    <p className="text-[#333843]">{currentInvoice.brandName}</p>
+                    <p className="text-[#667085]">{currentInvoice.billingAddress}</p>
+                    <p className="text-[#667085]">Email: {currentInvoice.partyContactEmail}</p>
+                    <p className="text-[#667085]">Phone: {currentInvoice.partyContactNumber}</p>
+                    <p className="text-[#667085]">GST: {currentInvoice.partyGST}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto mb-6">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#f7f7f7] text-[#667085]">
+                        <th className="py-3 px-4 text-left font-medium">Item</th>
+                        <th className="py-3 px-4 text-right font-medium">Qty</th>
+                        <th className="py-3 px-4 text-right font-medium">Price</th>
+                        <th className="py-3 px-4 text-right font-medium">Tax</th>
+                        <th className="py-3 px-4 text-right font-medium">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentInvoice.items.map((item: any, index: number) => (
+                        <tr key={index} className="border-b border-[#f0f1f3]">
+                          <td className="py-4 px-4">
+                            <p className="text-[#333843] font-medium">{item.itemName}</p>
+                            <p className="text-[#667085] text-sm">{item.itemCode}</p>
+                          </td>
+                          <td className="py-4 px-4 text-right text-[#333843]">
+                            {item.inventory} {item.measuringUnit}
+                          </td>
+                          <td className="py-4 px-4 text-right text-[#333843]">₹{item.salesPrice}</td>
+                          <td className="py-4 px-4 text-right text-[#333843]">{item.taxRate}%</td>
+                          <td className="py-4 px-4 text-right text-[#333843]">
+                            ₹
+                            {(
+                              Number(item.inventory) *
+                              Number(item.salesPrice) *
+                              (1 + Number(item.taxRate) / 100)
+                            ).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="w-full max-w-xs">
+                    <div className="flex justify-between py-2">
+                      <span className="text-[#667085]">Subtotal:</span>
+                      <span className="text-[#333843]">₹{currentInvoice.totalBeforeTax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className="text-[#667085]">Tax:</span>
+                      <span className="text-[#333843]">₹{currentInvoice.totalTax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 font-bold border-t border-[#e0e2e7] mt-2 pt-2">
+                      <span>Total:</span>
+                      <span>₹{currentInvoice.totalAfterTax.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-[#667085] text-sm">
+                  <p className="font-medium text-[#333843] mb-1">Terms & Conditions:</p>
+                  <p>Please pay within 30 days of receiving this invoice.</p>
+                  <p>Thank you for your business!</p>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 flex justify-between">
+              <button
+                onClick={() => setShowInvoicePreview(false)}
+                className="px-4 py-2 border border-[#e0e2e7] rounded-md text-[#333843]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSaveInvoice}
+                className="px-4 py-2 bg-[#1eb386] text-white rounded-md hover:bg-[#40c79a] transition-colors"
+              >
+                Confirm & Save
+              </button>
+            </div>
+
+            {/* Floating action buttons */}
+            <div className="fixed bottom-8 right-8 flex flex-col gap-3">
+              <button
+                onClick={() => handleSendInvoice("email")}
+                className="bg-[#1eb386] text-white p-3 rounded-full shadow-lg hover:bg-[#40c79a] transition-colors flex items-center justify-center"
+                title="Send via Email"
+              >
+                <Mail size={20} />
+              </button>
+              <button
+                onClick={() => handleSendInvoice("sms")}
+                className="bg-[#1eb386] text-white p-3 rounded-full shadow-lg hover:bg-[#40c79a] transition-colors flex items-center justify-center"
+                title="Send via SMS"
+              >
+                <MessageSquare size={20} />
+              </button>
+              <button
+                onClick={() => handleSendInvoice("whatsapp")}
+                className="bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:bg-[#1ea952] transition-colors flex items-center justify-center"
+                title="Send via WhatsApp"
+              >
+                <Phone size={20} />
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   )
 }
