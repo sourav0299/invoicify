@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronDown, Eye, MoreVertical } from "lucide-react"
+import { ChevronDown, Eye, FileDown } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
 import { useUserCheck } from "@/helper/useUserCheck"
+import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
 
 interface Invoice {
@@ -24,17 +25,162 @@ interface Invoice {
 
 const getStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
-    case 'PAID':
-      return 'bg-change_password_green_background text-chart-profit'
-    case 'PENDING':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'OVERDUE':
-      return 'bg-red-100 text-red-800'
-    case 'CANCELLED':
-      return 'bg-gray-100 text-gray-800'
+    case "PAID":
+      return "bg-change_password_green_background text-chart-profit"
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-800"
+    case "OVERDUE":
+      return "bg-red-100 text-red-800"
+    case "CANCELLED":
+      return "bg-gray-100 text-gray-800"
     default:
-      return 'bg-gray-100 text-gray-800'
+      return "bg-gray-100 text-gray-800"
   }
+}
+
+interface InvoiceModalProps {
+  isOpen: boolean
+  onClose: () => void
+  invoice: Invoice
+  showPdfPreview: boolean
+}
+
+function InvoiceModal({ isOpen, onClose, invoice, showPdfPreview }: InvoiceModalProps) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-xl font-semibold">{showPdfPreview ? "Invoice PDF Preview" : "Invoice Details"}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div className="p-6">
+          {showPdfPreview ? (
+            <div className="bg-gray-100 p-4 rounded-lg min-h-[60vh] flex items-center justify-center">
+              <div className="text-center">
+                <p className="mb-4">PDF preview would be displayed here</p>
+                
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Invoice Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Invoice Number</p>
+                      <p className="font-medium">{invoice.invoiceNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Invoice Date</p>
+                      <p>{new Date(invoice.billDate).toLocaleDateString("en-GB")}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Deadline</p>
+                      <p>{new Date(invoice.paymentDeadline).toLocaleDateString("en-GB")}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <p
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] ${getStatusColor(invoice.status)}`}
+                      >
+                        {invoice.status}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Customer Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Customer Name</p>
+                      <p className="font-medium">{invoice.brandName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total Amount</p>
+                      <p className="font-medium">
+                        ₹{invoice.totalPayableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium mb-4">Invoice Items</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Item</th>
+                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Quantity</th>
+                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Unit Price</th>
+                        <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoice.items.map((item, index) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm">{item.itemName}</td>
+                          <td className="py-3 px-4 text-sm">{item.quantity}</td>
+                          <td className="py-3 px-4 text-sm">
+                            ₹{item.unitPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            ₹{(item.quantity * item.unitPrice).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <div className="w-full max-w-xs">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">
+                      ₹{invoice.totalPayableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600">Tax</span>
+                    <span className="font-medium">₹0.00</span>
+                  </div>
+                  <div className="flex justify-between py-2 font-medium">
+                    <span>Total</span>
+                    <span>₹{invoice.totalPayableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="p-4 border-t border-gray-200 flex justify-end">
+         
+         
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function InvoicePage() {
@@ -44,8 +190,10 @@ export default function InvoicePage() {
   const [selectAll, setSelectAll] = useState(false)
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [showStatusMenu, setShowStatusMenu] = useState<string | null>(null)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [showPdfPreview, setShowPdfPreview] = useState(false)
 
   const itemsPerPage = 10
   const totalItems = invoices.length
@@ -59,7 +207,7 @@ export default function InvoicePage() {
     if (selectAll) {
       setSelectedInvoices([])
     } else {
-      setSelectedInvoices(currentPageInvoices.map(invoice => invoice.id))
+      setSelectedInvoices(currentPageInvoices.map((invoice) => invoice.id))
     }
     setSelectAll(!selectAll)
   }
@@ -72,29 +220,44 @@ export default function InvoicePage() {
     }
   }
 
+  const handleViewInvoice = (invoice: Invoice) => {
+    setSelectedInvoice(invoice)
+    setShowPdfPreview(false)
+    setShowInvoiceModal(true)
+  }
+
+  const handlePdfPreview = (invoice: Invoice) => {
+    setSelectedInvoice(invoice)
+    setShowPdfPreview(true)
+    setShowInvoiceModal(true)
+  }
+
+  const closeInvoiceModal = () => {
+    setShowInvoiceModal(false)
+    setSelectedInvoice(null)
+  }
+
   const handleStatusChange = async (invoiceId: string, newStatus: string) => {
     try {
       const response = await fetch(`/api/invoices/${invoiceId}/status`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status: newStatus }),
       })
 
       if (response.ok) {
         // Update the local state
-        setInvoices(invoices.map(invoice => 
-          invoice.id === invoiceId ? { ...invoice, status: newStatus } : invoice
-        ))
-        toast.success('Invoice status updated successfully')
+        setInvoices(invoices.map((invoice) => (invoice.id === invoiceId ? { ...invoice, status: newStatus } : invoice)))
+        toast.success("Invoice status updated successfully")
       } else {
         const error = await response.json()
-        toast.error(error.error || 'Failed to update invoice status')
+        toast.error(error.error || "Failed to update invoice status")
       }
     } catch (error) {
-      console.error('Error updating invoice status:', error)
-      toast.error('Failed to update invoice status')
+      console.error("Error updating invoice status:", error)
+      toast.error("Failed to update invoice status")
     } finally {
       setShowStatusMenu(null)
     }
@@ -105,17 +268,17 @@ export default function InvoicePage() {
     const fetchInvoices = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/invoices')
+        const response = await fetch("/api/invoices")
         if (response.ok) {
           const data = await response.json()
           setInvoices(data)
         } else {
           const error = await response.json()
-          toast.error(error.error || 'Failed to fetch invoices')
+          toast.error(error.error || "Failed to fetch invoices")
         }
       } catch (error) {
-        console.error('Error fetching invoices:', error)
-        toast.error('Failed to fetch invoices')
+        console.error("Error fetching invoices:", error)
+        toast.error("Failed to fetch invoices")
       } finally {
         setLoading(false)
       }
@@ -181,9 +344,15 @@ export default function InvoicePage() {
                             <span className="text-[14px] font-medium text-sidebar_black_text">Invoice ID</span>
                           </div>
                         </th>
-                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Invoice Date</th>
-                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Payout Date</th>
-                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Customer</th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">
+                          Invoice Date
+                        </th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">
+                          Payout Date
+                        </th>
+                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">
+                          Customer
+                        </th>
                         <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Amount</th>
                         <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Status</th>
                         <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Action</th>
@@ -191,7 +360,10 @@ export default function InvoicePage() {
                     </thead>
                     <tbody>
                       {currentPageInvoices.map((invoice) => (
-                        <tr key={invoice.id} className="border-b border-sidebar_gray_border hover:bg-universal_gray_background">
+                        <tr
+                          key={invoice.id}
+                          className="border-b border-sidebar_gray_border hover:bg-universal_gray_background"
+                        >
                           <td className="py-4 px-4">
                             <div className="flex items-center">
                               <input
@@ -201,23 +373,27 @@ export default function InvoicePage() {
                                 onChange={() => handleSelectInvoice(invoice.id)}
                               />
                               <div>
-                                <div className="text-[14px] font-medium text-business_settings_black_text">{invoice.invoiceNumber}</div>
+                                <div className="text-[14px] font-medium text-business_settings_black_text">
+                                  {invoice.invoiceNumber}
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                            {new Date(invoice.billDate).toLocaleDateString('en-GB')}
+                            {new Date(invoice.billDate).toLocaleDateString("en-GB")}
                           </td>
                           <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                            {new Date(invoice.paymentDeadline).toLocaleDateString('en-GB')}
+                            {new Date(invoice.paymentDeadline).toLocaleDateString("en-GB")}
                           </td>
-                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">{invoice.brandName}</td>
                           <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
-                            ₹{invoice.totalPayableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            {invoice.brandName}
+                          </td>
+                          <td className="py-4 px-4 text-[14px] text-business_settings_black_text">
+                            ₹{invoice.totalPayableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                           </td>
                           <td className="py-4 px-4">
                             <div className="relative">
-                              <button 
+                              <button
                                 className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] cursor-pointer ${getStatusColor(invoice.status)}`}
                                 onClick={() => setShowStatusMenu(showStatusMenu === invoice.id ? null : invoice.id)}
                               >
@@ -225,19 +401,19 @@ export default function InvoicePage() {
                                 <ChevronDown className="h-4 w-4 ml-1" />
                               </button>
                               {showStatusMenu === invoice.id && (
-                                <div className="fixed transform translate-y-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div className="absolute top-full left-0 mt-1 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                                   <div className="py-1" role="menu">
-                                    {['PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map((status) => (
+                                    {["PENDING", "PAID", "OVERDUE", "CANCELLED"].map((status) => (
                                       <button
                                         key={status}
                                         className={`block w-full text-left px-4 py-2 text-sm ${
-                                          invoice.status === status 
-                                            ? 'bg-gray-100 font-medium' 
-                                            : 'hover:bg-gray-50'
+                                          invoice.status === status ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
                                         }`}
                                         onClick={() => handleStatusChange(invoice.id, status)}
                                       >
-                                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}></span>
+                                        <span
+                                          className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}
+                                        ></span>
                                         {status}
                                       </button>
                                     ))}
@@ -247,10 +423,16 @@ export default function InvoicePage() {
                             </div>
                           </td>
                           <td className="py-4 px-4">
-                            <button className="flex items-center gap-1 text-download_purple_text text-[14px]">
-                              <Eye className="h-4 w-4" />
-                              View Invoice
-                            </button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 sm:h-8 px-2 sm:px-3 text-[#3a8bff]"
+                              onClick={() => handleViewInvoice(invoice)}
+                            >
+                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="hidden sm:inline ml-1">View Invoice</span>
+                            </Button>
+                           
                           </td>
                         </tr>
                       ))}
@@ -281,7 +463,10 @@ export default function InvoicePage() {
                 </div>
 
                 {currentPageInvoices.map((invoice) => (
-                  <div key={invoice.id} className="bg-white border border-sidebar_gray_border rounded-md mb-3 overflow-hidden">
+                  <div
+                    key={invoice.id}
+                    className="bg-white border border-sidebar_gray_border rounded-md mb-3 overflow-hidden"
+                  >
                     <div className="flex justify-between items-center p-4 border-b border-sidebar_gray_border">
                       <div className="flex items-center">
                         <input
@@ -291,11 +476,13 @@ export default function InvoicePage() {
                           onChange={() => handleSelectInvoice(invoice.id)}
                         />
                         <div>
-                          <div className="text-[14px] font-medium text-business_settings_black_text">{invoice.invoiceNumber}</div>
+                          <div className="text-[14px] font-medium text-business_settings_black_text">
+                            {invoice.invoiceNumber}
+                          </div>
                         </div>
                       </div>
                       <div className="relative">
-                        <button 
+                        <button
                           className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] cursor-pointer ${getStatusColor(invoice.status)}`}
                           onClick={() => setShowStatusMenu(showStatusMenu === invoice.id ? null : invoice.id)}
                         >
@@ -303,19 +490,19 @@ export default function InvoicePage() {
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </button>
                         {showStatusMenu === invoice.id && (
-                          <div className="absolute right-0 z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                          <div className="absolute right-0 top-full mt-1 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                             <div className="py-1" role="menu">
-                              {['PENDING', 'PAID', 'OVERDUE', 'CANCELLED'].map((status) => (
+                              {["PENDING", "PAID", "OVERDUE", "CANCELLED"].map((status) => (
                                 <button
                                   key={status}
                                   className={`block w-full text-left px-4 py-2 text-sm ${
-                                    invoice.status === status 
-                                      ? 'bg-gray-100 font-medium' 
-                                      : 'hover:bg-gray-50'
+                                    invoice.status === status ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
                                   }`}
                                   onClick={() => handleStatusChange(invoice.id, status)}
                                 >
-                                  <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}></span>
+                                  <span
+                                    className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}
+                                  ></span>
                                   {status}
                                 </button>
                               ))}
@@ -330,13 +517,13 @@ export default function InvoicePage() {
                         <div>
                           <div className="text-[12px] text-sidebar_black_text">Invoice Date</div>
                           <div className="text-[14px] text-business_settings_black_text">
-                            {new Date(invoice.billDate).toLocaleDateString('en-GB')}
+                            {new Date(invoice.billDate).toLocaleDateString("en-GB")}
                           </div>
                         </div>
                         <div>
                           <div className="text-[12px] text-sidebar_black_text">Payout Date</div>
                           <div className="text-[14px] text-business_settings_black_text">
-                            {new Date(invoice.paymentDeadline).toLocaleDateString('en-GB')}
+                            {new Date(invoice.paymentDeadline).toLocaleDateString("en-GB")}
                           </div>
                         </div>
                         <div>
@@ -346,12 +533,15 @@ export default function InvoicePage() {
                         <div>
                           <div className="text-[12px] text-sidebar_black_text">Amount</div>
                           <div className="text-[14px] font-medium text-business_settings_black_text">
-                            ₹{invoice.totalPayableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            ₹{invoice.totalPayableAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                           </div>
                         </div>
                       </div>
 
-                      <button className="flex items-center gap-1 text-download_purple_text text-[14px] w-full justify-center py-2 border-t border-sidebar_gray_border">
+                      <button
+                        className="flex items-center gap-1 text-download_purple_text text-[14px] w-full justify-center py-2 border-t border-sidebar_gray_border"
+                        onClick={() => handleViewInvoice(invoice)}
+                      >
                         <Eye className="h-4 w-4" />
                         View Invoice
                       </button>
@@ -359,13 +549,11 @@ export default function InvoicePage() {
                   </div>
                 ))}
                 {currentPageInvoices.length === 0 && (
-                  <div className="text-center py-8 text-sidebar_black_text">
-                    No invoices found
-                  </div>
+                  <div className="text-center py-8 text-sidebar_black_text">No invoices found</div>
                 )}
               </div>
 
-              {/* Pagination */}
+             
               {invoices.length > 0 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
                   <div className="text-[14px] text-sidebar_black_text order-2 sm:order-1">
@@ -412,7 +600,15 @@ export default function InvoicePage() {
           )}
         </div>
       )}
+
+      {selectedInvoice && (
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          onClose={closeInvoiceModal}
+          invoice={selectedInvoice}
+          showPdfPreview={showPdfPreview}
+        />
+      )}
     </div>
   )
 }
-
