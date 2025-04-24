@@ -323,6 +323,21 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     if (billDateOpen) {
       setBillDate(formattedDate)
       setBillDateOpen(false)
+
+      // Calculate payment date (30 days from bill date)
+      const selectedDate = new Date(currentYear, currentMonth, day)
+      const paymentDueDate = new Date(selectedDate)
+      paymentDueDate.setDate(paymentDueDate.getDate() + 30)
+
+      const paymentDay = paymentDueDate.getDate()
+      const paymentMonth = paymentDueDate.getMonth() + 1
+      const paymentYear = paymentDueDate.getFullYear()
+
+      const formattedPaymentDay = paymentDay < 10 ? `0${paymentDay}` : paymentDay.toString()
+      const formattedPaymentMonth = paymentMonth < 10 ? `0${paymentMonth}` : paymentMonth.toString()
+      const formattedPaymentDate = `${formattedPaymentDay}/${formattedPaymentMonth}/${paymentYear}`
+
+      setPaymentDate(formattedPaymentDate)
     } else if (paymentDateOpen) {
       setPaymentDate(formattedDate)
       setPaymentDateOpen(false)
@@ -406,7 +421,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       toast.error("You must be logged in to create an invoice")
       return
     }
-
 
     showInvoicePreviewModal()
   }
@@ -717,6 +731,29 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
 
                       if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(value)) {
                         setBillDate(value)
+
+                        // Try to parse the date and set payment date to 30 days later
+                        if (value.length === 10) {
+                          // Only if it's a complete date
+                          const [day, month, year] = value.split("/").map(Number)
+                          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                            // JavaScript months are 0-indexed
+                            const billDateObj = new Date(year, month - 1, day)
+                            const paymentDueDate = new Date(billDateObj)
+                            paymentDueDate.setDate(paymentDueDate.getDate() + 30)
+
+                            const paymentDay = paymentDueDate.getDate()
+                            const paymentMonth = paymentDueDate.getMonth() + 1
+                            const paymentYear = paymentDueDate.getFullYear()
+
+                            const formattedPaymentDay = paymentDay < 10 ? `0${paymentDay}` : paymentDay.toString()
+                            const formattedPaymentMonth =
+                              paymentMonth < 10 ? `0${paymentMonth}` : paymentMonth.toString()
+                            const formattedPaymentDate = `${formattedPaymentDay}/${formattedPaymentMonth}/${paymentYear}`
+
+                            setPaymentDate(formattedPaymentDate)
+                          }
+                        }
                       }
                     }}
                     placeholder="DD/MM/YYYY"

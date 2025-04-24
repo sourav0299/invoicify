@@ -152,7 +152,7 @@ export default function SyncUser() {
             </div>
             <h1 className="text-xl font-medium text-[#333843]">Invoicify</h1>
           </div>
-          <h2 className="text-3xl font-semibold text-[#212626]">Set Up your User Profile</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold text-[#212626]">Set Up Your User Profile</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-8">
@@ -330,7 +330,7 @@ export default function SyncUser() {
               isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {isLoading ? "Saving..." : "Save & Continue"}
+            {isLoading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

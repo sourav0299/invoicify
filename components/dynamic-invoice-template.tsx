@@ -26,6 +26,21 @@ const formatCurrency = (amount: number) => {
     .replace("₹", "₹ ")
 }
 
+const formatDate = (dateString: string) => {
+  if (!dateString) return ""
+
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  } catch (error) {
+    return dateString // Return original string if parsing fails
+  }
+}
+
 // Helper function to get logo
 const getLogo = () => {
   return "/logo.png"
@@ -96,12 +111,12 @@ export default function DynamicInvoiceTemplate({
       setIsMobile(window.innerWidth < 640)
       setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024)
     }
-    
+
     checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
-    
+    window.addEventListener("resize", checkScreenSize)
+
     return () => {
-      window.removeEventListener('resize', checkScreenSize)
+      window.removeEventListener("resize", checkScreenSize)
     }
   }, [])
 
@@ -157,10 +172,10 @@ export default function DynamicInvoiceTemplate({
 
               <div>
                 <h3 className="font-semibold text-gray-500 mb-2">Bill Date</h3>
-                <p className="text-sm text-gray-600">{data?.billDate || ""}</p>
+                <p className="text-sm text-gray-600">{formatDate(data?.billDate || "")}</p>
 
                 <h3 className="font-semibold text-gray-500 mt-4 mb-2">Payment Deadline</h3>
-                <p className="text-sm text-gray-600">{data?.paymentDeadline || ""}</p>
+                <p className="text-sm text-gray-600">{formatDate(data?.paymentDeadline || "")}</p>
               </div>
             </div>
 
@@ -171,13 +186,27 @@ export default function DynamicInvoiceTemplate({
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-800 text-white">
                       <tr>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-left text-xs sm:text-sm font-medium">NO.</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-left text-xs sm:text-sm font-medium">ARTICLE</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">QTY</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">PRICE</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">TAX</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-right text-xs sm:text-sm font-medium">AMOUNT</th>
-                        <th scope="col" className="py-3 px-2 sm:px-4 text-right text-xs sm:text-sm font-medium">FINAL</th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-left text-xs sm:text-sm font-medium">
+                          NO.
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-left text-xs sm:text-sm font-medium">
+                          ARTICLE
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">
+                          QTY
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">
+                          PRICE
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-center text-xs sm:text-sm font-medium">
+                          TAX
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-right text-xs sm:text-sm font-medium">
+                          AMOUNT
+                        </th>
+                        <th scope="col" className="py-3 px-2 sm:px-4 text-right text-xs sm:text-sm font-medium">
+                          FINAL
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -191,10 +220,16 @@ export default function DynamicInvoiceTemplate({
                           <td className="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-sm">
                             {item.quantity} {item.measuringUnit}
                           </td>
-                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-sm">₹{item.unitPrice}</td>
+                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-sm">
+                            ₹{item.unitPrice}
+                          </td>
                           <td className="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-sm">{item.tax}%</td>
-                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-xs sm:text-sm">₹{item.beforeTaxAmount.toLocaleString("en-IN")}</td>
-                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-xs sm:text-sm">₹{item.afterTaxAmount.toLocaleString("en-IN")}</td>
+                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-xs sm:text-sm">
+                            ₹{item.beforeTaxAmount.toLocaleString("en-IN")}
+                          </td>
+                          <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-xs sm:text-sm">
+                            ₹{item.afterTaxAmount.toLocaleString("en-IN")}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -208,22 +243,18 @@ export default function DynamicInvoiceTemplate({
               <div className="w-full sm:w-1/2 lg:w-1/3">
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-600 text-sm sm:text-base">
-                    <span>Total Amount(Before tax)
-
-                    </span>
+                    <span>Total Amount</span>
                     <span>₹{(data?.totalBeforeTax || 0).toLocaleString("en-IN")}</span>
                   </div>
-                 
+
                   <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                     <span>Total Tax</span>
                     <span>₹{(data?.totalTax || 0).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between font-bold pt-2 border-t text-sm sm:text-base">
-                    <span>Total Price</span>
+                    <span>Total Payable Amount</span>
                     <span>₹{(data?.totalPayableAmount || 0).toLocaleString("en-IN")}</span>
                   </div>
-                  
-                 
                 </div>
               </div>
             </div>
