@@ -407,7 +407,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       return
     }
 
-    // Show preview first
+
     showInvoicePreviewModal()
   }
 
