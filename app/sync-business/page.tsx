@@ -563,12 +563,6 @@ const BusinessSettings = () => {
           </div>
           <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
             <button
-              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full sm:max-w-[190px]"
-              onClick={() => fetchBusinessDetails()}
-            >
-              Cancel
-            </button>
-            <button
               onClick={handleSave}
               className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] mt-2 sm:mt-0"
             >
