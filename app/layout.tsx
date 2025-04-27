@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast"
 import { usePathname } from "next/navigation"
 import { NavbarContext } from "./components/navBar"
 import { useState, useEffect } from "react"
+import { useAuthRedirect } from "@/helper/useAuthRedirect"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,7 +34,7 @@ export default function ClientLayout({
   const isFullScreenLayout = fullScreenPaths.includes(pathname)
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [viewportWidth, setViewportWidth] = useState(0)
-
+  useAuthRedirect()
 
   useEffect(() => {
     const checkScreenSize = () => {

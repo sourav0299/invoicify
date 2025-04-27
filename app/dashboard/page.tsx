@@ -11,7 +11,7 @@ import { SalesDetailView } from "@/components/sales-detail-view"
 import { ExpensesDetailView } from "@/components/expenses-detail-view"
 import { PaymentsDetailView } from "@/components/payments-detail-view"
 import { useRouter } from "next/navigation"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
 import { useUser } from "@clerk/nextjs"
 import InvoicePDF from "@/components/invoice-pdf"
 import InvoiceModal from "@/components/invoice-modal"
@@ -110,7 +110,7 @@ export default function DashboardPage() {
     { name: "Profit", value: 500000000, color: "#40c79a" },
   ]
 
-  useUserCheck()
+  // useUserCheck()
 
   useEffect(() => {
     const fetchPendingInvoices = async () => {

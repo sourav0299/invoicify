@@ -6,8 +6,10 @@ import { Eye, EyeOff, Upload } from "lucide-react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
 import toast from "react-hot-toast"
+import { useAuthRedirect } from "@/helper/useAuthRedirect"
 
 export default function SyncUser() {
+  useAuthRedirect();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { user } = useUser()

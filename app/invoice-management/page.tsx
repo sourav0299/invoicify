@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { ChevronDown, Eye, MoreVertical, Trash2 } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
 import toast from "react-hot-toast"
 
 interface Invoice {
@@ -173,7 +173,7 @@ export default function InvoicePage() {
     fetchInvoices()
   }, [])
 
-  useUserCheck()
+  // useUserCheck()
 
   return (
     <div className="bg-universal_white_background min-h-screen">
