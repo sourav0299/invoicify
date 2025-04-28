@@ -6,7 +6,7 @@ import Image from "next/image"
 import { toast } from "react-hot-toast"
 import axios from "axios"
 import { FaLocationCrosshairs } from "react-icons/fa6"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
 
 const PhotoIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -199,7 +199,7 @@ const BusinessSettings = () => {
     }
   }
 
-  useUserCheck();
+  // useUserCheck();
 
   return (
     <div className="bg-universal_gray_background pb-10 w-full min-h-screen">

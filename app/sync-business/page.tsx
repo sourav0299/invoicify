@@ -6,7 +6,7 @@ import Image from "next/image"
 import { toast } from "react-hot-toast"
 import axios from "axios"
 import { Button } from "@/components/ui/button"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
 
 const PhotoIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -268,7 +268,7 @@ const BusinessSettings = () => {
     }
   }
 
-  useUserCheck()
+  // useUserCheck()
   return (
     <div className="bg-universal_gray_background pb-10">
       <div className="px-4 sm:px-8 md:px-12 lg:px-16 max-w-6xl mx-auto">
@@ -559,12 +559,6 @@ const BusinessSettings = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-            <button
-              className="bg-universal_white_background px-4 py-[10px] border flex items-center justify-center rounded-lg w-full sm:max-w-[190px]"
-              onClick={() => fetchBusinessDetails()}
-            >
-              Cancel
-            </button>
             <button
               onClick={handleSave}
               className="bg-sidebar_green_button_background text-universal_white_background px-4 py-[10px] flex items-center justify-center rounded-lg w-full sm:max-w-[190px] mt-2 sm:mt-0"

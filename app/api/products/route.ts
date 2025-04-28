@@ -3,9 +3,11 @@ import { connectToDatabase } from "../../../utils/database"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-
-    if (!body.itemName || !body.itemCode) {
+    console.log("Received POST request for products")
+    const { db } = await connectToDatabase()
+    const product = await req.json()
+    
+    if (!product.itemName || !product.itemCode) {
       return NextResponse.json(
         { error: "Missing required fields: itemName and itemCode are required" },
         { status: 400 },

@@ -19,7 +19,7 @@ export async function DELETE(
     const id = (await params).id
     if (!id) {
       return NextResponse.json(
-        { error: "Product ID is required" },
+        { error: "Expense ID is required" },
         { status: 400 }
       )
     }
@@ -27,25 +27,25 @@ export async function DELETE(
     // Convert string ID to MongoDB ObjectId
     const objectId = new ObjectId(id)
 
-    const result = await db.collection("products").deleteOne({
+    const result = await db.collection("expenses").deleteOne({
       _id: objectId,
     })
 
     if (result.deletedCount === 0) {
       return NextResponse.json(
-        { error: "Product not found" },
+        { error: "Expense not found" },
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { message: "Product deleted successfully" },
+      { message: "Expense deleted successfully" },
       { status: 200 }
     )
   } catch (error) {
-    console.error("Error deleting product:", error)
+    console.error("Error deleting expense:", error)
     return NextResponse.json(
-      { error: "Error deleting product" },
+      { error: "Error deleting expense" },
       { status: 500 }
     )
   }

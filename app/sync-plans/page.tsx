@@ -1,48 +1,55 @@
 "use client";
-import Image from "next/image";
 import { Check, X } from "lucide-react";
 import { useState } from "react";
-import toast from "react-hot-toast";
-import {
-  createSubscription,
-  checkUserSubscription,
-} from "./createSubscription";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+import prisma from "../../utils/prisma";
 
 export default function PricingPage() {
   const router = useRouter();
-  const { userId: clerkUserId } = useAuth();
+  const { user } = useUser();
   const [loading, setLoading] = useState<number | null>(null);
 
   const handlePurchase = async (planId: number) => {
     try {
+      if (!user) {
+        toast.error("Please sign in to purchase a plan");
+        return;
+      }
+
       setLoading(planId);
-      const clerkUser = await fetch(`https://api.clerk.dev/v1/users/${clerkUserId}`, {
+      
+      const primaryEmail = user.primaryEmailAddress?.emailAddress;
+      
+      if (!primaryEmail) {
+        toast.error("No email address found");
+        return;
+      }
+
+      // Create subscription using API
+      const response = await fetch('/api/create-subscription', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}`
-        }
-      }).then(res => res.json());
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userEmail: primaryEmail,
+          planId,
+        }),
+      });
 
-      if (!clerkUser.email_addresses?.[0]?.email_address) {
-        toast.error("User email not found");
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create subscription');
       }
 
-      const userEmail = clerkUser.email_addresses[0].email_address;
-      const hasSubscription = await checkUserSubscription(userEmail);
-
-      if (hasSubscription) {
-        router.push("/dashboard");
-        return;
-      }
-
-      const orderId = `ORDER_${Date.now()}`;
-      const result = await createSubscription(userEmail, planId, orderId);
-      toast.success(`Subscription created successfully for plan ${planId}`);
+      toast.success("Subscription created successfully!");
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Error creating subscription:", error);
-      toast.error("Error creating subscription. Please try again later.");
+      console.error("Error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create subscription. Please try again.");
     } finally {
       setLoading(null);
     }

@@ -7,7 +7,7 @@ import { ArrowLeft, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-hot-toast"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
 
 const countries = [
   { code: "+1", name: "United States", flag: "🇺🇸", iso: "us" },
@@ -250,7 +250,7 @@ const UserDetails = () => {
 
   const selectedCountry = countries.find((country) => country.code === countryCode)
 
-  useUserCheck()
+  // useUserCheck()
 
   return (
     <div className="bg-universal_gray_background max-h-[70svh]  pb-24 sm:pb-16 w-full">

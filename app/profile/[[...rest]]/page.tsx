@@ -1,8 +1,8 @@
-import { useUserCheck } from '@/helper/useUserCheck';
+// import { useUserCheck } from '@/helper/useUserCheck';
 import { UserProfile } from '@clerk/nextjs';
 
 const ProfilePage = () => {
-  useUserCheck()
+  // useUserCheck()
   return (
     <>
       <div className="flex items-center justify-center h-screen">

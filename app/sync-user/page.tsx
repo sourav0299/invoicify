@@ -6,8 +6,10 @@ import { Eye, EyeOff, Upload } from "lucide-react"
 import { useUser, useClerk } from "@clerk/nextjs"
 import Image from "next/image"
 import toast from "react-hot-toast"
+import { useAuthRedirect } from "@/helper/useAuthRedirect"
 
 export default function SyncUser() {
+  useAuthRedirect();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { user } = useUser()
@@ -320,9 +322,6 @@ export default function SyncUser() {
         </div>
 
         <div className="flex justify-end gap-4 mt-12">
-          <button className="px-6 py-2.5 border border-[#e0e2e7] rounded-md text-[#667085] font-medium hover:bg-gray-50 transition-colors">
-            Cancel
-          </button>
           <button
             onClick={handleSave}
             disabled={isLoading}

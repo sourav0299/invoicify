@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronDown, Eye, FileDown } from "lucide-react"
+import { ChevronDown, Eye, MoreVertical, Trash2 } from "lucide-react"
 import Link from "next/link"
 import CreateInvoice from "@/components/create-invoice"
-import { useUserCheck } from "@/helper/useUserCheck"
-import { Button } from "@/components/ui/button"
+// import { useUserCheck } from "@/helper/useUserCheck"
 import toast from "react-hot-toast"
 
 interface Invoice {
@@ -192,8 +191,9 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(true)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [showStatusMenu, setShowStatusMenu] = useState<string | null>(null)
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-  const [showPdfPreview, setShowPdfPreview] = useState(false)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null)
+  const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false)
 
   const itemsPerPage = 10
   const totalItems = invoices.length
@@ -263,6 +263,52 @@ export default function InvoicePage() {
     }
   }
 
+  const handleDeleteInvoice = async (id: string) => {
+    try {
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        // Remove the invoice from the local state
+        setInvoices(invoices.filter(invoice => invoice.id !== id))
+        toast.success('Invoice deleted successfully')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete invoice')
+      }
+    } catch (error) {
+      console.error("Error deleting invoice:", error)
+      toast.error('Failed to delete invoice')
+    } finally {
+      setShowDeleteConfirmation(false)
+      setInvoiceToDelete(null)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    try {
+      const deletePromises = selectedInvoices.map(id =>
+        fetch(`/api/invoices/${id}`, {
+          method: "DELETE",
+        })
+      )
+
+      await Promise.all(deletePromises)
+      
+      // Remove the deleted invoices from the local state
+      setInvoices(invoices.filter(invoice => !selectedInvoices.includes(invoice.id)))
+      setSelectedInvoices([])
+      setSelectAll(false)
+      toast.success('Invoices deleted successfully')
+    } catch (error) {
+      console.error("Error bulk deleting invoices:", error)
+      toast.error('Failed to delete invoices')
+    } finally {
+      setShowBulkDeleteConfirmation(false)
+    }
+  }
+
   // Fetch invoices
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -287,7 +333,7 @@ export default function InvoicePage() {
     fetchInvoices()
   }, [])
 
-  useUserCheck()
+  // useUserCheck()
 
   return (
     <div className="bg-universal_white_background min-h-screen">
@@ -313,7 +359,6 @@ export default function InvoicePage() {
             </div>
           </header>
 
-          {/* Notification Banner */}
           <div className="bg-[#fee0e0] rounded-md p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div className="text-business_settings_black_text text-[14px]">
               You have <span className="font-semibold">{invoices.length}/50</span> invoices created.
@@ -322,6 +367,29 @@ export default function InvoicePage() {
               Upgrade your plan to enjoy more benefits.
             </Link>
           </div>
+
+          {/* Bulk Delete Button */}
+          <div className="mb-4">
+            <button
+              onClick={() => {
+                if (selectedInvoices.length > 0) {
+                  setShowBulkDeleteConfirmation(true)
+                }
+              }}
+              disabled={selectedInvoices.length === 0}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+                selectedInvoices.length > 0
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              <Trash2 size={16} />
+              Delete Selected ({selectedInvoices.length})
+            </button>
+          </div>
+
+          {/* Notification Banner */}
+          
 
           {loading ? (
             <div className="text-center py-8">Loading invoices...</div>
@@ -355,7 +423,8 @@ export default function InvoicePage() {
                         </th>
                         <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Amount</th>
                         <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Status</th>
-                        <th className="py-3 px-4 text-left text-[14px] font-medium text-sidebar_black_text">Action</th>
+                        <th className="py-3 px-4 text-center text-[14px] font-medium text-sidebar_black_text">Action</th>
+                        <th className="py-3 px-4 text-center text-[14px] font-medium text-sidebar_black_text">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -432,7 +501,18 @@ export default function InvoicePage() {
                               <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                               <span className="hidden sm:inline ml-1">View Invoice</span>
                             </Button>
-                           
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <button
+                              onClick={() => {
+                                setInvoiceToDelete(invoice)
+                                setShowDeleteConfirmation(true)
+                              }}
+                              className="inline-flex items-center gap-1 text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -538,13 +618,22 @@ export default function InvoicePage() {
                         </div>
                       </div>
 
-                      <button
-                        className="flex items-center gap-1 text-download_purple_text text-[14px] w-full justify-center py-2 border-t border-sidebar_gray_border"
-                        onClick={() => handleViewInvoice(invoice)}
-                      >
-                        <Eye className="h-4 w-4" />
-                        View Invoice
-                      </button>
+                      <div className="flex justify-between items-center mt-4 pt-4 border-t border-sidebar_gray_border">
+                        <button className="flex items-center gap-1 text-download_purple_text text-[14px] hover:text-purple-700">
+                          <Eye className="h-4 w-4" />
+                          View Invoice
+                        </button>
+                        <button
+                          onClick={() => {
+                            setInvoiceToDelete(invoice)
+                            setShowDeleteConfirmation(true)
+                          }}
+                          className="flex items-center gap-1 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -597,6 +686,99 @@ export default function InvoicePage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {showDeleteConfirmation && (
+            <div className="fixed z-10 inset-0 overflow-y-auto">
+              <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                  <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <Trash2 className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900">Delete Invoice</h3>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Are you sure you want to delete this invoice? This action cannot be undone.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button
+                      type="button"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={() => invoiceToDelete && handleDeleteInvoice(invoiceToDelete.id)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={() => {
+                        setShowDeleteConfirmation(false)
+                        setInvoiceToDelete(null)
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bulk Delete Confirmation Modal */}
+          {showBulkDeleteConfirmation && (
+            <div className="fixed z-10 inset-0 overflow-y-auto">
+              <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                  <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <Trash2 className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900">Delete Multiple Invoices</h3>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Are you sure you want to delete {selectedInvoices.length} selected invoices? This action cannot be undone.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button
+                      type="button"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={handleBulkDelete}
+                    >
+                      Delete All
+                    </button>
+                    <button
+                      type="button"
+                      className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={() => setShowBulkDeleteConfirmation(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}

@@ -205,14 +205,6 @@ const HeaderBar = () => {
             />
           </div>
         )}
-
-        <div className="flex items-center bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-3 py-1.5 border border-gray-200 transition-all duration-300">
-          <div className="flex items-center space-x-1.5">
-            <span className="font-semibold text-gray-800 text-base md:text-lg tracking-tight">
-              {currentLimit}/{maxLimit}
-            </span>
-          </div>
-        </div>
         <div
           ref={dropdownRef}
           className="flex items-center space-x-1 sm:space-x-2 cursor-pointer relative"
