@@ -49,6 +49,22 @@ interface Invoice {
   status: string
 }
 
+interface TopProduct {
+  id: number
+  name: string
+  code: string
+  amount: number
+  progress: number
+}
+
+interface TopParty {
+  id: number
+  name: string
+  invoices: number
+  amount: number
+  progress: number
+}
+
 // async function checkUser() {
 //   try {
 //     const response = await fetch("/api/middleware/check-user", {
@@ -91,6 +107,8 @@ export default function DashboardPage() {
   const [totalSales, setTotalSales] = useState(0)
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [totalPaymentsReceived, setTotalPaymentsReceived] = useState(0)
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([])
+  const [topParties, setTopParties] = useState<TopParty[]>([])
   const router = useRouter()
   const { user } = useUser()
 
@@ -124,6 +142,8 @@ export default function DashboardPage() {
         const invoicesResponse = await fetch('/api/invoices')
         if (invoicesResponse.ok) {
           const invoices: Invoice[] = await invoicesResponse.json()
+          
+          // Calculate total sales from all invoices
           const total = invoices.reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
           setTotalSales(total)
           
@@ -132,6 +152,79 @@ export default function DashboardPage() {
             .filter(invoice => invoice.status === 'PAID')
             .reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
           setTotalPaymentsReceived(paidTotal)
+          
+          // Calculate top performing products
+          const productSales = new Map<string, { total: number, name: string, code: string }>()
+          
+          // Aggregate sales by product
+          invoices.forEach(invoice => {
+            invoice.items.forEach(item => {
+              const key = item.itemCode
+              const currentData = productSales.get(key) || { total: 0, name: item.itemName, code: item.itemCode }
+              productSales.set(key, {
+                ...currentData,
+                total: currentData.total + (item.quantity * item.unitPrice)
+              })
+            })
+          })
+
+          // Convert to array and sort by total sales
+          const sortedProducts = Array.from(productSales.entries())
+            .map(([_, data]) => ({
+              name: data.name,
+              code: data.code,
+              amount: data.total
+            }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 3)
+
+          // Calculate progress percentage based on highest amount
+          const maxAmount = sortedProducts[0]?.amount || 0
+          const topProductsWithProgress = sortedProducts.map((product, index) => ({
+            id: index + 1,
+            name: product.name,
+            code: product.code,
+            amount: product.amount,
+            progress: Math.round((product.amount / maxAmount) * 100)
+          }))
+
+          setTopProducts(topProductsWithProgress)
+          
+          // Calculate top parties
+          const partySales = new Map<string, { total: number, invoiceCount: number, name: string }>()
+          
+          // Aggregate sales by party
+          invoices.forEach(invoice => {
+            const key = invoice.brandName
+            const currentData = partySales.get(key) || { total: 0, invoiceCount: 0, name: key }
+            partySales.set(key, {
+              ...currentData,
+              total: currentData.total + invoice.totalPayableAmount,
+              invoiceCount: currentData.invoiceCount + 1
+            })
+          })
+
+          // Convert to array and sort by total sales
+          const sortedParties = Array.from(partySales.entries())
+            .map(([_, data]) => ({
+              name: data.name,
+              amount: data.total,
+              invoices: data.invoiceCount
+            }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 3)
+
+          // Calculate progress percentage based on highest amount
+          const maxAmountParties = sortedParties[0]?.amount || 0
+          const topPartiesWithProgress = sortedParties.map((party, index) => ({
+            id: index + 1,
+            name: party.name,
+            amount: party.amount,
+            invoices: party.invoices,
+            progress: Math.round((party.amount / maxAmountParties) * 100)
+          }))
+
+          setTopParties(topPartiesWithProgress)
           
           // Set pending invoices
           const pending = invoices.filter(invoice => invoice.status === 'PENDING')
@@ -516,60 +609,13 @@ export default function DashboardPage() {
             <CardTitle>Top Performers</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col space-y-4">
-            {[
-              {
-                id: 1,
-                name: "Blue Vintage Lantern",
-                code: "0178922",
-                amount: "1,24,000",
-                revenue: "21",
-                progress: 70,
-              },
-              { id: 2, name: "Item Name", code: "Item Code", amount: "0,00,000", revenue: "21", progress: 60 },
-              { id: 3, name: "Item Name", code: "Item Code", amount: "0,00,000", revenue: "21", progress: 50 },
-            ].map((item) => (
-              <div key={item.id} className="flex items-start gap-2 w-full">
-                <div
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                    item.id === 1 ? "bg-[#D8F6E5] text-[#1eb386]" : "bg-[#DDEBFF] text-[#3a8bff]"
-                  } text-sm font-medium`}
-                >
-                  {item.id}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.code}</p>
-                    </div>
-                    <div className="sm:text-right mt-1 sm:mt-0">
-                      <p className="text-sm font-medium">₹{item.amount}</p>
-                      <p className="text-xs text-green-600">{item.revenue}% Revenue</p>
-                    </div>
-                  </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#F7F7F7]">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#77deb8] to-[#40c79a]"
-                      style={{ width: `${item.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-        <div className="md:col-span-1">
-          <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle>Top Parties</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { id: 1, name: "AS_Publisher", invoices: "36", amount: "1,24,000", revenue: "29", progress: 80 },
-                { id: 2, name: "Party Name", invoices: "00", amount: "0,00,000", revenue: "17", progress: 50 },
-                { id: 3, name: "Party Name", invoices: "00", amount: "0,00,000", revenue: "08", progress: 30 },
-              ].map((item) => (
-                <div key={item.id} className="flex items-start gap-2 w-full">
+            {isLoading ? (
+              <div className="text-center text-muted-foreground">Loading...</div>
+            ) : topProducts.length === 0 ? (
+              <div className="text-center text-muted-foreground">No products found</div>
+            ) : (
+              topProducts.map((item) => (
+                <div key={item.id} className="flex items-start gap-2 w-full py-2">
                   <div
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
                       item.id === 1 ? "bg-[#D8F6E5] text-[#1eb386]" : "bg-[#DDEBFF] text-[#3a8bff]"
@@ -581,22 +627,64 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.invoices} Invoices</p>
+                        <p className="text-xs text-muted-foreground">{item.code}</p>
                       </div>
-                      <div className="sm:text-right">
-                        <p className="text-sm font-medium">₹{item.amount}</p>
-                        <p className="text-xs text-green-600">{item.revenue}% Revenue</p>
+                      <div className="sm:text-right mt-1 sm:mt-0">
+                        <p className="text-sm font-medium">₹{item.amount.toLocaleString('en-IN')}</p>
                       </div>
                     </div>
                     <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#F7F7F7]">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#77deb8] to-[#3a8bff]"
+                        className="h-full rounded-full bg-gradient-to-r from-[#77deb8] to-[#40c79a]"
                         style={{ width: `${item.progress}%` }}
                       ></div>
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
+          </CardContent>
+        </Card>
+        <div className="md:col-span-1">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle>Top Parties</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isLoading ? (
+                <div className="text-center text-muted-foreground">Loading...</div>
+              ) : topParties.length === 0 ? (
+                <div className="text-center text-muted-foreground">No parties found</div>
+              ) : (
+                topParties.map((party) => (
+                  <div key={party.id} className="flex items-start gap-2 w-full py-2">
+                    <div
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                        party.id === 1 ? "bg-[#D8F6E5] text-[#1eb386]" : "bg-[#DDEBFF] text-[#3a8bff]"
+                      } text-sm font-medium`}
+                    >
+                      {party.id}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{party.name}</p>
+                          <p className="text-xs text-muted-foreground">{party.invoices} Invoices</p>
+                        </div>
+                        <div className="sm:text-right">
+                          <p className="text-sm font-medium">₹{party.amount.toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#F7F7F7]">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#77deb8] to-[#3a8bff]"
+                          style={{ width: `${party.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
