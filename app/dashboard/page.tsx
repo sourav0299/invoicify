@@ -88,6 +88,7 @@ export default function DashboardPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [showPdfPreview, setShowPdfPreview] = useState(false)
+  const [totalSales, setTotalSales] = useState(0)
   const router = useRouter()
   const { user } = useUser()
 
@@ -113,24 +114,30 @@ export default function DashboardPage() {
   // useUserCheck()
 
   useEffect(() => {
-    const fetchPendingInvoices = async () => {
+    const fetchInvoices = async () => {
       try {
-        const response = await fetch("/api/invoices")
-        if (!response.ok) {
-          throw new Error("Failed to fetch invoices")
+        const response = await fetch('/api/invoices')
+        if (response.ok) {
+          const invoices: Invoice[] = await response.json()
+          
+          // Calculate total sales from all invoices
+          const total = invoices.reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
+          setTotalSales(total)
+          
+          // Set pending invoices
+          const pending = invoices.filter(invoice => invoice.status === 'PENDING')
+          setPendingInvoices(pending)
+        } else {
+          console.error('Failed to fetch invoices')
         }
-        const data = await response.json()
-        // Filter for pending invoices only
-        const pending = data.filter((invoice: Invoice) => invoice.status === "PENDING")
-        setPendingInvoices(pending)
       } catch (error) {
-        console.error("Error fetching pending invoices:", error)
+        console.error('Error fetching invoices:', error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchPendingInvoices()
+    fetchInvoices()
   }, [])
 
   // useEffect(() => {
@@ -277,7 +284,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">₹23,08,114</div>
+            <div className="text-xl sm:text-2xl font-bold">{`₹${totalSales.toLocaleString('en-IN')}`}</div>
           </CardContent>
         </Card>
         <Card
