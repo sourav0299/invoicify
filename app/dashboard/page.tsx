@@ -13,7 +13,6 @@ import { PaymentsDetailView } from "@/components/payments-detail-view"
 import { useRouter } from "next/navigation"
 // import { useUserCheck } from "@/helper/useUserCheck"
 import { useUser } from "@clerk/nextjs"
-import InvoicePDF from "@/components/invoice-pdf"
 import InvoiceModal from "@/components/invoice-modal"
 
 type DetailViewType = "sales" | "expenses" | "payments" | null
@@ -541,7 +540,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Grid - First Row */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 auto-rows-auto">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 auto-rows-auto">
         {/* Expense Distribution */}
         {/* <Card className="shadow-sm h-auto">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -604,7 +603,7 @@ export default function DashboardPage() {
         </Card> */}
 
         {/* Top Performers */}
-        <Card className="shadow-sm h-auto">
+        <Card className="shadow-sm h-auto w-full">
           <CardHeader className="pb-2">
             <CardTitle>Top Performers</CardTitle>
           </CardHeader>

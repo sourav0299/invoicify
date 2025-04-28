@@ -293,7 +293,7 @@ const BusinessSettings = () => {
           </div>
         </div>
 
-        <div className="rounded-lg bg-universal_white_background flex flex-col p-3 sm:p-6 h-auto gap-4">
+        <div className="rounded-lg bg-universal_white_background p-4 sm:p-6 flex flex-col h-auto gap-5 sm:gap-4">
           <div className="flex flex-col sm:flex-row gap-6">
             {/* Business Logo Upload Section */}
             <div className="flex flex-col items-center">
@@ -358,7 +358,7 @@ const BusinessSettings = () => {
                   className="bg-transparent border border-business_settings_gray_border border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                 />
               </div>
-              <div className="flex w-full gap-3">
+              <div className="flex flex-col sm:flex-row w-full gap-3">
                 <div className="flex flex-col w-full bg-universal_gray_background p-5 rounded-lg gap-1">
                   <div className="bg-transparent w-full text-xs text-sidebar_black_text">Business Type</div>
                   <select
@@ -393,7 +393,7 @@ const BusinessSettings = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="p-5 bg-universal_gray_background rounded-lg">
               <div className="text-sidebar_black_text text-xs">Gst Registered?</div>
-              <div className="flex gap-10">
+              <div className="flex gap-6 sm:gap-10">
                 <label className="flex items-center gap-3">
                   <span className="text-sm py-3">Yes</span>
                   <input
@@ -487,10 +487,7 @@ const BusinessSettings = () => {
               />
             </div>
           </div>
-          <Button
-            className="flex justify-end items-center gap-4 ml-auto sm:ml-[88%] w-auto sm:w-auto"
-            onClick={getlocation}
-          >
+          <Button className="ml-auto w-auto flex justify-end items-center gap-4" onClick={getlocation}>
             Get Location
           </Button>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -536,7 +533,7 @@ const BusinessSettings = () => {
                   className="resize-none bg-transparent border border-business_settings_gray_border border-dashed w-full h-32 rounded-[4px] focus:outline-none p-4"
                 />
                 <div
-                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full sm:max-w-[260px] h-32 rounded-[4px] focus:outline-none p-1 mt-3 sm:mt-0"
+                  className="cursor-pointer flex flex-col justify-center items-center bg-transparent border border-business_settings_gray_border border-dashed w-full sm:max-w-[260px] h-28 sm:h-32 rounded-[4px] focus:outline-none p-1 mt-3 sm:mt-0"
                   onClick={() => signatureRef.current?.click()}
                 >
                   {signaturePreview ? (

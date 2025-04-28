@@ -56,7 +56,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center py-8 sm:py-12 md:py-16 px-4">
+    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center py-8 sm:py-12 md:py-16 ">
       <div className="max-w-7xl w-[95%] rounded-xl sm:rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12">
         <div className="flex flex-col items-center mb-8 md:mb-12">
           <div className="flex items-center gap-2 mb-3 md:mb-4">

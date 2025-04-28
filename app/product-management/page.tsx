@@ -155,6 +155,7 @@ const Modal: React.FC = () => {
   const [categories, setCategories] = useState(["Product", "Service"])
 
   const handleDeleteClick = (product: Product) => {
+    console.log("Delete clicked for product:", product)
     setProductToDelete(product)
     setShowDeleteConfirmation(true)
   }
@@ -164,19 +165,25 @@ const Modal: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (productToDelete) {
       try {
+        console.log("Deleting product with ID:", productToDelete._id)
+
         const response = await fetch(`/api/products/${productToDelete._id}`, {
           method: "DELETE",
         })
 
+        const responseData = await response.json().catch(() => ({}))
+        console.log("Delete response:", response.status, responseData)
+
         if (!response.ok) {
-          throw new Error("Failed to delete product")
+          throw new Error(responseData.error || `Failed to delete product: ${response.status}`)
         }
 
         console.log("Product deleted successfully")
         setShowDeleteConfirmation(false)
         fetchProductList()
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting product:", error)
+        alert(`Failed to delete product: ${error.message || "Unknown error"}`)
       }
     }
   }
@@ -307,16 +314,21 @@ const Modal: React.FC = () => {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to save product")
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }))
+        console.error("API Error:", errorData)
+        throw new Error(errorData.message || `Failed to save product: ${response.status}`)
       }
 
       const savedProduct = await response.json()
+      console.log("Product saved successfully:", savedProduct)
 
       setShowConfirmation(false)
       handleCloseModal()
       fetchProductList()
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving product:", error)
+      // Optionally show an error message to the user
+      alert(`Failed to save product: ${error.message || "Unknown error"}`)
     }
   }
 
@@ -335,7 +347,8 @@ const Modal: React.FC = () => {
       setInStockCount(inStock)
       setLowStockCount(lowStock)
       setOutOfStockCount(outOfStock)
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error fetching products:", error.message)
       setProductList([])
       setOutOfStockCount(0)
       setLowStockCount(0)
@@ -408,8 +421,9 @@ const Modal: React.FC = () => {
       setSelectedProducts([])
       setSelectAll(false)
       fetchProductList()
-    } catch (error) {
-      console.error("Error deleting products:", error)
+    } catch (error: any) {
+      console.error("Error deleting products:", error.message)
+      alert(`Failed to delete products: ${error.message || "Unknown error"}`)
     }
   }
 
