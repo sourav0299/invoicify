@@ -7,8 +7,7 @@ export async function POST(req: NextRequest) {
     const { db } = await connectToDatabase()
     const product = await req.json()
     
-    // Ensure required fields are present
-    if (!product.name || !product.code) {
+    if (!product.itemName || !product.itemCode) {
       return NextResponse.json(
         { error: "Product name and code are required" },
         { status: 400 }

@@ -8,7 +8,8 @@ import "../globals.css"
 import { Tooltip } from "react-tooltip"
 import "react-tooltip/dist/react-tooltip.css"
 import { ArrowUpDown, Trash2, CheckSquare, Square, ChevronDown, ChevronRight } from "lucide-react"
-import { useUserCheck } from "@/helper/useUserCheck"
+// import { useUserCheck } from "@/helper/useUserCheck"
+import { toast } from "react-hot-toast"
 
 interface CaretIconProps {
   isOpen: boolean
@@ -103,7 +104,7 @@ interface Product {
   userEmail: string
   itemName: string
   itemType: string
-  category: string // Add this new field
+  category: string
   itemCode: string
   inventory: number
   measuringUnit: string
@@ -121,12 +122,11 @@ const Modal: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false)
   const [hoveredProduct, setHoveredProduct] = useState(null)
   const [productList, setProductList] = useState<Product[]>([])
-  // Update the initial product state to include category
   const [product, setProduct] = useState<Product>({
     userEmail: user?.primaryEmailAddress?.emailAddress || "",
     itemName: "",
     itemType: "Product",
-    category: "", // Add default category
+    category: "",
     itemCode: "",
     inventory: 0,
     measuringUnit: "Pcs",
@@ -159,7 +159,7 @@ const Modal: React.FC = () => {
     setShowDeleteConfirmation(true)
   }
 
-  useUserCheck()
+  // useUserCheck()
 
   const handleDeleteConfirm = async () => {
     if (productToDelete) {
@@ -232,12 +232,12 @@ const Modal: React.FC = () => {
       newErrors.itemName = "Item Name is required"
     }
 
-    if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
-      newErrors.salesPrice = "Price must be a positive number"
+    if (!product.itemCode.trim()) {
+      newErrors.itemCode = "Item Code is required"
     }
 
-    if (!product.itemCode.trim()) {
-      newErrors.itemCode = "Service Code is required"
+    if (isNaN(product.salesPrice) || product.salesPrice <= 0) {
+      newErrors.salesPrice = "Price must be a positive number"
     }
 
     setErrors(newErrors)
@@ -249,9 +249,10 @@ const Modal: React.FC = () => {
     event.preventDefault()
     if (validateForm()) {
       console.log("Form is valid, showing confirmation dialog")
-      setShowConfirmation(true)
+      handleConfirm()
     } else {
       console.log("Form is invalid, not showing confirmation dialog")
+      toast.error("Please fill in all required fields")
     }
   }
 

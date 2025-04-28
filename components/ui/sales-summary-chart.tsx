@@ -1,38 +1,69 @@
 "use client"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "@/components/ui/card"
+import { useEffect, useState } from "react"
 
-const data = [
-  {
-    name: "Jan",
-    total: 1200,
-  },
-  {
-    name: "Feb",
-    total: 1800,
-  },
-  {
-    name: "Mar",
-    total: 2200,
-  },
-  {
-    name: "Apr",
-    total: 2800,
-  },
-  {
-    name: "May",
-    total: 2500,
-  },
-  {
-    name: "Jun",
-    total: 3000,
-  },
-]
+interface Invoice {
+  id: string
+  billDate: string
+  totalPayableAmount: number
+}
+
+interface MonthlyData {
+  name: string
+  total: number
+}
 
 export function SalesSummaryChart() {
+  const [data, setData] = useState<MonthlyData[]>([])
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const response = await fetch('/api/invoices')
+        if (response.ok) {
+          const invoices: Invoice[] = await response.json()
+          
+          // Process invoices to get monthly totals
+          const monthlyTotals = new Map<string, number>()
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          
+          // Initialize all months with 0
+          monthNames.forEach(month => {
+            monthlyTotals.set(month, 0)
+          })
+
+          // Sum up totals for each month
+          invoices.forEach(invoice => {
+            const date = new Date(invoice.billDate)
+            const monthName = monthNames[date.getMonth()]
+            const currentTotal = monthlyTotals.get(monthName) || 0
+            monthlyTotals.set(monthName, currentTotal + invoice.totalPayableAmount)
+          })
+
+          // Convert to array format for chart
+          const chartData = monthNames.map(month => ({
+            name: month,
+            total: monthlyTotals.get(month) || 0
+          }))
+
+          setData(chartData)
+        } else {
+          console.error('Failed to fetch invoices')
+        }
+      } catch (error) {
+        console.error('Error fetching invoices:', error)
+      } finally {
+
+      }
+    }
+
+    fetchInvoices()
+  }, [])
+
   return (
     <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={data}>
+      <BarChart data={data} className="px-1">
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
         <YAxis
@@ -40,16 +71,16 @@ export function SalesSummaryChart() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `₹${value}`}
+          tickFormatter={(value) => `₹${value.toLocaleString('en-IN')}`}
         />
         <Tooltip
           cursor={{ fill: "rgba(58, 139, 255, 0.1)" }}
           content={({ active, payload }) => {
-            if (active && payload && payload.length) {
+            if (active && payload?.[0]?.payload?.name && payload?.[0]?.value !== undefined) {
               return (
                 <Card className="border-none shadow-md p-2">
                   <div className="text-sm font-medium">{payload[0].payload.name}</div>
-                  <div className="text-sm font-bold">₹{payload[0].value}</div>
+                  <div className="text-sm font-bold">₹{payload[0].value.toLocaleString('en-IN')}</div>
                 </Card>
               )
             }
