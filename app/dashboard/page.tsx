@@ -90,6 +90,7 @@ export default function DashboardPage() {
   const [showPdfPreview, setShowPdfPreview] = useState(false)
   const [totalSales, setTotalSales] = useState(0)
   const [totalExpenses, setTotalExpenses] = useState(0)
+  const [totalPaymentsReceived, setTotalPaymentsReceived] = useState(0)
   const router = useRouter()
   const { user } = useUser()
 
@@ -125,6 +126,12 @@ export default function DashboardPage() {
           const invoices: Invoice[] = await invoicesResponse.json()
           const total = invoices.reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
           setTotalSales(total)
+          
+          // Calculate total payments received from paid invoices
+          const paidTotal = invoices
+            .filter(invoice => invoice.status === 'PAID')
+            .reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
+          setTotalPaymentsReceived(paidTotal)
           
           // Set pending invoices
           const pending = invoices.filter(invoice => invoice.status === 'PENDING')
@@ -351,7 +358,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">₹28,114</div>
+            <div className="text-xl sm:text-2xl font-bold">{`₹${totalPaymentsReceived.toLocaleString('en-IN')}`}</div>
           </CardContent>
         </Card>
       </div>
