@@ -89,6 +89,7 @@ export default function DashboardPage() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [showPdfPreview, setShowPdfPreview] = useState(false)
   const [totalSales, setTotalSales] = useState(0)
+  const [totalExpenses, setTotalExpenses] = useState(0)
   const router = useRouter()
   const { user } = useUser()
 
@@ -114,30 +115,39 @@ export default function DashboardPage() {
   // useUserCheck()
 
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/invoices')
-        if (response.ok) {
-          const invoices: Invoice[] = await response.json()
-          
-          // Calculate total sales from all invoices
+        setIsLoading(true)
+        
+        // Fetch invoices
+        const invoicesResponse = await fetch('/api/invoices')
+        if (invoicesResponse.ok) {
+          const invoices: Invoice[] = await invoicesResponse.json()
           const total = invoices.reduce((sum, invoice) => sum + invoice.totalPayableAmount, 0)
           setTotalSales(total)
           
           // Set pending invoices
           const pending = invoices.filter(invoice => invoice.status === 'PENDING')
           setPendingInvoices(pending)
-        } else {
-          console.error('Failed to fetch invoices')
+        }
+
+        // Fetch expenses
+        const expensesResponse = await fetch('/api/expenses')
+        if (expensesResponse.ok) {
+          const expenses = await expensesResponse.json()
+          const totalExpense = expenses.reduce((sum: number, expense: any) => {
+            return sum + (expense.totalPrice || expense.expenseAmount || 0)
+          }, 0)
+          setTotalExpenses(totalExpense)
         }
       } catch (error) {
-        console.error('Error fetching invoices:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchInvoices()
+    fetchData()
   }, [])
 
   // useEffect(() => {
@@ -313,7 +323,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">₹18,08,114</div>
+            <div className="text-xl sm:text-2xl font-bold">{`₹${totalExpenses.toLocaleString('en-IN')}`}</div>
           </CardContent>
         </Card>
         <Card
