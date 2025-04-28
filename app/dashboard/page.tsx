@@ -254,7 +254,6 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Card
           className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "sales" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
-          onClick={() => handleCardClick("sales")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Sales</CardTitle>
@@ -279,18 +278,10 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">₹23,08,114</div>
-            <div className="flex items-center pt-1">
-              <div className="flex items-center text-xs text-green-600">
-                <ArrowUp className="mr-1 h-3 w-3" />
-                20%
-              </div>
-              <span className="ml-2 text-xs text-muted-foreground">Than Last Month</span>
-            </div>
           </CardContent>
         </Card>
         <Card
           className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "expenses" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
-          onClick={() => handleCardClick("expenses")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
@@ -316,18 +307,10 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">₹18,08,114</div>
-            <div className="flex items-center pt-1">
-              <div className="flex items-center text-xs text-green-600">
-                <ArrowUp className="mr-1 h-3 w-3" />
-                20%
-              </div>
-              <span className="ml-2 text-xs text-muted-foreground">Than Last Month</span>
-            </div>
           </CardContent>
         </Card>
         <Card
           className={`overflow-hidden shadow-sm cursor-pointer transition-all ${activeDetailView === "payments" ? "ring-2 ring-[#3a8bff]" : "hover:shadow-md"}`}
-          onClick={() => handleCardClick("payments")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Payment Received</CardTitle>
@@ -352,13 +335,6 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">₹28,114</div>
-            <div className="flex items-center pt-1">
-              <div className="flex items-center text-xs text-red-600">
-                <ArrowDown className="mr-1 h-3 w-3" />
-                3%
-              </div>
-              <span className="ml-2 text-xs text-muted-foreground">Than Last Month</span>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -389,33 +365,9 @@ export default function DashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Net Cashflow</CardTitle>
-            <div className="flex items-center space-x-2 mt-2 sm:mt-0">
-              <div className="flex items-center space-x-1">
-                <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                <span className="text-xs">Inflow</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <div className="h-3 w-3 rounded-full bg-green-300"></div>
-                <span className="text-xs">Outflow</span>
-              </div>
-            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="yearly">
-              <TabsList className="mb-4 w-full overflow-x-auto flex-nowrap">
-                <TabsTrigger value="daily" className="flex-1">
-                  Daily
-                </TabsTrigger>
-                <TabsTrigger value="weekly" className="flex-1">
-                  Weekly
-                </TabsTrigger>
-                <TabsTrigger value="monthly" className="flex-1">
-                  Monthly
-                </TabsTrigger>
-                <TabsTrigger value="yearly" className="flex-1">
-                  Yearly
-                </TabsTrigger>
-              </TabsList>
               <TabsContent value="yearly">
                 <div className="w-full overflow-x-auto">
                   <div className="min-w-[500px]">
@@ -460,10 +412,6 @@ export default function DashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2">
             <CardTitle>Sales Summary</CardTitle>
-            <Button variant="outline" size="sm" className="h-8 gap-1 mt-2 sm:mt-0">
-              Jan -Jun 2024
-              <ChevronDown className="h-4 w-4" />
-            </Button>
           </CardHeader>
           <CardContent>
             <div className="w-full overflow-hidden">
