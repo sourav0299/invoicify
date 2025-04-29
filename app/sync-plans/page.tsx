@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 import prisma from "../../utils/prisma";
+import Script from 'next/script';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function PricingPage() {
   const router = useRouter();
@@ -28,25 +35,63 @@ export default function PricingPage() {
       }
 
       // Create subscription using API
-      const response = await fetch('/api/create-subscription', {
+      const orderResponse = await fetch('/api/create-razorpay-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userEmail: primaryEmail,
-          planId,
-        }),
+        body: JSON.stringify({ planId }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create subscription');
+      const orderData = await orderResponse.json();
+      
+      if (!orderResponse.ok) {
+        throw new Error(orderData.error || 'Failed to create order');
       }
 
-      toast.success("Subscription created successfully!");
-      router.push("/dashboard");
+      // Initialize Razorpay
+      const razorpay = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        order_id: orderData.orderId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Invoicify',
+        description: `Subscription Plan ${planId}`,
+        image: '/logo.png',
+        handler: async function (response: any) {
+          const subscriptionResponse = await fetch('/api/create-subscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userEmail: primaryEmail,
+              planId,
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature,
+            }),
+          });
+
+          const subscriptionData = await subscriptionResponse.json();
+
+          if (!subscriptionResponse.ok) {
+            throw new Error(subscriptionData.error || 'Failed to create subscription');
+          }
+
+          toast.success("Subscription created successfully!");
+          router.push("/dashboard");
+        },
+        prefill: {
+          email: primaryEmail,
+          name: user.fullName,
+        },
+        theme: {
+          color: '#1eb386',
+        },
+      });
+
+      razorpay.open();
     } catch (error) {
       console.error("Error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create subscription. Please try again.");
@@ -55,7 +100,13 @@ export default function PricingPage() {
     }
   };
 
+
   return (
+   <>
+     <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+      />
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center py-8 sm:py-12 md:py-16 ">
       <div className="max-w-7xl w-[95%] rounded-xl sm:rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12">
         <div className="flex flex-col items-center mb-8 md:mb-12">
@@ -473,5 +524,6 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+   </>
   );
 }
