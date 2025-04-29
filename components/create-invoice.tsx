@@ -1264,13 +1264,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
               </div>
             )}
 
-            <div className="mt-6 flex justify-between">
-              <button
-                onClick={() => setShowInvoicePreview(false)}
-                className="px-4 py-2 border border-[#e0e2e7] rounded-md text-[#333843]"
-              >
-                Cancel
-              </button>
+            <div className="mt-6 flex justify-end">
               <button
                 onClick={handleConfirmSaveInvoice}
                 className="px-4 py-2 bg-[#1eb386] text-white rounded-md hover:bg-[#40c79a] transition-colors"

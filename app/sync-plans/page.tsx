@@ -57,9 +57,8 @@ export default function PricingPage() {
         currency: orderData.currency,
         name: 'Invoicify',
         description: `Subscription Plan ${planId}`,
-        image: '/logo.png', // Add your logo path
+        image: '/logo.png',
         handler: async function (response: any) {
-          // Create subscription after payment
           const subscriptionResponse = await fetch('/api/create-subscription', {
             method: 'POST',
             headers: {
