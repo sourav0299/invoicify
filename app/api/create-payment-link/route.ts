@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 // import * as Brevo from '@brevo/nodejs-sdk';
 import { Twilio } from 'twilio';
-// import { TrelloClient } from '@trello/api-client';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -16,11 +15,6 @@ const twilio = new Twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
-
-// const trello = new TrelloClient({
-//   key: process.env.TRELLO_API_KEY,
-//   token: process.env.TRELLO_TOKEN,
-// });
 
 export async function POST(request: Request) {
   try {
@@ -82,21 +76,6 @@ export async function POST(request: Request) {
       to: customerPhone
     });
 
-    // const card = await trello.card.create({
-    //   name: `Payment Link - Invoice #${invoiceNumber}`,
-    //   desc: `
-    //     Customer: ${customerName}
-    //     Email: ${customerEmail}
-    //     Phone: ${customerPhone}
-    //     Amount: ₹${amount}
-    //     Due Date: ${dueDate}
-    //     Payment Link: ${paymentLink.short_url}
-    //     Expiry Date: ${expiryDate.toLocaleDateString()}
-    //   `,
-    //   idList: process.env.TRELLO_LIST_ID,
-    //   due: expiryDate.toISOString()
-    // });
-
     // Send WhatsApp message via Twilio
     await twilio.messages.create({
       body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${dueDate}`,
@@ -108,7 +87,6 @@ export async function POST(request: Request) {
       success: true,
       paymentLink: paymentLink.short_url,
       expiryDate: expiryDate,
-    //   trelloCard: card.url
     });
 
   } catch (error) {
