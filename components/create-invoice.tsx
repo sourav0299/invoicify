@@ -49,6 +49,17 @@ interface ScanData {
   taxRate: string
 }
 
+interface BusinessDetails {
+  businessName: string
+  billingAddress: string
+  city: string
+  state: string
+  pincode: string
+  companyEmail: string
+  companyNumber: string
+  gstNumber: string
+}
+
 export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const { userId } = useAuth()
   const [billDateOpen, setBillDateOpen] = useState(false)
@@ -64,7 +75,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [partyContactNumber, setPartyContactNumber] = useState("")
   const [partyGST, setPartyGst] = useState("")
   const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([])
-
+  const [businessDetails, setBusinessDetails ] = useState<BusinessDetails | null>(null);
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -545,6 +556,23 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
     }
 
     fetchInvoices()
+  }, [])
+
+  useEffect(() => {
+    const fetchBusinessDetails = async () => {
+      try{
+        const response = await fetch('/api/business-details');
+        if(!response.ok){
+          throw new Error('Failed to fetch business details');
+        }
+        const data = await response.json();
+        setBusinessDetails(data);
+      }catch(error){
+        toast.error('Try Again later');
+        console.error('Error fetching data', error);
+      }
+    };
+    fetchBusinessDetails();
   }, [])
 
   return (
@@ -1187,10 +1215,11 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div>
                     <h3 className="font-medium text-[#333843] mb-2">From:</h3>
-                    <p className="text-[#333843]">Your Company Name</p>
-                    <p className="text-[#667085]">Your Address</p>
-                    <p className="text-[#667085]">Your City, State, ZIP</p>
-                    <p className="text-[#667085]">Your GST: XXXXXXXXXXXX</p>
+                    <p className="text-[#333843]">{businessDetails?.businessName}</p>
+                    <p className="text-[#667085]">{businessDetails?.billingAddress}</p>
+                    <p className="text-[#667085]">Email: {businessDetails?.companyEmail}</p>
+                    <p className="text-[#667085]">Phone: {businessDetails?.companyNumber}</p>
+                    <p className="text-[#667085]">GST: {businessDetails?.gstNumber}</p>                    
                   </div>
                   <div>
                     <h3 className="font-medium text-[#333843] mb-2">To:</h3>
