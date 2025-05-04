@@ -12,6 +12,7 @@ import { usePathname } from "next/navigation"
 import { NavbarContext } from "./components/navBar"
 import { useState, useEffect } from "react"
 import { useAuthRedirect } from "@/helper/useAuthRedirect"
+import StructuredData from "@/SEO/StructuredData"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -62,6 +63,9 @@ export default function ClientLayout({
     return (
       <ClerkProvider>
         <html lang="en">
+          <head>
+            <StructuredData />
+          </head>
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <Toaster />
             <main className="w-full h-screen">{children}</main>
@@ -74,6 +78,9 @@ export default function ClientLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+      <head>
+            <StructuredData />
+          </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Toaster />
           <NavbarContext.Provider value={{ collapsed: navCollapsed, setCollapsed: setNavCollapsed }}>
