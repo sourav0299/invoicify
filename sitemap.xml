@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemx.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://invoicify.com/</loc>
+    <loc>https://invoicify.in/</loc>
     <lastmod>2025-05-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://invoicify.com/dashboard</loc>
+    <loc>https://invoicify.in/dashboard</loc>
     <lastmod>2025-05-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://invoicify.com/sync-plans</loc>
+    <loc>https://invoicify.in/sync-plans</loc>
     <lastmod>2025-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
