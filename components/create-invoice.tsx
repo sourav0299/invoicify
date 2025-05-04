@@ -80,13 +80,10 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
-
   const [businessSearchQuery, setBusinessSearchQuery] = useState("")
   const [businessSearchResults, setBusinessSearchResults] = useState<any[]>([])
   const [isBusinessSearching, setIsBusinessSearching] = useState(false)
   const [showBusinessSearchResults, setShowBusinessSearchResults] = useState(false)
-
-  // New state for invoice preview
   const [showInvoicePreview, setShowInvoicePreview] = useState(false)
   const [currentInvoice, setCurrentInvoice] = useState<any>(null)
 
@@ -335,7 +332,6 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
       setBillDate(formattedDate)
       setBillDateOpen(false)
 
-      // Calculate payment date (30 days from bill date)
       const selectedDate = new Date(currentYear, currentMonth, day)
       const paymentDueDate = new Date(selectedDate)
       paymentDueDate.setDate(paymentDueDate.getDate() + 30)
@@ -1337,31 +1333,6 @@ const handleSendInvoice = async (method: "email" | "sms" | "whatsapp") => {
                 className="px-4 py-2 bg-[#1eb386] text-white rounded-md hover:bg-[#40c79a] transition-colors"
               >
                 Save
-              </button>
-            </div>
-
-            {/* Floating action buttons */}
-            <div className="fixed bottom-8 right-8 flex flex-col gap-3">
-              <button
-                onClick={() => handleSendInvoice("email")}
-                className="bg-[#1eb386] text-white p-3 rounded-full shadow-lg hover:bg-[#40c79a] transition-colors flex items-center justify-center"
-                title="Send via Email"
-              >
-                <Mail size={20} />
-              </button>
-              <button
-                onClick={() => handleSendInvoice("sms")}
-                className="bg-[#1eb386] text-white p-3 rounded-full shadow-lg hover:bg-[#40c79a] transition-colors flex items-center justify-center"
-                title="Send via SMS"
-              >
-                <MessageSquare size={20} />
-              </button>
-              <button
-                onClick={() => handleSendInvoice("whatsapp")}
-                className="bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:bg-[#1ea952] transition-colors flex items-center justify-center"
-                title="Send via WhatsApp"
-              >
-                <Phone size={20} />
               </button>
             </div>
           </Dialog.Panel>

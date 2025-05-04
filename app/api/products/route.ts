@@ -1,143 +1,106 @@
-import { type NextRequest, NextResponse } from "next/server"
-
-import { connectToDatabase } from "../../../utils/database"
-
-
+import { type NextRequest, NextResponse } from "next/server";
+import { connectToDatabase } from "../../../utils/database";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
+  try {
+    // Get user info
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
- try {
+    // Get user email from Clerk
+    const clerkUser = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`
+      }
+    }).then(res => res.json());
 
-  console.log("Received POST request for products")
+    if (!clerkUser.email_addresses?.[0]?.email_address) {
+      return NextResponse.json({ error: "User email not found" }, { status: 400 });
+    }
 
-  const { db } = await connectToDatabase()
+    const userEmail = clerkUser.email_addresses[0].email_address;
 
-  const product = await req.json()
+    const { db } = await connectToDatabase();
+    const product = await req.json();
 
-  
+    // Add user email to product
+    product.userEmail = userEmail;
 
-  if (!product.itemName || !product.itemCode) {
+    if (!product.itemName || !product.itemCode) {
+      return NextResponse.json(
+        { error: "Product name and code are required" },
+        { status: 400 }
+      );
+    }
 
-   return NextResponse.json(
-
-    { error: "Product name and code are required" },
-
-    { status: 400 }
-
-   )
-
+    const result = await db.collection("products").insertOne(product);
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error("Error in POST /api/products:", error);
+    return NextResponse.json(
+      { error: "Error saving product" },
+      { status: 500 }
+    );
   }
-
-  
-
-  console.log("Attempting to insert product:", product)
-
-  
-
-  const result = await db.collection("products").insertOne(product)
-
-  console.log("Product inserted successfully:", result)
-
-  
-
-  return NextResponse.json(result, { status: 201 })
-
- } catch (error) {
-
-  console.error("Error in POST /api/products:", error)
-
-  return NextResponse.json(
-
-   { error: "Error saving product", details: error instanceof Error ? error.message : "Unknown error" },
-
-   { status: 500 }
-
-  )
-
- }
-
 }
 
-
-
 export async function GET(req: NextRequest) {
+  try {
+    // Get user info
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
- try {
+    // Get user email from Clerk
+    const clerkUser = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`
+      }
+    }).then(res => res.json());
 
-  console.log("Received GET request for products")
+    if (!clerkUser.email_addresses?.[0]?.email_address) {
+      return NextResponse.json({ error: "User email not found" }, { status: 400 });
+    }
 
-  const { db } = await connectToDatabase()
+    const userEmail = clerkUser.email_addresses[0].email_address;
+    
+    const { db } = await connectToDatabase();
+    const searchParams = req.nextUrl.searchParams;
+    const search = searchParams.get("search");
 
-  
+    // Always filter by user email
+    let query: any = { userEmail };
 
-  // First check if we can access the products collection
+    if (search) {
+      query = {
+        $and: [
+          { userEmail },
+          {
+            $or: [
+              { itemName: { $regex: search, $options: "i" } },
+              { itemCode: { $regex: search, $options: "i" } },
+            ],
+          },
+        ],
+      };
+    }
 
-  const totalProducts = await db.collection("products").countDocuments()
+    const products = await db
+      .collection("products")
+      .find(query)
+      .limit(10)
+      .toArray();
 
-  console.log("Total products in database:", totalProducts)
-
-  
-
-  const searchParams = req.nextUrl.searchParams
-
-  const search = searchParams.get("search")
-
-  console.log("Search query:", search)
-
-
-
-  let query = {}
-
-  if (search) {
-
-   query = {
-
-    $or: [
-
-     { itemName: { $regex: search, $options: "i" } },
-
-     { itemCode: { $regex: search, $options: "i" } },
-
-     { userEmail: { $regex: search, $options: "i" } }
-
-    ],
-
-   }
-
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error("Error in GET /api/products:", error);
+    return NextResponse.json(
+      { error: "Error fetching products" },
+      { status: 500 }
+    );
   }
-
-  console.log("MongoDB query:", JSON.stringify(query))
-
-
-
-  // Let's log a sample of products to verify data structure
-
-  const sampleProducts = await db.collection("products").find().limit(1).toArray()
-
-  console.log("Sample product from database:", JSON.stringify(sampleProducts))
-
-
-
-  const products = await db.collection("products").find(query).limit(10).toArray()
-
-  console.log(`Found ${products.length} products matching query:`, JSON.stringify(products))
-
-
-
-  return NextResponse.json(products)
-
- } catch (error) {
-
-  console.error("Error in GET /api/products:", error)
-
-  return NextResponse.json(
-
-   { error: "Error fetching products", details: error instanceof Error ? error.message : "Unknown error" },
-
-   { status: 500 }
-
-  )
-
- }
-
 }

@@ -326,9 +326,7 @@ const ExpensesManager: React.FC = () => {
         <div className="border rounded-lg bg-white py-4 px-5 w-full">
           <div className="flex items-center justify-start gap-3 relative">
             <span
-              className={`absolute top-1/2 transform -translate-y-1/2 transition-transform duration-300 ease-in-out ${
-                isFocused ? "translate-x-2" : "translate-x-0"
-              } text-gray-900 font-bold`}
+              className={`text-gray-900 font-bold`}
               style={{ left: "0.1rem" }}
             >
               <Search size={24} />
@@ -678,7 +676,7 @@ const ExpensesManager: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              <div className="flex flex-col rounded-lg p-3 border border-gray-200 w-full gap-3">
+              <div className="flex flex-col rounded-lg p-3 w-full gap-3">
                 <div className="flex gap-3 flex-col md:flex-row">
                   <div className="p-5 bg-gray-50 rounded-lg text-start w-full">
                     <div className="text-gray-900 text-xs">Date</div>
@@ -746,7 +744,7 @@ const ExpensesManager: React.FC = () => {
                 </div>
                 <div className="flex gap-3 flex-col md:flex-row">
                   <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Invoice Number</div>
+                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Invoice Name</div>
                     <input
                       type="text"
                       className={`bg-transparent border ${
@@ -767,18 +765,6 @@ const ExpensesManager: React.FC = () => {
                       value={expense.expenseName}
                       onChange={handleInputChange}
                       placeholder="Enter expense number"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex flex-col w-full bg-gray-50 p-5 rounded-lg gap-1">
-                    <div className="bg-transparent w-full text-xs text-gray-900 text-start">Note</div>
-                    <input
-                      type="text"
-                      name="note"
-                      value={expense.note}
-                      onChange={handleInputChange}
-                      className="bg-transparent border border-gray-300 border-dashed w-full h-8 rounded-[4px] focus:outline-none p-1"
                     />
                   </div>
                 </div>
