@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://invoicify.com/sitemap.xml
+Sitemap: https://invoicify.in/sitemap.xml
