@@ -172,6 +172,7 @@ export default function landing() {
               <h1 className="text-3xl sm:text-[40px] tracking-tight text-gray-900 leading-tight font-Inter font-semibold">
                 Streamline Your Business with Smart Billing and Management Solutions
               </h1>
+              <meta name="description" content="Generate professional invoices, manage expenses, and grow your business with Invoicify" />
               <p className="mt-4 sm:mt-5 text-lg sm:text-[20px] leading-8 text-gray-600">
                 Automate invoicing, manage expenses, track sales, and enhance client relationships all in one intuitive
                 platform for improved efficiency and growth.
