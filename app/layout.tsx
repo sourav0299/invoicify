@@ -35,7 +35,10 @@ export default function ClientLayout({
   const isFullScreenLayout = fullScreenPaths.includes(pathname)
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [viewportWidth, setViewportWidth] = useState(0)
-  useAuthRedirect()
+  
+  if(pathname !== '/'){
+    useAuthRedirect()
+  }
 
   useEffect(() => {
     const checkScreenSize = () => {
