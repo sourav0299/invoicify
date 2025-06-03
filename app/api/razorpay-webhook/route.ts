@@ -4,6 +4,24 @@ import { Readable } from 'stream';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET as string;
 
+interface RazorpayPaymentEntity {
+  id: string;
+  order_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+interface RazorpayWebhookEvent {
+  event: string;
+  payload: {
+    payment: {
+      entity: RazorpayPaymentEntity;
+    };
+  };
+}
+
+
 export const config = {
   api: {
     bodyParser: false, // Required to get the raw body
@@ -37,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Invalid Signature' });
     }
 
-    const event = JSON.parse(rawBody.toString());
+    const event = JSON.parse(rawBody.toString()) as RazorpayWebhookEvent;
 
     // Access data from payload
     if (event.event === 'payment.captured') {
