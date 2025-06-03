@@ -1,6 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { Readable } from 'stream';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET as string;
 
@@ -21,30 +20,34 @@ interface RazorpayWebhookEvent {
   };
 }
 
-
 export const config = {
   api: {
-    bodyParser: false, // Required to get the raw body
+    bodyParser: false,
   },
 };
 
 // Helper to buffer the incoming stream
-async function getRawBody(readable: Readable): Promise<Buffer> {
+async function getRawBody(request: NextRequest): Promise<Buffer> {
   const chunks: Uint8Array[] = [];
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  const reader = request.body?.getReader();
+  if (!reader) throw new Error('No request body');
+  
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
   }
   return Buffer.concat(chunks);
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const rawBody = await getRawBody(req);
-    const signature = req.headers['x-razorpay-signature'] as string;
+    const rawBody = await getRawBody(request);
+    const signature = request.headers.get('x-razorpay-signature');
+
+    if (!signature) {
+      return NextResponse.json({ message: 'Missing signature' }, { status: 400 });
+    }
 
     const expectedSignature = crypto
       .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
@@ -52,12 +55,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .digest('hex');
 
     if (signature !== expectedSignature) {
-      return res.status(400).json({ message: 'Invalid Signature' });
+      return NextResponse.json({ message: 'Invalid Signature' }, { status: 400 });
     }
 
     const event = JSON.parse(rawBody.toString()) as RazorpayWebhookEvent;
 
-    // Access data from payload
     if (event.event === 'payment.captured') {
       const payment = event.payload.payment.entity;
       const paymentId: string = payment.id;
@@ -77,9 +79,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // TODO: update your database here
     }
 
-    return res.status(200).json({ received: true });
+    return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Webhook Error:', error);
-    return res.status(500).json({ message: 'Server Error' });
+    return NextResponse.json({ message: 'Server Error' }, { status: 500 });
   }
 }
