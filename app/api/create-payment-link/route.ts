@@ -71,14 +71,14 @@ export async function POST(request: Request) {
     // await brevo.sendTransacEmail(emailParams);
 
     await twilio.messages.create({
-      body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${dueDate}`,
+      body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${expiryDate}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: `+91${customerPhone}`
     });
 
     // Send WhatsApp message via Twilio
     await twilio.messages.create({
-      body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${dueDate}`,
+      body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${expiryDate}`,
       from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
       to: `whatsapp:${customerPhone}`
     });
