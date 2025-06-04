@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
+import { Twilio } from 'twilio';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET as string;
 const prisma = new PrismaClient()
+
+const twilio = new Twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
 
 interface RazorpayPaymentEntity {
   id: string;
@@ -78,18 +85,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         status,
       });
 
-       const invoice = await prisma.invoice.findFirst({
-    where: {
-      id: paymentId
-    }
-  });
-
-  if (!invoice) {
-    return NextResponse.json(
-      { error: "Invoice not found" },
-      { status: 404 }
-    );
-  }
+      await twilio.messages.create({
+      body: `Console.log ${paymentId}, ${orderId}, ${amount}, ${currency}, ${status}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: `+919110010117`
+    });
 
   // Update using the same pattern as your status route
   const updatedInvoice = await prisma.$queryRaw`
