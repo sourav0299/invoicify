@@ -14,7 +14,7 @@ interface RazorpayPaymentEntity {
 interface RazorpayWebhookEvent {
   event: string;
   payload: {
-    payment: {
+    payment_link: {
       entity: RazorpayPaymentEntity;
     };
   };
@@ -60,8 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const event = JSON.parse(rawBody.toString()) as RazorpayWebhookEvent;
 
-    if (event.event === 'payment.captured') {
-      const payment = event.payload.payment.entity;
+    if (event.event === 'payment_link.paid') {
+      const payment = event.payload.payment_link.entity;
       const paymentId: string = payment.id;
       const orderId: string = payment.order_id;
       const amount: number = payment.amount;
