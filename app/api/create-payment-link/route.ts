@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     await twilio.messages.create({
       body: `Payment link for Invoice #${invoiceNumber}: ${paymentLink.short_url}. Amount: ₹${amount}. Due date: ${dueDate}`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: customerPhone
+      to: `+91${customerPhone}`
     });
 
     // Send WhatsApp message via Twilio
