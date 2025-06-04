@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { PrismaClient } from '@prisma/client';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET as string;
+const prisma = new PrismaClient()
 
 interface RazorpayPaymentEntity {
   id: string;
@@ -76,9 +78,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         status,
       });
 
-      // TODO: update your database here
+      await prisma.invoice.update({
+        where: {
+            id: paymentId
+        },
+        data: {
+        status: 'PAID'
+      }
+      },
+    )
     }
-
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Webhook Error:', error);
