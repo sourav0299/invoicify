@@ -69,9 +69,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           where: { id: payment.order_id },
           data: {
             status: 'PAID',
-            paymentId: payment.id,
-            paidAmount: payment.amount / 100,
-            paidAt: new Date(),
           },
         });
         console.log('✅ Invoice updated:', updatedInvoice);
