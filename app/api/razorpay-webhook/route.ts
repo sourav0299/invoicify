@@ -78,15 +78,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         status,
       });
 
-      await prisma.invoice.update({
-        where: {
-            id: paymentId
-        },
-        data: {
-        status: 'PAID'
-      }
-      },
-    )
+       const invoice = await prisma.invoice.findFirst({
+    where: {
+      id: paymentId
+    }
+  });
+
+  if (!invoice) {
+    return NextResponse.json(
+      { error: "Invoice not found" },
+      { status: 404 }
+    );
+  }
+
+  // Update using the same pattern as your status route
+  const updatedInvoice = await prisma.$queryRaw`
+    UPDATE "Invoice" 
+    SET status = 'PAID'::text
+    WHERE id = ${paymentId}::text
+    RETURNING *
+  `;
     }
     return NextResponse.json({ received: true });
   } catch (error) {
