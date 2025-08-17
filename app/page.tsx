@@ -588,7 +588,7 @@ export default function landing() {
                 <span className="text-xl font-semibold">Invoicify</span>
               </div>
               <p>
-                All rights reserved | Designed and Developed by{" "}
+                © 2024 Invoicify Inc. All rights reserved | Designed and Developed by{" "}
                 <Link className="font-bold" href="https://www.dezainahub.com">
                   Dezainahub
                 </Link>
