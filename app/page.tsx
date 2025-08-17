@@ -152,7 +152,7 @@ export default function landing() {
         <div className="absolute top-0 right-0 w-0 sm:w-[28%] h-full bg-gradient-to-b from-[#1a9b73] to-[#0d4d39]" />
 
         <header className="relative z-10 flex items-center justify-between px-3 py-3 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Image src="/Logo.png" alt="" width={35} height={35} />
             <span className="text-xl font-semibold">Invoicify</span>
           </div>
@@ -529,8 +529,7 @@ export default function landing() {
           <div className="py-8 border-t border-gray-200">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-8">
               <div className="flex items-center gap-2">
-                <Image src="/Logo.png" alt="Invoicify" width={35} height={35} />
-                <span className="text-xl font-semibold">Invoicify</span>
+               
               </div>
 
               {/* <nav> */}
@@ -558,7 +557,7 @@ export default function landing() {
                 </ul>
               </nav> */}
 
-              <div className="flex items-center gap-4 mt-4 md:mt-0">
+              {/* <div className="flex items-center gap-4 mt-4 md:mt-0">
                 <Link
                   href="https://www.facebook.com/minesh.patel.146"
                   className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -580,20 +579,28 @@ export default function landing() {
                 >
                   <Instagram className="h-5 w-5" />
                 </Link>
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-              <p>© 2024 Invoicify Inc. All rights reserved</p>
-              <p>Designed and Developed by Dezainahub</p>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Image src="/Logo.png" alt="Invoicify" width={35} height={35} />
+                <span className="text-xl font-semibold">Invoicify</span>
+              </div>
+              <p>
+                All rights reserved | Designed and Developed by{" "}
+                <Link className="font-bold" href="https://www.dezainahub.com">
+                  Dezainahub
+                </Link>
+              </p>
+              {/* <div className="flex items-center gap-6">
                 <Link href="#" className="hover:text-gray-900 transition-colors">
                   Terms of Service
                 </Link>
                 <Link href="#" className="hover:text-gray-900 transition-colors">
                   Privacy Policy
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
