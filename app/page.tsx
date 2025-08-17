@@ -585,6 +585,7 @@ export default function landing() {
 
             <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
               <p>© 2024 Invoicify Inc. All rights reserved</p>
+              <p>Designed and Developed by Dezainahub</p>
               <div className="flex items-center gap-6">
                 <Link href="#" className="hover:text-gray-900 transition-colors">
                   Terms of Service
